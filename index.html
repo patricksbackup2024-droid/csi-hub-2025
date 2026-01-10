@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSI HUB 2025</title>
+    
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121820;
+            --bg-medium: #18212e;
+            --bg-light: #2a3447;
+            --text-primary: #e2e2e2;
+            --text-secondary: #a0a0a0;
+            --accent-color: #f7b733;
+            --border-color: #2a3447;
+            --button-secondary: #4a4a4a;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-primary); margin: 0; }
+        .app-container {
+            display: grid; grid-template-columns: 40px 1fr 350px; grid-template-rows: auto 1fr;
+            grid-template-areas: "header header header" "left-sidebar main-content right-sidebar";
+            height: 100vh; transition: grid-template-columns 0.3s ease-in-out;
+        }
+        .app-container.sidebar-open { grid-template-columns: 320px 1fr 350px; }
+        .app-header {
+            grid-area: header; background-color: var(--bg-dark); padding: 10px 20px;
+            display: flex; align-items: center; border-bottom: 1px solid var(--border-color);
+            height: 30px; z-index: 10;
+        }
+        .app-header h1 { margin: 0; font-size: 1.5em; color: var(--accent-color); }
+        
+        #mobile-right-sidebar-toggle {
+            display: none; 
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-left: auto;
+            padding: 0 5px;
+            line-height: 1;
+        }
+        #mobile-right-sidebar-toggle:hover { color: var(--accent-color); }
+
+        .sidebar { background-color: var(--bg-medium); overflow: hidden; border-right: 1px solid var(--border-color); padding: 0; position: relative; }
+        #left-sidebar { grid-area: left-sidebar; }
+        #sidebar-toggle { position: absolute; top: 8px; left: 7px; font-size: 24px; cursor: pointer; color: var(--text-secondary); padding: 0 5px; }
+        #sidebar-toggle:hover { color: var(--accent-color); }
+        .sidebar-content { width: 280px; padding: 20px; opacity: 0; transition: opacity 0.2s 0.1s ease-in-out; margin-top: 40px; height: 90%; overflow-y: auto;}
+        .app-container.sidebar-open #left-sidebar .sidebar-content { opacity: 1; }
+        
+        #right-sidebar { 
+            grid-area: right-sidebar; 
+            border-right: none; border-left: 1px solid var(--border-color); 
+            padding: 0; /* Padding moved to panel level */
+            display: flex; flex-direction: column; 
+            transition: transform 0.3s ease-in-out; 
+        }
+
+        /* NEW TAB NAV STYLES */
+        .right-sidebar-nav {
+            display: flex;
+            background-color: var(--bg-dark);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .right-tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85em;
+            transition: 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .right-tab-btn.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            background-color: var(--bg-medium);
+        }
+
+        .tab-panel {
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .tab-panel.active { display: flex; }
+
+        .sidebar-section { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .sidebar-section:last-child { border-bottom: none; }
+        .sidebar h3 { color: var(--text-primary); margin-top: 0; font-size: 1.1em; border-left: 3px solid var(--accent-color); padding-left: 10px; }
+        input, select { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--bg-dark); color: var(--text-primary); font-size: 1em; }
+        button { width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 5px; background-color: var(--accent-color); color: #121820; font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
+        button:hover { background-color: #f8c96c; }
+        input[type="date"] {
+            position: relative; background-color: var(--bg-dark);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
+            background-repeat: no-repeat; background-position: 95% 50%;
+        }
+        ::-webkit-calendar-picker-indicator { opacity: 0; cursor: pointer; }
+        #futureDateResult { background-color: var(--bg-dark); padding: 12px 10px; border-radius: 5px; min-height: 1.5em; margin-top: 0; margin-bottom: 10px; color: var(--text-secondary); font-size: 0.9em; }
+        
+        .main-content { 
+            grid-area: main-content; display: flex; flex-direction: column; 
+            padding: 20px; background-color: var(--bg-dark); position: relative; 
+            overflow: hidden; 
+        }
+        
+        .main-controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap; 
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: -1px; 
+            position: relative; 
+            gap: 15px; 
+            padding-left: 5px; 
+        }
+
+        .notepad-toolbar { 
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            flex-wrap: wrap; 
+            gap: 10px; 
+            flex-shrink: 0; 
+        }
+        
+        .timer-group, .font-group {
+            display: flex;
+            align-items: center;
+            gap: 8px; 
+            flex-wrap: wrap; 
+        }
+
+        .timer-btn { width: auto; background: none; border: none; color: var(--text-secondary); font-weight: 500; font-size: 0.9em; padding: 5px; margin: 0; cursor: pointer; transition: color 0.2s; }
+        .timer-btn:hover { color: var(--accent-color); }
+        #timer-display { font-size: 1.3em; font-weight: 500; } 
+        #alert-time-input { width: 70px; padding: 6px; margin: 0; text-align: center; } 
+        .font-adjust-btn { width: 32px; height: 32px; padding: 0; background-color: var(--bg-light); color: var(--text-primary); font-size: 1em; border-radius: 5px; }
+        
+        #notepad-tab-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        
+        .notepad-tab {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-medium);
+            padding: 10px 14px; 
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            margin-right: 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1em; 
+            position: relative;
+            bottom: -1px; 
+        }
+        
+        .notepad-tab.active {
+            background-color: var(--bg-medium);
+            color: var(--text-primary);
+            border-bottom-color: var(--bg-medium); 
+            font-weight: 500;
+        }
+        .notepad-tab-name {
+            padding-right: 8px;
+            white-space: nowrap;
+        }
+        .notepad-tab-name:focus {
+            outline: 1px dashed var(--accent-color);
+            background: var(--bg-dark);
+        }
+        .notepad-tab-close {
+            font-size: 1.1em;
+            line-height: 1;
+            padding: 2px 4px;
+            border-radius: 50%;
+        }
+        .notepad-tab-close:hover {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+        }
+        #add-notepad-tab {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            margin: 0 0 0 5px;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            font-size: 1.2em;
+            line-height: 28px;
+            flex-shrink: 0;
+            align-self: center; 
+        }
+
+        #notepad {
+            flex-grow: 1; width: 100%; border: 1px solid var(--border-color); border-radius: 8px;
+            background-color: var(--bg-medium); color: var(--text-primary);
+            padding: 20px; font-size: 16px; line-height: 1.6;
+            overflow-y: auto;
+            box-sizing: border-box;
+            -webkit-user-modify: read-write;
+            -moz-user-modify: read-write;
+            user-modify: read-write;
+            word-wrap: break-word;
+            border-top-left-radius: 0; 
+            border-top-right-radius: 0; 
+            scroll-behavior: smooth;
+        }
+        #notepad:focus { outline: 2px solid var(--accent-color); }
+
+        #notepad[contenteditable="true"]:empty:before {
+            content: attr(placeholder);
+            color: var(--text-secondary);
+            opacity: 0.6;
+            pointer-events: none;
+            display: block;
+        }
+
+        .highlight-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border-left: 1px solid var(--border-color);
+            padding-left: 8px;
+            margin-left: 2px;
+        }
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+            line-height: 22px;
+        }
+        .color-swatch:hover {
+            border-color: var(--accent-color);
+            opacity: 0.8;
+        }
+        .color-swatch.clear-highlight {
+            background-color: var(--bg-light);
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+        .color-swatch.clear-highlight:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-color);
+        }
+
+        
+        .calculator-display {
+    background-color: var(--bg-dark); 
+    color: #00ff41; /* Pure Matrix Green */
+    font-size: 2.2em; 
+    text-align: right; 
+    padding: 15px;
+    border-radius: 8px; 
+    margin-top: 15px; 
+    word-wrap: break-word; 
+    word-break: break-all; 
+    min-height: 40px;
+    /* This creates the "glowing screen" effect */
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.5); 
+    font-family: 'Courier New', Courier, monospace; /* Optional: Makes it look more like a terminal */
+}
+        
+        .calculator-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex-grow: 1; margin-top: 15px; }
+        .calculator-grid button { padding: 10px; font-size: 1em; margin: 0; background-color: var(--bg-light); color: var(--text-primary); }
+        .calculator-grid button.operator { background-color: var(--accent-color); color: var(--bg-dark); }
+        .calculator-grid button.span-two { grid-column: span 2; }
+
+        /* RELOCATED SCRATCHPAD STYLE */
+        .side-notepad {
+            width: 100%;
+            flex-grow: 1;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.9em;
+            resize: none;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .side-notepad:focus { border-color: var(--accent-color); }
+
+        .floating-widget {
+            position: absolute; bottom: 20px; right: 20px; width: 45px; height: 45px;
+            background-color: var(--accent-color); color: var(--bg-dark); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5em; cursor: pointer; z-index: 1000;
+            opacity: 0.7; transition: opacity 0.2s;
+        }
+        .floating-widget:hover { opacity: 1; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            display: none; align-items: center; justify-content: center; z-index: 999;
+        }
+        .modal-content { background: var(--bg-medium); padding: 20px; border-radius: 10px; width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-header h3 { margin: 0; color: var(--text-primary); font-size: 1.2em; }
+        .modal-close-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.5em; cursor: pointer; padding: 0; line-height: 1; }
+        #template-search-input { width: calc(100% - 20px); }
+        #template-list-container { max-height: 300px; overflow-y: auto; margin-top: 15px; }
+        .template-item { display: flex; align-items: center; padding: 15px; border-radius: 5px; background-color: var(--bg-dark); margin-bottom: 10px; cursor: pointer; transition: background-color 0.2s; }
+        .template-item:hover { background-color: var(--bg-light); }
+        .template-item-title { font-weight: 500; flex-grow: 1; margin-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .template-item-edit-btn { background-color: var(--button-secondary); color: var(--text-primary); width: auto; padding: 8px 15px; margin-bottom: 0; flex-shrink: 0; }
+        #template-edit-view { display: none; }
+        .modal-field { margin-bottom: 15px; }
+        .modal-field label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-secondary); }
+        .modal-field textarea {
+             width: calc(100% - 22px); min-height: 150px; padding: 10px;
+             border-radius: 5px; border: 1px solid var(--border-color);
+             background-color: var(--bg-dark); color: var(--text-primary);
+             font-size: 1em; font-family: 'Inter', sans-serif;
+        }
+        .modal-buttons-group { display: flex; justify-content: flex-end; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); margin-top: 10px; }
+        .modal-buttons-group button { width: auto; padding: 10px 20px; margin-bottom: 0; }
+        .modal-header .add-new-btn, .modal-buttons-group .save-btn { background-color: var(--accent-color); color: var(--bg-dark); }
+        .modal-buttons-group .cancel-btn { background-color: var(--button-secondary); color: var(--text-primary); }
+        #calculate-monthly-btn { padding: 8px; font-size: 0.9em; margin-top: 5px; }
+        label[for="startDate"] {
+            display: block; font-weight: bold; font-size: 1.1em;
+            margin-top: 25px; padding-left: 10px; border-left: 3px solid var(--accent-color);
+        }
+        
+        @media (max-width: 75em) { 
+            .app-container, .app-container.sidebar-open {
+                grid-template-columns: 40px 1fr; 
+                grid-template-rows: auto 1fr;
+                grid-template-areas:
+                    "header header"
+                    "left-sidebar main-content";
+                height: 100vh;
+                overflow-y: hidden; 
+            }
+            .app-container.sidebar-open {
+                grid-template-columns: 320px 1fr;
+            }
+            
+            #mobile-right-sidebar-toggle { display: block; } 
+
+            #right-sidebar {
+                grid-area: unset; 
+                position: fixed;
+                top: 31px; 
+                right: 0;
+                height: calc(100vh - 31px);
+                width: 350px;
+                z-index: 20;
+                transform: translateX(100%); 
+                border-left: 1px solid var(--border-color);
+                border-top: none;
+                padding: 0; 
+            }
+            
+            .app-container.right-sidebar-open-mobile #right-sidebar {
+                transform: translateX(0); 
+            }
+        }
+        
+        /* WRITE HELPER SUGGESTION LIST */
+#suggestion-box {
+    position: absolute;
+    background-color: var(--bg-light);
+    border: 1px solid var(--accent-color);
+    color: var(--text-primary);
+    width: 200px; /* Fixed width for list */
+    max-height: 150px; /* Scroll if too many */
+    overflow-y: auto;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: none;
+    z-index: 1001;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    padding: 0;
+}
+
+.suggestion-item {
+    padding: 8px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item.active {
+    background-color: #2b5c8a; /* Muted Blue */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Scrollbar styling for the list */
+#suggestion-box::-webkit-scrollbar { width: 6px; }
+#suggestion-box::-webkit-scrollbar-track { background: var(--bg-dark); }
+#suggestion-box::-webkit-scrollbar-thumb { background: var(--button-secondary); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="app-container sidebar-open" id="app-container">
+        <header class="app-header" id="app-header">
+            <h1>CSI</h1>
+            <div id="mobile-right-sidebar-toggle" title="Toggle Tools">&#9874;</div>
+        </header>
+        <aside id="left-sidebar" class="sidebar">
+            <div id="sidebar-toggle" title="Toggle Sidebar">&#9776;</div>
+            <div class="sidebar-content">
+                
+                <div class="sidebar-section">
+                    <h3>Investigator's Toolbox</h3>
+                    <input type="text" id="personName" placeholder="Enter full name or phone number...">
+                    
+                    <button onclick="performAllSearches()" style="background-color: #e74c3c; color: white; font-weight: bold;">Run All Searches</button>
+                    
+                    <button onclick="performNegativeNewsSearch()">Negative News Search</button>
+                    <button onclick="performOffenderSearch()">Sex Offender Registry Search</button>
+                    <button onclick="performSocialMediaSearch()">Social Media Search</button>
+                    <button onclick="performBusinessSearch()">Business Search</button>
+                    
+                    <div style="border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 15px;">
+                        <h3 style="color: var(--text-primary); margin-top: 0; font-size: 1.1em; border-left: 3px solid var(--accent-color); padding-left: 10px;">Phone Search (from CSV)</h3>
+                        
+                        <label for="csvFileInput" style="background-color: var(--button-secondary); color: var(--text-primary); padding: 12px; margin-bottom: 8px; border-radius: 5px; cursor: pointer; display: block; text-align: center; font-weight: bold; font-size: 1em;">
+                            Upload CSV File
+                        </label>
+                        <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                        
+                        <span id="csvFileName" style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 10px; text-align: center; word-break: break-all;">No file selected.</span>
+                        
+                        <button id="processCsvBtn" style="width: 100%;">Process & Search Phones</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Utility Calculators</h3>
+                    <input type="text" id="annualIncome" placeholder="Paste income, e.g., $40k-$60k/yr"><button id="calculate-monthly-btn" onclick="calculateMonthlyIncome()">Calculate Monthly</button><p id="monthlyIncomeResult"></p>
+                    <label for="startDate">30-Day Calculator</label>
+                    <input type="date" id="startDate"><p id="futureDateResult">Result will show here...</p>
+                </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            
+            <div class="main-controls-bar">
+                
+                <div id="notepad-tab-bar">
+                    <button id="add-notepad-tab" title="Add New Note">+</button>
+                </div>
+
+                <div class="notepad-toolbar"> 
+                    <div class="timer-group">
+                        <button class="timer-btn" onclick="startTimer()">Play</button><button class="timer-btn" onclick="pauseTimer()">Pause</button><button class="timer-btn" onclick="resetTimer()">Reset</button><span id="timer-display">00:00:00</span><input type="number" id="alert-time-input" placeholder="Alert (min)" min="1">
+                    </div>
+                    <div class="font-group">
+                        <button class="font-adjust-btn" onclick="adjustFontSize(-1)">A-</button>
+                        <button class="font-adjust-btn" onclick="adjustFontSize(1)">A+</button>
+                        <div class="highlight-controls">
+                            <button class="color-swatch" style="background-color: #f7b733;" onclick="applyHighlight('#f7b733')"></button>
+                            <button class="color-swatch" style="background-color: #3498db;" onclick="applyHighlight('#3498db')"></button>
+                            <button class="color-swatch" style="background-color: #2ecc71;" onclick="applyHighlight('#2ecc71')"></button>
+                            <button class="color-swatch" style="background-color: #e74c3c;" onclick="applyHighlight('#e74c3c')"></button>
+                            <button class="color-swatch clear-highlight" onclick="applyHighlight('clear')">&#10005;</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="notepad" contenteditable="true" placeholder="Start your notes here..."></div>
+            
+            <div class="floating-widget" id="floating-widget"><span>📄</span></div>
+        </main>
+        <div id="suggestion-box"></div>
+        <aside id="right-sidebar" class="sidebar">
+            <nav class="right-sidebar-nav">
+                <button class="right-tab-btn active" onclick="switchRightTab('tools')">Tools</button>
+                <button class="right-tab-btn" onclick="switchRightTab('scratchpad')">Scratchpad</button>
+            </nav>
+
+            <div id="tools-panel" class="tab-panel active">
+                 <h3>Google Search</h3>
+                 <input type="text" id="research-query" placeholder="Search Google...">
+                 <button id="research-search-btn">Search</button>
+                 <div class="calculator-display" id="calculator-display">0</div>
+                 <div class="calculator-grid">
+                     <button data-clear class="operator">AC</button><button data-delete class="operator">DEL</button><button data-operation class="operator">%</button><button data-operation class="operator">÷</button>
+                     <button data-number>7</button><button data-number>8</button><button data-number>9</button><button data-operation class="operator">×</button>
+                     <button data-number>4</button><button data-number>5</button><button data-number>6</button><button data-operation class="operator">-</button>
+                     <button data-number>1</button><button data-number>2</button><button data-number>3</button><button data-operation class="operator">+</button>
+                     <button data-number class="span-two">0</button><button data-number>.</button><button data-equals class="operator">=</button>
+                 </div>
+            </div>
+
+            <div id="scratchpad-panel" class="tab-panel">
+                <h3>Quick Scratchpad</h3>
+                <textarea id="side-scratchpad" class="side-notepad" placeholder="Type quick case notes here..."></textarea>
+                <p style="color: var(--text-secondary); font-size: 0.8em; margin-top: 10px;">Autosaves to your local storage.</p>
+            </div>
+        </aside>
+    </div>
+
+    <div class="modal-overlay" id="templates-modal">
+        <div class="modal-content">
+            <div id="template-list-view">
+                <div class="modal-header"><h3>Templates</h3><div><button class="add-new-btn" id="modal-add-new-btn"><span>+</span> Add New</button><button class="modal-close-btn" id="modal-close-btn-1">&times;</button></div></div>
+                <input type="text" id="template-search-input" placeholder="Search templates by keyword..."><div id="template-list-container"></div>
+            </div>
+            <div id="template-edit-view">
+                <div class="modal-header"><h3 id="edit-modal-title">Add New Template</h3><button class="modal-close-btn" id="modal-close-btn-2">&times;</button></div>
+                <div class="modal-field"><label for="template-title-input">Title</label><input type="text" id="template-title-input" placeholder="Template Title"></div>
+                <div class="modal-field"><label for="template-content-textarea">Content</label><textarea id="template-content-textarea" placeholder="Template Content..."></textarea></div>
+                <div class="modal-buttons-group"><button class="cancel-btn" id="cancel-edit-btn">Cancel</button><button class="save-btn" id="save-template-btn">Save Template</button></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // --- RIGHT SIDEBAR TAB LOGIC ---
+    function switchRightTab(tabId) {
+        // Toggle Buttons
+        document.querySelectorAll('.right-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText.toLowerCase() === tabId) btn.classList.add('active');
+        });
+        // Toggle Panels
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+        document.getElementById(tabId + '-panel').classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Globals ---
+        let templates = JSON.parse(localStorage.getItem('csiHubTemplates')) || [];
+        let editingTemplateIndex = null, currentFontSize = 16, timerInterval, totalSeconds = 0, alertTimeInSeconds = 0, alertTriggered = false;
+        
+        let notepadTabs = [];
+        let activeTabId = null;
+        let savedNotepadRange = null; 
+        
+        // --- Element Selectors ---
+        const appContainer = document.getElementById('app-container');
+        const leftSidebar = document.getElementById('left-sidebar');
+        const rightSidebar = document.getElementById('right-sidebar'); 
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const mobileRightSidebarToggle = document.getElementById('mobile-right-sidebar-toggle'); 
+        
+        const modal = document.getElementById('templates-modal'), listView = document.getElementById('template-list-view'), editView = document.getElementById('template-edit-view'), templateListContainer = document.getElementById('template-list-container');
+        const searchInput = document.getElementById('template-search-input'), editModalTitle = document.getElementById('edit-modal-title'), titleInput = document.getElementById('template-title-input'), contentTextarea = document.getElementById('template-content-textarea');
+        
+        const notepad = document.getElementById('notepad'), personNameInput = document.getElementById('personName'), timerDisplay = document.getElementById('timer-display'), alertTimeInput = document.getElementById('alert-time-input');
+        
+        const notepadTabBar = document.getElementById('notepad-tab-bar');
+        const addNotepadTabBtn = document.getElementById('add-notepad-tab');
+
+        // --- Persistent Scratchpad (Relocated to Right Sidebar) ---
+        const sideScratchpad = document.getElementById('side-scratchpad');
+        sideScratchpad.value = localStorage.getItem('csiHubSideNotes') || '';
+        sideScratchpad.addEventListener('input', () => {
+            localStorage.setItem('csiHubSideNotes', sideScratchpad.value);
+        });
+
+        // --- Notepad Tab Logic ---
+        function loadNotepadState() {
+            notepadTabs = JSON.parse(localStorage.getItem('csiHubNotepadTabs'));
+            activeTabId = JSON.parse(localStorage.getItem('csiHubActiveTabId'));
+            const oldNotes = localStorage.getItem('csiHubNotepadContent'); 
+
+            if (!notepadTabs && oldNotes) {
+                notepadTabs = [{ id: Date.now(), name: "Note 1", content: oldNotes }];
+                activeTabId = notepadTabs[0].id;
+                localStorage.removeItem('csiHubNotepadContent'); 
+                saveNotepadState(false); 
+            } else if (!notepadTabs || notepadTabs.length === 0) {
+                notepadTabs = [{ id: Date.now(), name: "Note 1", content: "" }];
+                activeTabId = notepadTabs[0].id;
+            }
+
+            if (!activeTabId || !notepadTabs.find(t => t.id === activeTabId)) {
+                activeTabId = notepadTabs[0].id; 
+            }
+            
+            renderTabs();
+            loadTabContent(activeTabId);
+        }
+
+        function saveNotepadState(saveCurrentContent = true) {
+            if (saveCurrentContent) {
+                const activeTab = notepadTabs.find(t => t.id === activeTabId);
+                if (activeTab) {
+                    activeTab.content = notepad.innerHTML;
+                }
+            }
+            localStorage.setItem('csiHubNotepadTabs', JSON.stringify(notepadTabs));
+            localStorage.setItem('csiHubActiveTabId', JSON.stringify(activeTabId));
+        }
+
+        function renderTabs() {
+            while (notepadTabBar.firstChild && notepadTabBar.firstChild !== addNotepadTabBtn) {
+                notepadTabBar.removeChild(notepadTabBar.firstChild);
+            }
+
+            notepadTabs.forEach(tab => {
+                const tabEl = document.createElement('div');
+                tabEl.className = 'notepad-tab';
+                tabEl.dataset.tabId = tab.id;
+                if (tab.id === activeTabId) {
+                    tabEl.classList.add('active');
+                }
+
+                const tabName = document.createElement('span');
+                tabName.className = 'notepad-tab-name';
+                tabName.textContent = tab.name;
+                tabName.contentEditable = false; 
+                tabName.spellcheck = false;
+
+                tabName.addEventListener('dblclick', (e) => {
+                    e.stopPropagation(); 
+                    tabName.contentEditable = true;
+                    tabName.focus();
+                    const range = document.createRange();
+                    range.selectNodeContents(tabName);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                });
+
+                tabName.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); 
+                        tabName.blur(); 
+                    }
+                });
+                
+                tabName.addEventListener('blur', () => {
+                    tabName.contentEditable = false; 
+                    const newName = tabName.textContent.trim();
+                    if (newName) {
+                        tab.name = newName;
+                        saveNotepadState(false);
+                    } else {
+                        tabName.textContent = tab.name; 
+                    }
+                });
+
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'notepad-tab-close';
+                closeBtn.innerHTML = '&times;';
+                closeBtn.title = 'Close Tab';
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    closeTab(tab.id);
+                });
+
+                tabEl.appendChild(tabName);
+                tabEl.appendChild(closeBtn);
+
+                tabEl.addEventListener('click', () => {
+                    if (tabName.contentEditable === true || tabName.contentEditable === "true") return; 
+                    switchTab(tab.id);
+                });
+                
+                notepadTabBar.insertBefore(tabEl, addNotepadTabBtn);
+            });
+        }
+
+        function switchTab(tabId) {
+            if (tabId === activeTabId) return; 
+            saveNotepadState(true);
+            activeTabId = tabId;
+            localStorage.setItem('csiHubActiveTabId', JSON.stringify(activeTabId));
+            loadTabContent(tabId);
+            document.querySelectorAll('.notepad-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tabId == tabId);
+            });
+        }
+
+        function loadTabContent(tabId) {
+            const tab = notepadTabs.find(t => t.id === tabId);
+            if (tab) {
+                notepad.innerHTML = tab.content;
+            }
+        }
+
+        function addNewTab() {
+            saveNotepadState(true);
+            const newTab = {
+                id: Date.now(),
+                name: `Note ${notepadTabs.length + 1}`,
+                content: ""
+            };
+            notepadTabs.push(newTab);
+            activeTabId = newTab.id; 
+            saveNotepadState(false); 
+            renderTabs();
+            loadTabContent(activeTabId);
+            notepad.focus();
+        }
+        addNotepadTabBtn.addEventListener('click', addNewTab);
+
+        function closeTab(tabId) {
+            if (notepadTabs.length <= 1) {
+                alert("You cannot close the last note.");
+                return;
+            }
+            if (!confirm("Are you sure you want to close this tab?")) return;
+            notepadTabs = notepadTabs.filter(t => t.id !== tabId);
+            if (activeTabId === tabId) {
+                activeTabId = notepadTabs[0].id;
+            }
+            saveNotepadState(false);
+            renderTabs();
+            loadTabContent(activeTabId);
+        }
+        
+        function saveSelection() {
+            if (window.getSelection().rangeCount > 0) {
+                savedNotepadRange = window.getSelection().getRangeAt(0);
+            }
+        }
+        
+        function restoreSelection() {
+            notepad.focus();
+            if (savedNotepadRange) {
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(savedNotepadRange);
+            }
+        }
+        
+        notepad.addEventListener('blur', saveSelection);
+        notepad.addEventListener('keyup', saveSelection);
+        notepad.addEventListener('mouseup', saveSelection);
+        notepad.addEventListener('input', () => saveNotepadState(true));
+        
+        notepad.addEventListener('copy', (event) => {
+            event.preventDefault();
+            const selection = window.getSelection();
+            const plainText = selection.toString();
+            if (event.clipboardData && event.clipboardData.setData) {
+                event.clipboardData.setData('text/plain', plainText);
+            }
+        });
+
+        notepad.addEventListener('paste', (event) => {
+            event.preventDefault();
+            const text = (event.clipboardData || window.clipboardData).getData('text/plain');
+            restoreSelection(); 
+            document.execCommand('insertText', false, text);
+            notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+        });
+        
+        const startDateInput = document.getElementById('startDate');
+        const floatingWidget = document.getElementById('floating-widget');
+        
+        sidebarToggle.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            appContainer.classList.toggle('sidebar-open'); 
+        });
+        
+        mobileRightSidebarToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            appContainer.classList.toggle('right-sidebar-open-mobile');
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!leftSidebar.contains(event.target) && appContainer.classList.contains('sidebar-open') && !sidebarToggle.contains(event.target)) {
+                appContainer.classList.remove('sidebar-open');
+            }
+            if (window.innerWidth <= 1200 && 
+                appContainer.classList.contains('right-sidebar-open-mobile') &&
+                !rightSidebar.contains(event.target) &&
+                !mobileRightSidebarToggle.contains(event.target)) {
+                appContainer.classList.remove('right-sidebar-open-mobile');
+            }
+        });
+
+        floatingWidget.addEventListener('click', () => toggleModal());
+
+        // --- Calculator Logic ---
+        const numberButtons = document.querySelectorAll('[data-number]'), operationButtons = document.querySelectorAll('[data-operation]'), equalsButton = document.querySelector('[data-equals]');
+        const deleteButton = document.querySelector('[data-delete]'), clearButton = document.querySelector('[data-clear]'), display = document.getElementById('calculator-display');
+        let currentOperand = '0', previousOperand = '', operation = undefined;
+        function updateDisplay() {
+    if (operation != null) {
+        // If there is an operator (like +), show the first number, the operator, and the new number
+        display.innerText = `${previousOperand} ${operation} ${currentOperand}`;
+    } else {
+        // If no operator is chosen yet, just show the current number
+        display.innerText = currentOperand;
+    }
+}
+        function clear() { currentOperand = '0'; previousOperand = ''; operation = undefined; updateDisplay(); }
+        function deleteDigit() { currentOperand = currentOperand.length <= 1 ? '0' : currentOperand.toString().slice(0, -1); updateDisplay(); }
+        function appendNumber(num) {
+    if (num === '.' && currentOperand.includes('.')) return;
+    
+    // If the display is "0", replace it. Otherwise, add the number to the end.
+    if (currentOperand === '0' && num !== '.') {
+        currentOperand = num.toString();
+    } else {
+        currentOperand = currentOperand.toString() + num.toString();
+    }
+    
+    updateDisplay(); // This ensures the screen updates every time you press a key
+}
+        
+        
+        function chooseOperation(op) {
+    if (currentOperand === '' && previousOperand === '') return;
+    
+    // If you already have a math problem showing and click a new operator, 
+    // it calculates the first part before moving on.
+    if (previousOperand !== '' && currentOperand !== '0') {
+        compute();
+    }
+    
+    operation = op;
+    previousOperand = currentOperand;
+    currentOperand = '0';
+    
+    // This updates the display to show "100 +" instead of just clearing it
+    display.innerText = `${previousOperand} ${operation}`;
+}
+        
+        
+        function compute() {
+    let comp;
+    const prev = parseFloat(previousOperand);
+    const curr = parseFloat(currentOperand);
+
+    // If you haven't entered two numbers, don't do anything
+    if (isNaN(prev) || isNaN(curr)) return;
+
+    switch (operation) {
+        case '+': comp = prev + curr; break;
+        case '-': comp = prev - curr; break;
+        case '×': comp = prev * curr; break;
+        case '÷': 
+            if (curr === 0) {
+                alert("Cannot divide by zero");
+                clear();
+                return;
+            }
+            comp = prev / curr; 
+            break;
+        case '%': comp = prev % curr; break;
+        default: return;
+    }
+
+    // 1. Set the current number to the result
+    currentOperand = comp.toString();
+    // 2. Clear the memory of the previous number and symbol
+    operation = undefined;
+    previousOperand = '';
+    
+    // 3. Update the display to show ONLY the result
+    updateDisplay();
+}
+        
+        numberButtons.forEach(btn => btn.addEventListener('click', () => appendNumber(btn.innerText)));
+        operationButtons.forEach(btn => btn.addEventListener('click', () => chooseOperation(btn.innerText)));
+        equalsButton.addEventListener('click', compute); clearButton.addEventListener('click', clear); deleteButton.addEventListener('click', deleteDigit);
+        
+        
+        
+        
+        document.addEventListener('keydown', (e) => {
+            
+          // NEW CHECK STARTS HERE
+    const isTyping = e.target.tagName === 'INPUT' || 
+                   e.target.tagName === 'TEXTAREA' || 
+                   e.target.isContentEditable;
+
+    if (isTyping) return; // If typing in a box, stop and don't run the calculator code
+    // NEW CHECK ENDS HERE
+    
+    let key = e.key;
+    let buttonToClick;
+
+    if (key >= '0' && key <= '9') {
+        appendNumber(key);
+        // This looks for the button that has the number you just typed
+        buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === key);
+    }
+    
+    if (key === '.') {
+        appendNumber('.');
+        buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === '.');
+    }
+
+    if (key === '+' || key === '-' || key === '*' || key === '/') {
+        let op = key === '*' ? '×' : key === '/' ? '÷' : key;
+        chooseOperation(op);
+        buttonToClick = Array.from(operationButtons).find(btn => btn.innerText === op);
+    }
+
+    if (key === '=' || key === 'Enter') {
+        e.preventDefault();
+        compute();
+        buttonToClick = equalsButton;
+    }
+
+    if (key === 'Backspace') {
+        deleteDigit();
+        buttonToClick = deleteButton;
+    }
+
+    if (key === 'Escape') {
+        clear();
+        buttonToClick = clearButton;
+    }
+
+    // This part makes the button "glow" for a split second
+    if (buttonToClick) {
+        buttonToClick.style.backgroundColor = 'var(--text-secondary)';
+        setTimeout(() => {
+            buttonToClick.style.backgroundColor = ''; // Resets it back to normal
+        }, 100);
+    }
+});
+
+
+
+
+
+        
+        const researchQueryInput = document.getElementById('research-query'), researchSearchBtn = document.getElementById('research-search-btn');
+        researchSearchBtn.addEventListener('click', () => { const q = researchQueryInput.value; if (q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'); });
+        researchQueryInput.addEventListener('keyup', e => { if (e.key === 'Enter') researchSearchBtn.click(); });
+        
+        // --- Template Modal Logic ---
+        window.toggleModal = () => { modal.style.display === 'flex' ? modal.style.display = 'none' : (switchToListView(), modal.style.display = 'flex'); };
+        function switchToListView() { listView.style.display = 'block'; editView.style.display = 'none'; searchInput.value = ''; renderTemplateList(); }
+        function switchToEditView(idx = null) {
+            listView.style.display = 'none'; editView.style.display = 'block'; editingTemplateIndex = idx;
+            if (idx !== null) { editModalTitle.textContent = 'Edit Template'; const t = templates[idx]; titleInput.value = t.title; contentTextarea.value = t.content; } 
+            else { editModalTitle.textContent = 'Add New Template'; titleInput.value = ''; contentTextarea.value = ''; }
+        }
+        function renderTemplateList(term = '') {
+            templateListContainer.innerHTML = ''; const filtered = templates.filter(t => t.title.toLowerCase().includes(term.toLowerCase()));
+            if (filtered.length === 0 && term === '') templateListContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary);">No templates. Click "+ Add New".</p>`;
+            filtered.forEach(t => {
+                const idx = templates.indexOf(t); const item = document.createElement('div'); item.className = 'template-item';
+                const title = document.createElement('span'); title.className = 'template-item-title'; title.textContent = t.title;
+                
+                title.addEventListener('click', () => {
+                    const content = t.content;
+                    restoreSelection(); 
+                    document.execCommand('insertText', false, content); 
+                    const sel = window.getSelection();
+                    if (sel.rangeCount > 0) {
+                        const range = sel.getRangeAt(0);
+                        const marker = document.createElement("span");
+                        range.insertNode(marker);
+                        marker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        marker.remove();
+                    }
+                    saveSelection(); 
+                    toggleModal();
+                    notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+                });
+                
+                const btn = document.createElement('button'); btn.className = 'template-item-edit-btn'; btn.textContent = 'Edit';
+                btn.addEventListener('click', e => { e.stopPropagation(); switchToEditView(idx); });
+                item.appendChild(title); item.appendChild(btn); templateListContainer.appendChild(item);
+            });
+        }
+        searchInput.addEventListener('input', () => renderTemplateList(searchInput.value));
+        document.getElementById('modal-add-new-btn').addEventListener('click', () => switchToEditView());
+        document.getElementById('cancel-edit-btn').addEventListener('click', switchToListView);
+        modal.addEventListener('click', e => { if (e.target === modal) toggleModal(); });
+        document.getElementById('modal-close-btn-1').addEventListener('click', toggleModal);
+        document.getElementById('modal-close-btn-2').addEventListener('click', toggleModal);
+        document.getElementById('save-template-btn').addEventListener('click', () => {
+            const title = titleInput.value.trim(), content = contentTextarea.value.trim(); if (!title || !content) return alert('Title and content are required.');
+            editingTemplateIndex !== null ? templates[editingTemplateIndex] = { title, content } : templates.push({ title, content });
+            localStorage.setItem('csiHubTemplates', JSON.stringify(templates)); alert('Template saved!'); switchToListView();
+        });
+        
+        let csvFileContent = null; 
+        let currentCsvFileName = null; 
+
+        window.performPhoneSearch = (phone) => {
+            const cleanPhone = phone.toString().replace(/[\s-]/g, ''); 
+            const query = encodeURIComponent(cleanPhone); 
+            const url = `https://www.google.com/search?q=${query}`;
+            window.open(url, '_blank');
+        };
+
+        function parseCsvDate(dateStr) {
+            try {
+                const parts = dateStr.split(' '); 
+                const dateParts = parts[0].split('/'); 
+                const month = parseInt(dateParts[0]) - 1; 
+                const day = parseInt(dateParts[1]);
+                const year = parseInt("20" + dateParts[2]); 
+                const timeMatch = parts[1].match(/(\d+):(\d+)(AM|PM)/i);
+                if (!timeMatch) return new Date("invalid"); 
+                let hour = parseInt(timeMatch[1]);
+                const minute = parseInt(timeMatch[2]);
+                const ampm = timeMatch[3].toUpperCase();
+                if (ampm === "PM" && hour < 12) hour += 12; 
+                else if (ampm === "AM" && hour === 12) hour = 0; 
+                return new Date(year, month, day, hour, minute);
+            } catch (e) {
+                console.error("Could not parse date:", dateStr, e);
+                return new Date("invalid"); 
+            }
+        }
+        
+        function processCSV(content, fileName) {
+            if (content.charCodeAt(0) === 0xFEFF) content = content.substring(1);
+            const lines = content.replace(/\r/g, "").split('\n'); 
+            if (lines.length < 2) { alert('CSV is empty or has no data rows.'); return; }
+            const phoneColName = 'Receiver Phone'; 
+            const dateColName = 'Submitted On';   
+            const delimiterRegex = /[;,](?=(?:(?:[^"]*"){2})*[^"]*$)/; 
+            const headerLine = lines.shift();
+            const header = headerLine.split(delimiterRegex).map(h => h.trim().replace(/"/g, ''));
+            const phoneColIndex = header.findIndex(h => h.toLowerCase() === phoneColName.toLowerCase());
+            const dateColIndex = header.findIndex(h => h.toLowerCase() === dateColName.toLowerCase());
+
+            if (phoneColIndex === -1 || dateColIndex === -1) {
+                alert(`Error: Could not find required headers.`);
+                return;
+            }
+
+            const dateMatch = fileName.match(/(\d{4}-\d{2}-\d{2})/);
+            let currentDateForFilter = dateMatch ? new Date(dateMatch[1] + 'T23:59:59') : new Date();
+            const sixMonthsAgo = new Date(currentDateForFilter);
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            
+            let uniquePhones = new Set(); 
+
+            lines.forEach(line => {
+                if (!line.trim()) return; 
+                const cells = line.split(delimiterRegex);
+                if (cells.length > Math.max(phoneColIndex, dateColIndex)) {
+                    const dateStr = cells[dateColIndex] ? cells[dateColIndex].trim().replace(/"/g, '') : '';
+                    let phone = cells[phoneColIndex] ? cells[phoneColIndex].trim().replace(/"/g, '') : '';
+                    const entryDate = parseCsvDate(dateStr);
+                    if (!isNaN(entryDate.getTime()) && entryDate >= sixMonthsAgo && entryDate <= currentDateForFilter) {
+                        if (phone.startsWith('+63')) phone = '0' + phone.substring(3); 
+                        else if (phone.startsWith('+')) phone = phone.replace(/^\+\d{1,3}/, '').trim(); 
+                        phone = phone.replace(/[\s-]/g, '');
+                        if (phone) uniquePhones.add(phone); 
+                    }
+                }
+            });
+
+            uniquePhones.forEach(phone => performPhoneSearch(phone));
+            if (uniquePhones.size === 0) alert('No unique phones found within last 6 months.');
+           
+        }
+        
+        window.performAllSearches = () => {
+            const n = personNameInput.value; 
+            if (!n) { alert("Please enter a name or phone number first."); return; }
+            performNegativeNewsSearch(); performOffenderSearch(); performSocialMediaSearch(); performBusinessSearch();
+        };
+
+        window.performNegativeNewsSearch = () => { const n = personNameInput.value; if (n) window.open(`https://www.google.com/search?q="${encodeURIComponent(n)}" AND (bribery OR fraud OR "money laundering" OR crime OR terrorism OR corruption OR "sex offender")`, "_blank"); };
+        window.performOffenderSearch = () => { const n = personNameInput.value; if (!n) return; const p = n.split(' '), f = p[0], l = p.length > 1 ? p[p.length - 1] : ''; window.open(`https://www.nsopw.gov/en/search/results?firstName=${encodeURIComponent(f)}&lastName=${encodeURIComponent(l)}`, "_blank"); };
+        window.performSocialMediaSearch = () => { const n = personNameInput.value; if (!n) return; const en = encodeURIComponent(n); [`https://www.facebook.com/search/top/?q=${en}`, `https://www.linkedin.com/search/results/all/?keywords=${en}`, `https://twitter.com/search?q=${en}`, `https://www.instagram.com/explore/search/keyword/?q=${en}`].forEach(u => window.open(u, "_blank")); };
+        window.performBusinessSearch = () => { const n = personNameInput.value; if (n) [`https://opencorporates.com/officers?q=${encodeURIComponent(n)}`, `https://find-and-update.company-information.service.gov.uk/search?q=${encodeURIComponent(n)}`].forEach(u => window.open(u, "_blank")); };
+        
+        window.calculateMonthlyIncome = () => {
+            const i = document.getElementById('annualIncome').value, r = document.getElementById('monthlyIncomeResult'); if (!i.trim()) return r.innerText = '';
+            let ci = i.toLowerCase().replace(/,/g, "").replace(/per annum|per year|\/yr|\/year/g, "");
+            const cm = ci.match(/(us\$|usd|\$|£|€)/), cs = cm ? cm[0].toUpperCase().replace("USD", "$") : "";
+            if (cs) ci = ci.replace(cs.toLowerCase(), ""); const nm = ci.match(/\d+(\.\d+)?(k|m)?/g) || []; if (nm.length === 0) return r.innerText = "Invalid format.";
+            const av = nm.map(n => { let v = parseFloat(n); if (n.endsWith('k')) v *= 1000; if (n.endsWith('m')) v *= 1000000; return v; });
+            const tm = v => (v / 12).toLocaleString('en-US', { style: 'decimal', maximumFractionDigits: 0 });
+            r.innerText = av.length === 1 ? `~ ${cs}${tm(av[0])}/month` : `~ ${cs}${tm(av[0])} - ${cs}${tm(av[1])}/month`;
+        };
+        
+        function calculateFutureDate() {
+            const dateVal = startDateInput.value;
+            if (dateVal) { const d = new Date(dateVal); d.setDate(d.getDate() + 30); document.getElementById('futureDateResult').innerText = `End Date: ${d.toLocaleDateString()}`; } 
+            else { document.getElementById('futureDateResult').innerText = 'Result will show here...'; }
+        };
+        startDateInput.addEventListener('change', calculateFutureDate);
+        
+        window.adjustFontSize = amount => { currentFontSize += amount; if (currentFontSize < 10) currentFontSize = 10; if (currentFontSize > 32) currentFontSize = 32; notepad.style.fontSize = `${currentFontSize}px`; };
+
+        window.applyHighlight = (color) => {
+            restoreSelection(); 
+            const colorToApply = (color === 'clear') ? 'transparent' : color;
+            document.execCommand('hiliteColor', false, colorToApply);
+            notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            saveSelection(); 
+        };
+
+        window.startTimer = () => {
+            if (timerInterval) return; const am = parseInt(alertTimeInput.value, 10);
+            alertTimeInSeconds = am > 0 ? am * 60 : 0; alertTriggered = false;
+            timerInterval = setInterval(() => {
+                totalSeconds++; let h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0'), m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0'), s = (totalSeconds % 60).toString().padStart(2, '0');
+                timerDisplay.innerHTML = `${h}:${m}:${s}`;
+                if (!alertTriggered && alertTimeInSeconds > 0 && totalSeconds >= alertTimeInSeconds) { alert(`Alert: ${am} minutes have passed!`); alertTriggered = true; }
+            }, 1000);
+        };
+        window.pauseTimer = () => { clearInterval(timerInterval); timerInterval = null; };
+        window.resetTimer = () => { clearInterval(timerInterval); timerInterval = null; totalSeconds = 0; timerDisplay.innerHTML = "00:00:00"; alertTimeInSeconds = 0; alertTriggered = false; };
+        
+        const csvFileInput = document.getElementById('csvFileInput');
+        const csvFileNameSpan = document.getElementById('csvFileName');
+        const processCsvBtn = document.getElementById('processCsvBtn');
+
+        csvFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    csvFileContent = e.target.result;
+                    currentCsvFileName = file.name; 
+                    csvFileNameSpan.textContent = file.name;
+                    csvFileNameSpan.style.color = 'var(--text-primary)';
+                };
+                reader.onerror = () => {
+                    alert('Error reading file.');
+                    csvFileContent = null;
+                    currentCsvFileName = null;
+                    csvFileNameSpan.textContent = 'Error reading file.';
+                    csvFileNameSpan.style.color = '#e74c3c'; 
+                };
+                reader.readAsText(file);
+            } else {
+                csvFileContent = null;
+                currentCsvFileName = null;
+                csvFileNameSpan.textContent = 'No file selected.';
+                csvFileNameSpan.style.color = 'var(--text-secondary)';
+            }
+        });
+
+        processCsvBtn.addEventListener('click', () => {
+            if (!csvFileContent) { alert('Please upload a CSV file.'); return; }
+            try { processCSV(csvFileContent, currentCsvFileName); } 
+            catch (error) { alert('Error processing CSV: ' + error.message); console.error(error); }
+        });
+        
+       // --- WRITE HELPER (AUTOCOMPLETE) LOGIC ---
+    
+    // 1. CONFIGURATION (Your Updated Dictionary)
+    const dictionary = [
+        // core review terms
+        "cx", "txn", "txns", "rec", "recs","customer",
+        "susp", "suspended acct", "linked accts", "dup acct",
+        "OAA", "MM", "HRF", "policy watch", "platform misuse", "not sustained", "Facebook", "LinkedIn", "Instagram", "social media",
+        "mismatch", "PP name mismatch", "top recipient", "mixed male and female", "Could not locate the customer or the recipient(s) on social media or a general internet search that could help mitigate or collaborate with the investigation.", "not sustained", 
+        "Unlikely", "famillial sending","no links to any suspended acct",
+        
+        // behavior & pattern
+        "spike", "one-time spike", "sustained activity",
+        "small frequent txns", "save and send",
+        "sending pattern", "time pattern", "late-night txns",
+        "early-morning txns", "high rec count", "recipient spread",
+        
+        // volume & capacity
+        "m/avg", "6M avg", "low avg sending",
+        "capacity", "sustainable sending", "one corridor",
+        "multi-corridor", "OTT", "high frequency", "velocity", 
+        
+        // risk indicators
+        "OAA signals", "network risk", "shared rec",
+        "heavily shared rec", "historical OAA links",
+        "commercial rec", "personal use",
+        "possible SOB", "sending for others",
+        "elder abuse", "romance scam", "manipulation risk",
+        
+        // account & access
+        "PI", "PP", "consistent PP info",
+        "IP", "sign-ins", "sender country match",
+        "no rec country logins", "hosting IP", "cellular IP",
+        
+        // controls & review flow
+        "SOF", "EDD", "CQ", "BS",
+        "EKYC", "KYB", "HRF tag",
+        "escalate to STAR", "final assessment",
+        "platform protection", "policy decision",
+        
+        // outcomes & notes
+        "pass", "suspend", "escalate",
+        "no NN found", "no risky links",
+        "mitigating factors", "risk outweighs mitigation",
+        "educate cx", "commercial disclaimer",
+        "remove recs", "monitoring only",
+        
+        // common narrative phrases
+        "none on file",
+        "none found"
+    ];
+
+    const suggestionBox = document.getElementById('suggestion-box');
+    let currentMatches = [];
+    let selectedIndex = 0;
+
+    function getCaretCoordinates() {
+        let x = 0, y = 0;
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+            const range = sel.getRangeAt(0).cloneRange();
+            range.collapse(true);
+            const rect = range.getClientRects()[0];
+            if (rect) {
+                x = rect.left;
+                y = rect.top;
+            }
+        }
+        return { x, y };
+    }
+
+    function getCurrentWord() {
+        const sel = window.getSelection();
+        if (sel.rangeCount === 0) return "";
+        const node = sel.anchorNode;
+        if (node.nodeType !== 3) return ""; 
+        const text = node.textContent;
+        const caretPos = sel.anchorOffset;
+        let start = caretPos;
+        while (start > 0 && /\S/.test(text[start - 1])) {
+            start--;
+        }
+        return text.substring(start, caretPos);
+    }
+
+    function renderSuggestions() {
+        suggestionBox.innerHTML = '';
+        currentMatches.forEach((match, index) => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            if (index === selectedIndex) div.classList.add('active');
+            div.textContent = match;
+            
+            // Allow clicking with mouse too
+            div.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // Prevent losing focus
+                insertSuggestion(index);
+            });
+            
+            suggestionBox.appendChild(div);
+        });
+
+        // Position Box
+        const coords = getCaretCoordinates();
+        if (coords.x === 0 && coords.y === 0) return; // Hidden if no cursor
+        suggestionBox.style.left = `${coords.x}px`;
+        suggestionBox.style.top = `${coords.y + 20}px`;
+        suggestionBox.style.display = 'block';
+    }
+
+    function insertSuggestion(index) {
+        const sel = window.getSelection();
+        const node = sel.anchorNode;
+        const caretPos = sel.anchorOffset;
+        const text = node.textContent;
+        const chosenWord = currentMatches[index];
+
+        let start = caretPos;
+        while (start > 0 && /\S/.test(text[start - 1])) {
+            start--;
+        }
+
+        const range = document.createRange();
+        range.setStart(node, start);
+        range.setEnd(node, caretPos);
+        range.deleteContents();
+
+        const textNode = document.createTextNode(chosenWord + " ");
+        range.insertNode(textNode);
+        
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        suggestionBox.style.display = 'none';
+        currentMatches = [];
+        notepad.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    // 4. MAIN LISTENER: Typing & Navigation
+    notepad.addEventListener('keyup', (e) => {
+        // Ignore navigation keys here (handled in keydown)
+        if (['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape'].includes(e.key)) return;
+
+        const word = getCurrentWord();
+        
+        // Trigger if word is 2+ chars
+        if (word.length >= 1) { // Changed to 1 so 's' can suggest 'susp', 'spike', etc.
+            // Filter all matches
+            currentMatches = dictionary.filter(w => w.toLowerCase().startsWith(word.toLowerCase()) && w.toLowerCase() !== word.toLowerCase());
+            
+            if (currentMatches.length > 0) {
+                selectedIndex = 0; // Reset to top
+                renderSuggestions();
+            } else {
+                suggestionBox.style.display = 'none';
+            }
+        } else {
+            suggestionBox.style.display = 'none';
+        }
+    });
+
+    // 5. NAVIGATION LISTENER (Arrow Keys + Tab/Enter)
+    notepad.addEventListener('keydown', (e) => {
+        if (suggestionBox.style.display === 'block') {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % currentMatches.length;
+                renderSuggestions();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length;
+                renderSuggestions();
+            } else if (e.key === 'Tab' || e.key === 'Enter') {
+                e.preventDefault();
+                insertSuggestion(selectedIndex);
+            } else if (e.key === 'Escape') {
+                suggestionBox.style.display = 'none';
+            }
+        }
+    });
+
+    // Ensure Spellcheck is ON
+    notepad.setAttribute('spellcheck', 'true');
+    
+    // 6. CLICK OUTSIDE TO CLOSE
+    document.addEventListener('click', (e) => {
+        // If the suggestion box is visible AND the click target is NOT inside the box
+        if (suggestionBox.style.display === 'block' && !suggestionBox.contains(e.target)) {
+            suggestionBox.style.display = 'none';
+        }
+    });
+    
+        loadNotepadState(); 
+    });
+    </script>
+</body>
+</html>

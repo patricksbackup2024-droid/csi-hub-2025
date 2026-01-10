@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EME - Updated as of Dec 21 2025</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    
+    <style>
+        /* --- General Reset --- */
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; background-color: #f4f6f8; color: #212529; font-size: 13px; transition: background 0.3s; }
+        .container { max-width: 98%; margin: 0 auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        
+        /* HEADER & CONTROLS */
+        .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #2e7d32; padding-bottom: 8px; margin-bottom: 15px; }
+        h1 { color: #1a1a1a; margin: 0; font-size: 1.8em; }
+        
+        /* --- TOGGLE SWITCH STYLES --- */
+        .toggle-container { display: flex; align-items: center; gap: 10px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #d81b60; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .toggle-label { font-weight: 600; font-size: 14px; color: #555; }
+
+        /* --- MINI TOGGLE --- */
+        .header-toggle-wrapper { display: flex; align-items: center; font-size: 0.75em; font-weight: normal; opacity: 0.9; }
+        .switch.mini { width: 34px; height: 18px; margin-left: 8px; }
+        .switch.mini .slider:before { height: 14px; width: 14px; left: 2px; bottom: 2px; }
+        .switch.mini input:checked + .slider { background-color: #fff; }
+        .switch.mini input:checked + .slider:before { transform: translateX(16px); background-color: #2e7d32; }
+        body.colored-mode .switch.mini input:checked + .slider:before { background-color: #1565c0; } 
+
+        /* --- Upload --- */
+        #csv-upload { display: block; margin: 10px 0 20px 0; padding: 10px; border: 2px dashed #607d8b; background-color: #eceff1; cursor: pointer; border-radius: 6px; width: 95%; font-size: 1em; color: #37474f; }
+        
+        /* --- Layout --- */
+        .report-container { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr 0.9fr; gap: 15px; margin-top: 15px; align-items: start; }
+        .report-box { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #cfd8dc; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; }
+        .report-content { overflow-x: auto; }
+        .report-box.full-width, #chart-row, .split-row-wrapper { grid-column: 1 / -1; }
+        .split-row-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .split-box { border-radius: 8px; padding: 15px; border: 1px solid #cfd8dc; transition: all 0.3s ease; overflow-x: auto; }
+
+        /* --- STYLES --- */
+        .security-box { background-color: #fff5f5; border-color: #ffcdd2; border-top: 4px solid #d32f2f; }
+        .security-header { color: #b71c1c; font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+        .onetime-box { background-color: #e3f2fd; border-color: #bbdefb; border-top: 4px solid #1976d2; }
+        .onetime-header { color: #0d47a1; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+        .simple-subhead { font-weight: bold; font-size: 1em; color: #212121; margin-top: 15px; margin-bottom: 4px; }
+        .watchlist-desc { font-size: 0.85em; color: #546e7a; margin-bottom: 8px; line-height: 1.3; }
+        
+        /* TABLES */
+        .simple-table { width: 100%; border-collapse: collapse; background: white; font-size: 0.95em; }
+        .simple-table th { background-color: #eeeeee; color: #212121; font-weight: bold; text-align: left; padding: 6px 8px; border: 1px solid #e0e0e0; font-size: 0.9em; }
+        .simple-table td { padding: 6px 8px; border: 1px solid #e0e0e0; color: #424242; }
+        .simple-table tr:hover { background-color: #fafafa; }
+        .table-scroll { max-height: 400px; overflow-y: auto; background: white; border: 1px solid #e0e0e0; }
+
+        #chart-row { background: white; padding: 15px; margin-top: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cfd8dc; }
+        #chart-row h3 { color: #263238; font-size: 1.3em; margin-top: 0; padding-bottom: 8px; border-bottom: 1px solid #eceff1; }
+
+        .collapsible-header { cursor: default; user-select: none; position: relative; padding: 10px 15px; font-size: 1.15em; margin: 0; background-color: #fff; color: #2e7d32; border-bottom: 2px solid #2e7d32; font-weight: 700; transition: all 0.3s ease; } 
+        
+        /* BOLD MODE */
+        body.colored-mode .report-box:nth-of-type(1) { border: 1px solid #1565c0; background-color: #f0f7ff; }
+        body.colored-mode .report-box:nth-of-type(1) .collapsible-header { background-color: #1565c0; color: white; border-bottom: none; }
+        body.colored-mode .report-box:nth-of-type(2) { border: 1px solid #00695c; background-color: #f0fdfc; }
+        body.colored-mode .report-box:nth-of-type(2) .collapsible-header { background-color: #00695c; color: white; border-bottom: none; }
+        body.colored-mode .report-box:nth-of-type(3) { border: 1px solid #ef6c00; background-color: #fff8f0; }
+        body.colored-mode .report-box:nth-of-type(3) .collapsible-header { background-color: #ef6c00; color: white; border-bottom: none; }
+        body.colored-mode .report-box:nth-of-type(4) { border: 1px solid #6a1b9a; background-color: #fdf5ff; }
+        body.colored-mode .report-box:nth-of-type(4) .collapsible-header { background-color: #6a1b9a; color: white; border-bottom: none; }
+        body.colored-mode .onetime-box { border: 2px solid #0277bd; background-color: #e1f5fe; }
+        body.colored-mode .onetime-header { color: #01579b; font-size: 1.3em; text-decoration: underline; }
+        body.colored-mode .security-box { border: 2px solid #c62828; background-color: #ffebee; }
+        body.colored-mode .security-header { color: #b71c1c; font-size: 1.3em; text-decoration: underline; }
+        body.colored-mode .data-table, body.colored-mode .simple-table { background-color: rgba(255,255,255, 0.7); }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { border: 1px solid #cfd8dc; padding: 6px 8px; text-align: left; word-wrap: break-word; }
+        .data-table th { background-color: #455a64; color: white; font-weight: 600; text-transform: uppercase; font-size: 0.85em; border: 1px solid #455a64; }
+        
+        /* HOVER EFFECT FOR SORTABLE HEADERS */
+        .data-table th.sortable:hover { background-color: #37474f; cursor: pointer; user-select: none; }
+
+        .numeric { text-align: right; font-family: 'Consolas', 'Monaco', monospace; font-size: 1.0em; font-weight: 700; color: #212121; white-space: nowrap; }
+
+        .year-total-row { cursor: pointer; border-top: 1px solid #b0bec5; transition: background-color 0.2s; }
+        .year-total-row.latest-year { background-color: #263238; color: #ffffff !important; font-weight: bold; font-size: 1.05em; border-bottom: 2px solid #ff8f00; }
+        .year-total-row.latest-year .numeric { color: #ffffff !important; }
+        .year-total-row.latest-year td { padding: 10px 8px; border-color: #263238; }
+        .year-total-row.previous-year { background-color: #eceff1; color: #37474f; font-size: 0.95em; font-weight: 600; }
+        .year-total-row.previous-year:hover { background-color: #cfd8dc; }
+        .year-total-row.expanded .year-arrow { transform: rotate(90deg); }
+        .year-arrow { display: inline-block; margin-right: 6px; transition: transform 0.2s; }
+        .breakdown-year-container { display: none; background-color: #fff; padding: 0; border-bottom: 1px solid #cfd8dc; }
+
+        .breakdown-grid-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; transition: all 0.3s; }
+        .breakdown-grid-wrapper.single-col { grid-template-columns: 1fr !important; }
+
+        .monthly-group { border: 1px solid #b0bec5; border-radius: 3px; overflow: hidden; margin-bottom: 0; }
+        .monthly-group-header { background-color: #cfd8dc; color: #263238; padding: 3px 6px; font-weight: bold; font-size: 0.85em; border-bottom: 1px solid #b0bec5; display: flex; justify-content: space-between; }
+        .monthly-group-header.spike-breakdown { background-color: #ffebee !important; color: #c62828 !important; border-bottom-color: #ffcdd2 !important; }
+        .monthly-group .data-table th, .monthly-group .data-table td { padding: 2px 3px; font-size: 0.85em; line-height: 1.2; }
+        .monthly-group .data-table th { font-size: 0.75em; letter-spacing: -0.5px; }
+
+        .history-clickable-row { cursor: pointer; transition: background-color 0.15s; }
+        .history-clickable-row:hover { background-color: #e3f2fd !important; }
+
+        .monthly-detail-row { background-color: #fff; }
+        .spike-month-header { background-color: #ffebee !important; color: #c62828 !important; font-weight: bold; }
+        .spike-month-header td { border-color: #ffcdd2; }
+        .spike-month-header .numeric { color: #c62828 !important; }
+        .normal-month-header { background-color: #eceff1; color: #37474f; font-weight: bold; }
+        .high-sending { background-color: #ffebee !important; color: #c62828 !important; font-weight: bold; }
+        .high-sending td { border-color: #ffcdd2; }
+        .high-sending .numeric { color: #c62828 !important; }
+        .top-5-highlight { background-color: #fffde7 !important; }
+
+        .annual-total-summary td { background-color: #212121 !important; color: #ffb300 !important; font-weight: 800; font-size: 1.1em; border-top: 3px solid #ffb300; padding: 8px; }
+        .monthly-breakdown-wrapper { max-height: 1800px; overflow-y: auto; }
+        .top-recipients-wrapper { max-height: 800px; overflow-y: auto; }
+        .stats-summary-box { background: #fff; padding: 10px; border-bottom: 1px solid #dee2e6; color: #333; font-size: 1em; line-height: 1.4; font-weight: 500; }
+        
+        /* SEARCH BAR */
+        .search-container { padding: 8px 10px; background-color: #eceff1; border-bottom: 1px solid #cfd8dc; }
+        #recipient-search { width: 95%; padding: 6px 8px; border: 1px solid #b0bec5; border-radius: 4px; font-size: 0.95em; outline: none; }
+        #recipient-search:focus { border-color: #29b6f6; box-shadow: 0 0 4px rgba(41, 182, 246, 0.3); }
+
+        /* --- MAIN MODAL --- */
+        #detail-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.3); backdrop-filter: blur(2px); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 0; border: 1px solid #888; width: 350px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: fadeIn 0.2s; }
+        .modal-header { padding: 10px 15px; background-color: #2e7d32; color: white; border-top-left-radius: 8px; border-top-right-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; font-size: 1.1em; color: white; border: none; }
+        .close-modal { color: #fff; font-size: 20px; font-weight: bold; cursor: pointer; }
+        .modal-body { padding: 0; }
+        .modal-body table { width: 100%; border-collapse: collapse; }
+        .modal-body th { position: sticky; top: 0; background: #eceff1; color: #333; font-size: 0.8em; padding: 6px 10px; text-transform: uppercase; border-bottom: 1px solid #ccc; text-align: left; }
+        .modal-body td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 0.9em; color: #333; }
+        .modal-body tr:last-child td { border-bottom: none; }
+        .modal-body tr:hover { background-color: #f5f5f5; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-10px);} to {opacity: 1; transform: translateY(0);} }
+
+        /* --- MINI POPUP STYLES --- */
+        #mini-popup { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: transparent; }
+        .mini-content { 
+            position: absolute; background-color: #fff; padding: 8px 10px; border: 1px solid #999; 
+            width: auto; min-width: 140px; max-width: 200px; border-radius: 4px; 
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2); text-align: center; animation: fadeIn 0.1s; pointer-events: none; 
+        }
+        .mini-list-item { display: flex; justify-content: space-between; font-size: 0.8em; padding: 2px 0; border-bottom: 1px dashed #eee; }
+        .mini-list-item:last-child { border-bottom: none; }
+        .mini-name { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; font-weight: 500; }
+        .mini-amt { font-weight: bold; color: #2e7d32; }
+
+        /* --- COPY BUTTON & TOAST --- */
+        .clickable-recipient:hover { text-decoration: underline; color: #01579b; }
+        .copy-btn { 
+            cursor: pointer; font-size: 1.1em; margin-left: 6px; color: #78909c; 
+            transition: color 0.2s, transform 0.1s; display: inline-block; 
+        }
+        .copy-btn:hover { color: #007bff; transform: scale(1.1); }
+        .copy-btn:active { transform: scale(0.95); }
+
+        #toast {
+            visibility: hidden; min-width: 150px; background-color: #333; color: #fff; text-align: center;
+            border-radius: 4px; padding: 10px; position: fixed; z-index: 2000; left: 50%; bottom: 30px;
+            transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s;
+        }
+        #toast.show { visibility: visible; opacity: 1; }
+        
+        /* --- LEGACY HISTORY TOGGLE --- */
+        .legacy-year-row { display: none; } /* Hidden by default */
+        .legacy-year-row.show-legacy { display: table-row; } /* Shown when toggled */
+
+        .show-legacy-btn {
+            background: none; border: none; cursor: pointer;
+            color: #0288d1; font-size: 0.85em; text-decoration: underline;
+            margin-left: 10px; padding: 0;
+        }
+        .show-legacy-btn:hover { color: #01579b; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-row">
+            <h1>📊 EME</h1>
+            
+            <div class="toggle-container">
+                <span class="toggle-label" style="font-weight: normal; font-size: 12px; color: #888;">Clean</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="toggle-label" style="color: #d81b60; font-weight:bold;">Bold Colors</span>
+            </div>
+        </div>
+
+        <input type="file" id="csv-upload" accept=".csv" multiple />
+        <div id="output-reports">
+            <p style="color: #546e7a; font-size: 1em;">Upload a CSV file to generate the reports. <br>Use the toggle above to switch between Clean (Green) and Bold Colored views.</p>
+        </div>
+    </div>
+
+    <div id="detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Details</h3>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="mini-popup">
+        <div class="mini-content">
+            <div id="mini-popup-body"></div>
+        </div>
+    </div>
+
+    <div id="toast">Copied!</div>
+
+    <script>
+        document.getElementById('csv-upload').addEventListener('change', handleFileSelect, false);
+        
+        document.getElementById('theme-toggle').addEventListener('change', function() {
+            if(this.checked) {
+                document.body.classList.add('colored-mode');
+            } else {
+                document.body.classList.remove('colored-mode');
+            }
+        });
+
+        window.onclick = function(event) { 
+            if (event.target == document.getElementById('detail-modal')) { closeModal(); } 
+            if (event.target == document.getElementById('mini-popup')) { closeMiniPopup(); } 
+        }
+
+        if (typeof ChartDataLabels !== 'undefined') { Chart.register(ChartDataLabels); }
+
+        let AppData = { monthlyTotals: {}, monthlyDetails: {}, orange: [] }; 
+        let monthlyChart;
+        let AppCurrencySymbol = '$'; 
+        const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        
+        // --- SORTING STATE ---
+        let currentSort = { column: 'sum', direction: 'desc' }; 
+
+        // --- HELPER FUNCTIONS ---
+        function cleanAmount(value) { 
+            if (value === undefined || value === null || value === '') return 0;
+            let cleanString = value.toString().trim().replace(/د\.إ/g, "").replace(/AED/g, "").replace(/[^0-9.-]+/g, "");
+            return parseFloat(cleanString) || 0; 
+        }
+        function extractCurrencySymbol(amountString) {
+            if (!amountString || typeof amountString !== 'string') return '$';
+            if (amountString.includes('د.إ') || amountString.includes('AED')) return 'AED';
+            if (amountString.includes('PHP')) return 'PHP';
+            if (amountString.includes('£')) return 'GBP';
+            if (amountString.includes('€')) return 'EUR';
+            const match = amountString.trim().match(/^[^0-9\s.,-]+/);
+            return match ? match[0].trim() : '$';
+        }
+        function formatCurrencyFull(num) { return AppCurrencySymbol + ' ' + (num || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+        function formatNumber(num, decimals = 2) { return (num || 0).toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+        function formatCompact(num) { if (num >= 1000) { return (num / 1000).toFixed(1) + 'K'; } return formatNumber(num, 0); }
+        
+        function getRelevantMonthKeys(year, globalMinDate, globalMaxDate) {
+            const keys = [];
+            let startM = 1;
+            let endM = 12;
+            if (globalMinDate && year === globalMinDate.getFullYear()) { startM = globalMinDate.getMonth() + 1; }
+            if (globalMaxDate && year === globalMaxDate.getFullYear()) { endM = globalMaxDate.getMonth() + 1; }
+            for (let i = startM; i <= endM; i++) { keys.push(`${year}-${String(i).padStart(2, '0')}`); }
+            return keys;
+        }
+
+        function formatDateToReadable(dateString) { if (!dateString) return 'N/A'; const parts = dateString.split('-'); if (parts.length !== 3) return dateString; const monthIndex = parseInt(parts[1], 10) - 1; return `${MONTH_NAMES[monthIndex]} ${parseInt(parts[2], 10)} ${parts[0]}`; }
+
+        function parseDateComponents(dateString) {
+            if (!dateString) return null;
+            const partsWithTime = dateString.trim().split(' ');
+            const datePart = partsWithTime[0];
+            const rawTimePart = partsWithTime.length > 1 ? partsWithTime.slice(1).join(' ') : null;
+            const separators = ['/', '-', '.'];
+            const separator = separators.find(sep => datePart.includes(sep));
+            if (!separator) return null;
+            const parts = datePart.split(separator).map(p => parseInt(p, 10));
+            if (parts.length !== 3 || parts.some(isNaN)) return null;
+            let part1 = parts[0], part2 = parts[1], part3 = parts[2];
+            let year, month, day;
+            if (part1 > 31) { year = part1; month = part2; day = part3; } 
+            else if (part3 > 31 || (part3 < 100 && part3 >= 0)) { 
+                year = part3; if (year < 100) year += 2000; 
+                if (part1 <= 12) { month = part1; day = part2; } else { day = part1; month = part2; }
+            } else { return null; }
+            if (month < 1 || month > 12 || day < 1 || day > 31) { return null; }
+            let hour = null; let timeString = 'N/A';
+            if (rawTimePart) {
+                const timeMatch = rawTimePart.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
+                if (timeMatch) {
+                    let h = parseInt(timeMatch[1], 10); const m = timeMatch[2];
+                    const ampm = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+                    if (ampm === 'pm' && h < 12) { h += 12; } else if (ampm === 'am' && h === 12) { h = 0; }
+                    hour = h; timeString = `${timeMatch[1]}:${m}` + (ampm ? ` ${ampm.toUpperCase()}` : '');
+                }
+            }
+            return { fullYear: year, month: month, day: day, hour: hour, dateString: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`, timeString: timeString, dateObj: new Date(year, month - 1, day) };
+        }
+
+        // --- DATA PROCESSING ---
+        function generateAllData(data) {
+            const result = { monthlyTotals: {}, yearlyTotals: {}, monthlyDetails: {}, recipientCounts: {}, recipientSums: {}, recipientCorridors: {}, monthlyCardPivot: {}, sameDaySameReceiver: {}, lateNightTransactions: [], latestYearRecipientCounts: {}, averageStats: { allTimeAvg: 0, last6MAvg: 0 }, uniqueYears: [], globalDateRange: { min: null, max: null } };
+            let overallGrandTotalSum = 0; let overallGrandTotalCount = 0; let overallGrandTotalFee = 0;
+            const sameDayTracker = {}; 
+            const firstTransactionDateByReceiver = {}; 
+            let allTransactionsForAvg = [];
+            let uniqueYearsRaw = new Set();
+            let minDateObj = null;
+            let maxDateObj = null;
+
+            if (!Array.isArray(data)) return result;
+
+            data.forEach(row => { 
+                if (!row) return;
+                const d = parseDateComponents(row['Submitted On']); 
+                if (d) {
+                    uniqueYearsRaw.add(d.fullYear);
+                    if (!minDateObj || d.dateObj < minDateObj) minDateObj = d.dateObj;
+                    if (!maxDateObj || d.dateObj > maxDateObj) maxDateObj = d.dateObj;
+                }
+            });
+            let uniqueYears = Array.from(uniqueYearsRaw).map(Number).sort((a, b) => a - b);
+            result.uniqueYears = uniqueYears;
+            result.globalDateRange.min = minDateObj;
+            result.globalDateRange.max = maxDateObj;
+            
+            const targetYear = uniqueYears.length > 0 ? Math.max(...uniqueYears) : new Date().getFullYear();
+
+            data.forEach(row => {
+                if (!row) return; 
+                if (!row['Submitted On'] || !row['Amount Sent'] || !row['Receiver']) return;
+
+                const amount = cleanAmount(row['Amount Sent']);
+                const fee = cleanAmount(row['Fees']);
+                const currency = extractCurrencySymbol(row['Amount Sent']); 
+                const dateComponents = parseDateComponents(row['Submitted On']);
+                
+                if (!dateComponents) return;
+                const { fullYear, month, hour, dateString, timeString, dateObj } = dateComponents;
+                allTransactionsForAvg.push({ date: dateObj, amount: amount });
+                
+                const yearKey = String(fullYear);
+                const monthKey = `${yearKey}-${String(month).padStart(2, '0')}`;
+                const dateKey = dateString;
+                const receiver = row['Receiver'];
+                
+                let cardId = 'UNKNOWN';
+                if (row['Card']) {
+                    const cardMatch = row['Card'].match(/(\d{4})\s*(\[.+\])?/);
+                    cardId = (cardMatch ? cardMatch[1] : 'UNKNOWN') + ' ' + (cardMatch && cardMatch[2] ? cardMatch[2] : '(N/A)');
+                }
+
+                if (!firstTransactionDateByReceiver[receiver]) { firstTransactionDateByReceiver[receiver] = dateKey; } 
+                else { if (dateKey < firstTransactionDateByReceiver[receiver]) { firstTransactionDateByReceiver[receiver] = dateKey; } }
+
+                let timezoneOffset = 0; 
+                let originLocation = row['Sending Country'];
+                if (!originLocation && row['Corridor']) {
+                    const parts = row['Corridor'].split('=>');
+                    if (parts.length > 0) originLocation = parts[0].trim();
+                }
+
+                const offsetMap = {
+                    'UK': 8, 'GB': 8, 'United Kingdom': 8, 'Great Britain': 8, 'IE': 8, 'Ireland': 8,
+                    'DE': 9, 'Germany': 9, 'EUR': 9, 'France': 9, 'Italy': 9, 'Spain': 9,
+                    'AE': 12, 'UAE': 12, 'United Arab Emirates': 12, 'Dubai': 12,
+                    'SA': 11, 'Saudi Arabia': 11, 'QA': 11, 'Qatar': 11, 'KW': 11, 'Kuwait': 11,
+                    'PH': 16, 'Philippines': 16, 'AU': 19, 'Australia': 19, 'SG': 16, 'Singapore': 16,
+                    'CA': 3, 'Canada': 3, 'US': 0, 'USA': 0, 'United States': 0 
+                };
+
+                if (originLocation && offsetMap[originLocation] !== undefined) {
+                    timezoneOffset = offsetMap[originLocation];
+                } else {
+                    if (currency === 'GBP') timezoneOffset = 8;
+                    else if (currency === 'EUR') timezoneOffset = 9;
+                    else if (currency === 'AED') timezoneOffset = 12;
+                    else if (currency === 'PHP') timezoneOffset = 16;
+                    else if (currency === 'AUD') timezoneOffset = 19;
+                    else if (currency === 'CAD') timezoneOffset = 3;
+                }
+
+                let localHour = hour;
+                let localTimeString = timeString;
+                let isWeeHourTxn = false;
+
+                if (hour !== null) {
+                    localHour = (hour + timezoneOffset) % 24;
+                    if (timezoneOffset !== 0) {
+                        const ampm = localHour >= 12 ? 'PM' : 'AM';
+                        const displayH = localHour % 12 || 12;
+                        const mins = timeString.split(':')[1].substring(0,2);
+                        localTimeString = `${displayH}:${mins} ${ampm} (Loc)`;
+                    }
+                    isWeeHourTxn = (localHour >= 23 || localHour <= 4);
+                }
+                
+                const sameDayKey = `${dateKey}|${receiver}`;
+                if (!sameDayTracker[sameDayKey]) sameDayTracker[sameDayKey] = 0; sameDayTracker[sameDayKey]++;
+                
+                if (isWeeHourTxn) {
+                    result.lateNightTransactions.push({ date: dateKey, time: timeString, localTime: localTimeString, receiver: receiver, amount: amount });
+                }
+                
+                if (row['Corridor']) { if (!result.recipientCorridors[receiver]) result.recipientCorridors[receiver] = new Set(); result.recipientCorridors[receiver].add(row['Corridor']); }
+
+                if (!result.monthlyTotals[monthKey]) result.monthlyTotals[monthKey] = { monthName: MONTH_NAMES[month - 1], year: fullYear, sum: 0, count: 0, fee: 0, key: monthKey, lateNightSum: 0 }; 
+                result.monthlyTotals[monthKey].sum += amount; result.monthlyTotals[monthKey].count += 1; result.monthlyTotals[monthKey].fee += fee;
+                if (isWeeHourTxn) result.monthlyTotals[monthKey].lateNightSum += amount; 
+
+                if (!result.yearlyTotals[yearKey]) result.yearlyTotals[yearKey] = { year: fullYear, sum: 0, count: 0, fee: 0, monthlyData: [] };
+                result.yearlyTotals[yearKey].sum += amount; result.yearlyTotals[yearKey].count += 1; result.yearlyTotals[yearKey].fee += fee;
+
+                if (!result.monthlyDetails[monthKey]) result.monthlyDetails[monthKey] = {};
+                if (!result.monthlyDetails[monthKey][receiver]) result.monthlyDetails[monthKey][receiver] = { receiver: receiver, sum: 0, count: 0, fee: 0 };
+                result.monthlyDetails[monthKey][receiver].sum += amount; result.monthlyDetails[monthKey][receiver].count += 1; result.monthlyDetails[monthKey][receiver].fee += fee;
+
+                result.recipientCounts[receiver] = (result.recipientCounts[receiver] || 0) + 1;
+                result.recipientSums[receiver] = (result.recipientSums[receiver] || 0) + amount; 
+                
+                if (!result.monthlyCardPivot[monthKey]) result.monthlyCardPivot[monthKey] = {};
+                if (!result.monthlyCardPivot[monthKey][cardId]) result.monthlyCardPivot[monthKey][cardId] = { sum: 0, count: 0, cardDetail: cardId }; 
+                result.monthlyCardPivot[monthKey][cardId].sum += amount; result.monthlyCardPivot[monthKey][cardId].count += 1;
+                overallGrandTotalSum += amount; overallGrandTotalCount += 1; overallGrandTotalFee += fee;
+            });
+
+            if (allTransactionsForAvg.length > 0) {
+                allTransactionsForAvg.sort((a, b) => a.date - b.date);
+                const latestTxnDate = allTransactionsForAvg[allTransactionsForAvg.length - 1].date;
+                const firstTxnDate = allTransactionsForAvg[0].date;
+                let windowStartDate = new Date(latestTxnDate.getFullYear(), latestTxnDate.getMonth() - 6, 1);
+                if (firstTxnDate > windowStartDate) { windowStartDate = new Date(firstTxnDate.getFullYear(), firstTxnDate.getMonth(), 1); }
+                const monthsDiff = (latestTxnDate.getFullYear() - windowStartDate.getFullYear()) * 12 + (latestTxnDate.getMonth() - windowStartDate.getMonth()) + 1;
+                const divisor = Math.max(1, monthsDiff);
+                const recentTxns = allTransactionsForAvg.filter(t => t.date >= windowStartDate);
+                const totalSum = recentTxns.reduce((sum, t) => sum + t.amount, 0);
+                result.averageStats.last6MAvg = totalSum / divisor;
+            }
+
+            const sortedMonthlyKeys = Object.keys(result.monthlyTotals).sort();
+            const lastTwelveMonthKeys = sortedMonthlyKeys.slice(-12);
+            const latestMonthKey = sortedMonthlyKeys[sortedMonthlyKeys.length - 1];
+            const oldestMonthKeyForOneTime = lastTwelveMonthKeys.length > 0 ? lastTwelveMonthKeys[0] : latestMonthKey;
+            const latestYearStr = latestMonthKey ? latestMonthKey.substring(0, 4) : '';
+            const oldestYearStrOneTime = oldestMonthKeyForOneTime ? oldestMonthKeyForOneTime.substring(0, 4) : '';
+            const latestMonthName = latestMonthKey ? MONTH_NAMES[parseInt(latestMonthKey.substring(5, 7)) - 1] : '';
+            const oldestMonthNameOneTime = oldestMonthKeyForOneTime ? MONTH_NAMES[parseInt(oldestMonthKeyForOneTime.substring(5, 7)) - 1] : '';
+            const dateRangeOneTime = `${oldestMonthNameOneTime} ${oldestYearStrOneTime}` + (oldestMonthKeyForOneTime !== latestMonthKey ? ` - ${latestMonthName} ${latestYearStr}` : ` ${latestYearStr}`);
+
+            const targetPeriodRecipientCounts = {}; const targetPeriodRecipientData = {};
+            data.forEach(row => {
+                if(!row || !row['Submitted On']) return;
+                const dateComponents = parseDateComponents(row['Submitted On']); if (!dateComponents) return;
+                const monthKey = `${dateComponents.fullYear}-${String(dateComponents.month).padStart(2, '0')}`;
+                if (lastTwelveMonthKeys.includes(monthKey)) {
+                    const receiver = row['Receiver']; const amount = cleanAmount(row['Amount Sent']); const dateString = dateComponents.dateString;
+                    targetPeriodRecipientCounts[receiver] = (targetPeriodRecipientCounts[receiver] || 0) + 1;
+                    if (!targetPeriodRecipientData[receiver]) { targetPeriodRecipientData[receiver] = { receiver: receiver, sum: amount, latestTxnDate: dateString, latestTxnAmount: amount }; } 
+                    else { targetPeriodRecipientData[receiver].sum += amount; if (new Date(dateString) > new Date(targetPeriodRecipientData[receiver].latestTxnDate)) { targetPeriodRecipientData[receiver].latestTxnDate = dateString; targetPeriodRecipientData[receiver].latestTxnAmount = amount; } }
+                }
+            });
+            const oneTimeRecipientsTargetPeriod = Object.keys(targetPeriodRecipientCounts).filter(receiver => targetPeriodRecipientCounts[receiver] === 1).map(receiver => targetPeriodRecipientData[receiver]).sort((a, b) => new Date(b.latestTxnDate) - new Date(a.latestTxnDate));
+            
+            let sameDayViolations = Object.entries(sameDayTracker).filter(([, count]) => count > 1).map(([key, count]) => { const [dateStr, receiverName] = key.split('|'); return { date: dateStr, receiver: receiverName, count: count }; }).sort((a, b) => b.count - a.count); 
+            const sameDaySummary = sameDayViolations.reduce((acc, current) => { if (!acc[current.receiver]) { acc[current.receiver] = { totalIncidents: 0, totalTransactions: 0 }; } acc[current.receiver].totalIncidents++; acc[current.receiver].totalTransactions += current.count; return acc; }, {});
+            result.sameDaySameReceiver = { summary: Object.entries(sameDaySummary).map(([receiver, data]) => ({ receiver: receiver, incidents: data.totalIncidents, transactions: data.totalTransactions })).sort((a, b) => b.transactions - a.transactions), details: sameDayViolations };
+            
+            result.lateNightTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const lateNightSummary = { totalIncidents: result.lateNightTransactions.length, totalReceivers: new Set(result.lateNightTransactions.map(t => t.receiver)).size, totalAmount: result.lateNightTransactions.reduce((sum, t) => sum + t.amount, 0) };
+
+            const multiYearMonthlyData = [];
+            uniqueYears.sort((a, b) => a - b).forEach(year => { 
+                const yearKey = String(year); const yearTotal = result.yearlyTotals[yearKey]; const isLatestYear = year === targetYear;
+                multiYearMonthlyData.push({ type: 'year_total', ...yearTotal, key: yearKey, isLatestYear: isLatestYear, report: 'green' }); 
+                const relevantKeys = getRelevantMonthKeys(year, result.globalDateRange.min, result.globalDateRange.max);
+                const monthlyData = relevantKeys.map(key => {
+                    const monthIndex = parseInt(key.substring(5, 7)) - 1;
+                    const mData = result.monthlyTotals[key] || { monthName: MONTH_NAMES[monthIndex], year: year, sum: 0, count: 0, fee: 0, key: key, lateNightSum: 0 };
+                    const maxCurrentYearSum = Math.max(...relevantKeys.map(k => (result.monthlyTotals[k] || {sum: 0}).sum));
+                    let volumeClass = 'low-sending';
+                    if (maxCurrentYearSum > 0) { const ratio = mData.sum / maxCurrentYearSum; if (ratio >= 0.7) { volumeClass = 'high-sending'; } else if (ratio >= 0.3) { volumeClass = 'medium-sending'; } }
+                    mData.volumeClass = volumeClass; return mData;
+                }); 
+                monthlyData.forEach(m => { multiYearMonthlyData.push({ type: 'monthly_detail', ...m }); });
+            });
+
+            const multiYearCardData = []; let blueTotalSum = 0; let blueTotalCount = 0;
+            uniqueYears.sort((a, b) => a - b).forEach(year => {
+                const yearKey = String(year); const isLatestYear = year === targetYear; let yearSum = 0; let yearCount = 0; const yearDetails = [];
+                const twelveMonths = getRelevantMonthKeys(year, result.globalDateRange.min, result.globalDateRange.max);
+                let maxMonthSumInYear = 0;
+                twelveMonths.forEach(mKey => { const mData = result.monthlyCardPivot[mKey]; if(mData) { const mSum = Object.values(mData).reduce((acc, c) => acc + c.sum, 0); if(mSum > maxMonthSumInYear) maxMonthSumInYear = mSum; } });
+                twelveMonths.forEach((monthKey) => {
+                    const realMonthIndex = parseInt(monthKey.split('-')[1]) - 1;
+                    const monthData = result.monthlyCardPivot[monthKey];
+                    if (monthData && Object.keys(monthData).length > 0) {
+                        const monthName = MONTH_NAMES[realMonthIndex]; let monthSubtotalSum = 0; let monthSubtotalCount = 0; const sortedCards = Object.keys(monthData).sort(); const cardRows = [];
+                        sortedCards.forEach(cardId => { const cardDetails = monthData[cardId]; cardRows.push({ type: 'card_detail', cardDetail: cardId, sum: cardDetails.sum, count: cardDetails.count }); monthSubtotalSum += cardDetails.sum; monthSubtotalCount += cardDetails.count; });
+                        const isSpike = monthSubtotalSum > 0 && monthSubtotalSum >= (maxMonthSumInYear * 0.8);
+                        yearDetails.push({ type: 'card_month_header', monthName: monthName, year: year, isSpike: isSpike, sum: monthSubtotalSum, count: monthSubtotalCount });
+                        yearDetails.push(...cardRows);
+                        yearDetails.push({ type: 'card_month_total', sum: monthSubtotalSum, count: monthSubtotalCount }); yearSum += monthSubtotalSum; yearCount += monthSubtotalCount;
+                    }
+                });
+                if (yearDetails.length > 0) { multiYearCardData.push({ type: 'year_total', year: year, sum: yearSum, count: yearCount, isLatestYear: isLatestYear, report: 'blue' }); multiYearCardData.push(...yearDetails); blueTotalSum += yearSum; blueTotalCount += yearCount; }
+            });
+
+            const orangeData = Object.keys(result.recipientCounts).map(name => ({ 
+                Receiver: name, 
+                Count: result.recipientCounts[name], 
+                Sum: result.recipientSums[name], 
+                Corridors: Array.from(result.recipientCorridors[name] || []),
+                FirstTxnDate: firstTransactionDateByReceiver[name] 
+            })).sort((a, b) => b.Sum - a.Sum); 
+
+            // --- NEW: DETECT POTENTIAL BUSINESS / NON-PERSON NAMES ---
+            const businessKeywords = /\b(inc|llc|ltd|corp|limited|company|co\.|pvt|plc|gmbh|solutions|services|service|enterprises|enterprise|group|holdings|global|trading|consulting|consultancy|agency|store|shop|market|mart|grocery|supermarket|pharmacy|hospital|clinic|med|medical|care|school|university|college|academy|bank|finance|financial|capital|fund|tech|technology|technologies|software|logistics|transport|shipping|cargo|freight|travel|tours|hotel|motel|resort|inn|cafe|coffee|restaurant|bistro|grill|bar|foods|bakery|auto|motors|motor|impex|export|import|media|systems|associates|partners|foundation|charity|trust|society|club|studio|design|construction|realty|estate|properties|property|law|legal|tax|accounting|account|payment|transfer|money|remit|express|exchange|fx|telecom|mobile|network|energy|power|water|utility|bill|gov|government|ministry|department|council|office|official)\b|[&@0-9]|\(.+\)/i;
+
+            result.potentialBusiness = orangeData.filter(r => {
+                return businessKeywords.test(r.Receiver);
+            }).sort((a, b) => b.Sum - a.Sum); 
+
+            return {
+                green: { 
+                    latestYearMonthlyData: sortedMonthlyKeys.map(key => { const monthIndex = parseInt(key.substring(5, 7)) - 1; return result.monthlyTotals[key] || { monthName: MONTH_NAMES[monthIndex], year: parseInt(key.substring(0,4)), sum: 0, count: 0, fee: 0, key: key, lateNightSum: 0 }; }).filter(m => m.year === targetYear), 
+                    multiYearMonthlyData: multiYearMonthlyData, 
+                    targetYear: targetYear, 
+                    uniqueYears: result.uniqueYears, 
+                    grandTotal: { sum: overallGrandTotalSum, count: overallGrandTotalCount, fee: overallGrandTotalFee }, 
+                    averageStats: result.averageStats,
+                    globalDateRange: result.globalDateRange
+                },
+                orange: orangeData,
+                blue: { multiYearCardData: multiYearCardData, overallSum: blueTotalSum, overallCount: blueTotalCount, targetYear: targetYear },
+                monthlyDetails: result.monthlyDetails,
+                oneTimeRecipients: { total: oneTimeRecipientsTargetPeriod.length, details: oneTimeRecipientsTargetPeriod, targetPeriod: dateRangeOneTime },
+                security: { 
+                    sameDaySameReceiver: result.sameDaySameReceiver, 
+                    lateNight: { summary: lateNightSummary, details: result.lateNightTransactions },
+                    potentialBusiness: result.potentialBusiness 
+                }
+            };
+        }
+
+        function renderRecipientRows(data) {
+            let html = '';
+            if (data.length === 0) { return '<tr><td colspan="4" style="text-align:center; padding:10px; color:#999;">No recipients found.</td></tr>'; }
+            data.forEach((r, index) => {
+                const corridorData = (r.Corridors && r.Corridors.length > 0) ? (r.Corridors[0].includes('=>') ? r.Corridors[0].split('=>')[1].trim() : r.Corridors[0]) : ''; 
+                const corridorTag = corridorData ? ` <span style="color:#666; font-size:0.9em;">(${corridorData})</span>` : ''; 
+                const safeName = r.Receiver.replace(/'/g, "\\'");
+                let textToCopy = r.Receiver; if(corridorData) { textToCopy += ` (${corridorData})`; }
+                const safeTextToCopy = textToCopy.replace(/'/g, "\\'");
+                html += `<tr>
+                    <td>${index + 1}</td>
+                    <td class="clickable-recipient" style="cursor:pointer; color:#0277bd; font-weight:600;" onclick="showFirstTxn('${safeName}', '${r.FirstTxnDate}', event)">
+                        ${r.Receiver}${corridorTag}
+                        <span class="copy-btn" onclick="copyToClipboard('${safeTextToCopy}', event)">📄</span>
+                    </td>
+                    <td style="text-align:center;">${formatNumber(r.Count, 0)}</td>
+                    <td class="numeric">${formatCurrencyFull(r.Sum)}</td>
+                </tr>`; 
+            });
+            return html;
+        }
+
+        function filterRecipients() {
+            const searchText = document.getElementById('recipient-search').value.toLowerCase().trim();
+            let filtered = AppData.orange.filter(item => { return item.Receiver.toLowerCase().includes(searchText); });
+            filtered.sort((a, b) => {
+                let valA = (currentSort.column === 'count') ? a.Count : a.Sum;
+                let valB = (currentSort.column === 'count') ? b.Count : b.Sum;
+                return (currentSort.direction === 'desc') ? valB - valA : valA - valB;
+            });
+            document.getElementById('recipients-table-body').innerHTML = renderRecipientRows(filtered);
+        }
+
+        function sortRecipients(criteria) {
+            if (currentSort.column === criteria) { currentSort.direction = (currentSort.direction === 'desc') ? 'asc' : 'desc'; } 
+            else { currentSort.column = criteria; currentSort.direction = 'desc'; }
+            updateSortIcons(); filterRecipients();
+        }
+
+        function updateSortIcons() {
+            document.getElementById('header-cnt').innerText = "Cnt ⇅";
+            document.getElementById('header-sum').innerText = "Total ⇅";
+            const arrow = (currentSort.direction === 'desc') ? '▼' : '▲';
+            if (currentSort.column === 'count') { document.getElementById('header-cnt').innerText = `Cnt ${arrow}`; } 
+            else { document.getElementById('header-sum').innerText = `Total ${arrow}`; }
+        }
+
+        function renderReports(green, orange, blue, security, oneTimeRecipients) {
+            let reportHtml = `<div class="report-container">`;
+            const allMonthKeys = Object.keys(AppData.monthlyTotals || {}).sort(); 
+            const last7Months = allMonthKeys.slice(-7); 
+            let maxCountInLast7Months = 0;
+            last7Months.forEach(key => {
+                const data = AppData.monthlyTotals[key];
+                if(data && data.count > maxCountInLast7Months) { maxCountInLast7Months = data.count; }
+            });
+
+            // --- 1. BREAKDOWN REPORT ---
+            reportHtml += `<div class="report-box">
+                <div class="collapsible-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>📋 Breakdown</span>
+                    <div class="header-toggle-wrapper">
+                        <span>1-Col</span>
+                        <label class="switch mini">
+                            <input type="checkbox" id="breakdown-layout-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="report-content monthly-breakdown-wrapper"><table class="data-table" style="border:none; background:transparent;"><tbody>`;
+            
+            const sortedYears = green.uniqueYears;
+            const legacyYears = sortedYears.filter(y => y < green.targetYear - 1);
+            const hasLegacy = legacyYears.length > 0;
+
+            sortedYears.forEach(year => {
+                const isLatest = (year === green.targetYear); 
+                const isLegacy = (year < green.targetYear - 1);
+                const rowClass = isLatest ? 'latest-year' : 'previous-year';
+                const hiddenClass = isLegacy ? 'legacy-year-row breakdown-legacy' : '';
+                
+                const yearTotalData = AppData.green.multiYearMonthlyData.find(d => d.type === 'year_total' && d.year === year) || {sum: 0};
+                
+                reportHtml += `<tr class="year-total-row ${rowClass} ${hiddenClass}" data-year="${year}" data-type="breakdown"><td style="width: 50%;"><span class="year-arrow">▶</span>${year}</td><td class="numeric" style="width: 50%;">${formatCurrencyFull(yearTotalData.sum)}</td></tr><tr class="breakdown-year-container" data-year="${year}" style="display:none;"><td colspan="2" style="padding: 0; background-color: transparent;"><div class="breakdown-grid-wrapper">`;
+                
+                let maxMonthSumInYear = 0;
+                const relevantKeys = getRelevantMonthKeys(year, green.globalDateRange.min, green.globalDateRange.max);
+                relevantKeys.forEach(k => {
+                    const m = AppData.monthlyDetails[k];
+                    if(m) { const total = Object.values(m).reduce((acc, r) => acc + r.sum, 0); if(total > maxMonthSumInYear) maxMonthSumInYear = total; }
+                });
+                relevantKeys.forEach((key) => {
+                    const realMonthIndex = parseInt(key.split('-')[1]) - 1;
+                    const monthName = MONTH_NAMES[realMonthIndex]; 
+                    const monthlyData = AppData.monthlyDetails[key];
+                    if (monthlyData && Object.keys(monthlyData).length > 0) {
+                        const recipientsArray = Object.values(monthlyData); const top3Set = new Set([...recipientsArray].sort((a, b) => b.sum - a.sum).slice(0, 3).map(r => r.receiver));
+                        const sortedRecipients = recipientsArray.sort((a, b) => a.sum - b.sum); 
+                        const monthlyTotalSum = sortedRecipients.reduce((acc, curr) => acc + curr.sum, 0);
+                        const isSpike = monthlyTotalSum > 0 && monthlyTotalSum >= (maxMonthSumInYear * 0.8);
+                        const headerClass = isSpike ? 'spike-breakdown' : '';
+                        reportHtml += `<div class="monthly-group">
+                            <div class="monthly-group-header ${headerClass}"><span>${monthName}</span><span>${formatCompact(monthlyTotalSum)}</span></div>
+                            <table class="data-table" style="margin:0; border:none; table-layout: fixed;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 38%; color:#263238; border-color:#b0bec5; background-color:#cfd8dc;">To</th>
+                                        <th style="width: 25%; color:#263238; border-color:#b0bec5; background-color:#cfd8dc;">Amt</th>
+                                        <th style="width: 20%; color:#263238; border-color:#b0bec5; background-color:#cfd8dc;">Fee</th>
+                                        <th style="width: 17%; color:#263238; border-color:#b0bec5; background-color:#cfd8dc; text-align:center;">#</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                        sortedRecipients.forEach((rec) => { 
+                            const highlightClass = top3Set.has(rec.receiver) ? 'top-5-highlight' : ''; 
+                            reportHtml += `<tr class="${highlightClass}"><td>${rec.receiver}</td><td class="numeric" style="font-weight:600;">${formatCompact(rec.sum)}</td><td class="numeric" style="color:#666; font-size:0.85em;">${formatCompact(rec.fee)}</td><td style="text-align:center;">${rec.count}</td></tr>`; 
+                        });
+                        reportHtml += `</tbody></table></div>`;
+                    } else {
+                        reportHtml += `<div class="monthly-group"><div class="monthly-group-header" style="background-color:#f5f5f5; color:#999;"><span>${monthName}</span><span>0</span></div><table class="data-table" style="margin:0; border:none; table-layout: fixed;"><tbody><tr><td colspan="4" style="text-align:center; color:#999; font-style:italic; padding:4px;">No transactions</td></tr></tbody></table></div>`;
+                    }
+                });
+                reportHtml += `</div></td></tr>`;
+            });
+            if(hasLegacy) {
+                reportHtml += `<tr><td colspan="2" style="text-align:center; padding:8px; background:#f9f9f9;"><button class="show-legacy-btn" onclick="toggleLegacy('breakdown-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`;
+            }
+            reportHtml += `</tbody></table></div></div>`;
+
+            // --- 2. HISTORY REPORT ---
+            reportHtml += `<div class="report-box"><h2 class="collapsible-header">🗓️ History</h2><div class="report-content"><div class="stats-summary-box">Avg (Last6M): <strong>${formatCompact(green.averageStats.last6MAvg)}</strong></div><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 25%;">Date</th><th style="width: 35%;">Sum</th><th style="width: 10%; text-align: center;">#</th><th style="width: 30%;">Fees</th></tr></thead><tbody>`;
+            
+            green.multiYearMonthlyData.forEach(r => {
+                if (r.type === 'year_total') { 
+                    const isLegacy = (r.year < green.targetYear - 1);
+                    const rowClass = r.isLatestYear ? 'latest-year' : 'previous-year'; 
+                    const hiddenClass = isLegacy ? 'legacy-year-row history-legacy' : '';
+                    reportHtml += `<tr data-year="${r.year}" data-report="${r.report}" class="year-total-row ${rowClass} ${hiddenClass}"><td><span class="year-arrow">▶</span>${r.year}</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric" style="text-align: center;">${formatNumber(r.count, 0)}</td><td class="numeric">${formatCurrencyFull(r.fee)}</td></tr><tbody class="monthly-detail-rows" data-year-details="${r.report}-${r.year}">`; 
+                } else if (r.type === 'monthly_detail') { 
+                    let countStyle = 'text-align: center;';
+                    if (last7Months.includes(r.key) && r.count === maxCountInLast7Months && r.count > 0) { countStyle += 'background-color: #ff9800; color: white; font-weight: bold; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);'; }
+                    reportHtml += `<tr class="monthly-detail-row history-clickable-row ${r.volumeClass}" style="display: none;" onclick="showMiniMonthDetails('${r.key}', '${r.monthName} ${r.year}', event)"><td class="month-name-cell" style="padding-left:15px !important;">${r.monthName}</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric" style="${countStyle}">${formatNumber(r.count, 0)}</td><td class="numeric" style="color: #666; font-size:0.9em;">${formatCurrencyFull(r.fee)}</td></tr>`; 
+                }
+            });
+            reportHtml += `</tbody>`;
+            if(hasLegacy) {
+                reportHtml += `<tr><td colspan="4" style="text-align:center; padding:8px; background:#f9f9f9; border-top:1px solid #eee;"><button class="show-legacy-btn" onclick="toggleLegacy('history-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`;
+            }
+            reportHtml += `<tr class="annual-total-summary"><td>TOTAL</td><td class="numeric">${formatCurrencyFull(green.grandTotal.sum)}</td><td class="numeric" style="text-align: center;">${formatNumber(green.grandTotal.count, 0)}</td><td class="numeric">${formatCurrencyFull(green.grandTotal.fee)}</td></tr></table></div></div>`; 
+
+            // --- 3. RECIPIENTS (Unchanged) ---
+            reportHtml += `<div class="report-box"><h2 class="collapsible-header">👤 Top Overall</h2><div class="search-container"><input type="text" id="recipient-search" placeholder="🔍 Search recipient name..." onkeyup="filterRecipients()"></div><div class="report-content top-recipients-wrapper"><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 8%;">#</th><th style="width: 42%;">Recipient</th><th class="sortable" id="header-cnt" style="width: 12%; text-align: center;" onclick="sortRecipients('count')" title="Sort by Count">Cnt ⇅</th><th class="sortable" id="header-sum" style="width: 38%;" onclick="sortRecipients('sum')" title="Sort by Amount">Total ▼</th></tr></thead><tbody id="recipients-table-body">${renderRecipientRows(orange)}</tbody></table></div></div>`; 
+
+            // --- 4. CARDS REPORT ---
+            reportHtml += `<div class="report-box"><h2 class="collapsible-header">💳 Cards</h2><div class="report-content"><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 55%;">Detail</th><th style="width: 30%;">Sum</th><th style="width: 15%;">#</th></tr></thead><tbody>`;
+            blue.multiYearCardData.forEach(r => {
+                if (r.type === 'year_total') { 
+                    const isLegacy = (r.year < green.targetYear - 1);
+                    const rowClass = r.isLatestYear ? 'latest-year' : 'previous-year'; 
+                    const hiddenClass = isLegacy ? 'legacy-year-row card-legacy' : '';
+                    reportHtml += `<tr data-year="${r.year}" data-report="${r.report}" class="year-total-row ${rowClass} ${hiddenClass}"><td><span class="year-arrow">▶</span>${r.year}</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric">${formatNumber(r.count, 0)}</td></tr><tbody class="monthly-detail-rows" data-year-details="${r.report}-${r.year}">`; 
+                } else { 
+                    const rowClass = 'monthly-detail-row'; const initialStyle = "display: none;"; 
+                    if (r.type === 'card_month_header') {
+                        const headerClass = r.isSpike ? 'spike-month-header' : 'normal-month-header';
+                        reportHtml += `<tr class="${rowClass} ${headerClass}" style="${initialStyle}"><td style="padding-left: 15px;">${r.monthName} ${r.year}</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric">${formatNumber(r.count, 0)}</td></tr>`;
+                    } else if (r.type === 'card_detail') { 
+                        reportHtml += `<tr class="${rowClass}" style="${initialStyle}"><td>${r.cardDetail}</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric">${formatNumber(r.count, 0)}</td></tr>`; 
+                    } else if (r.type === 'card_month_total') { 
+                        reportHtml += `<tr class="${rowClass}" style="background-color:#f0f2f5; font-weight:bold; ${initialStyle}"><td>TOTAL</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric">${formatNumber(r.count, 0)}</td></tr>`; 
+                    } 
+                }
+            });
+            if(hasLegacy) {
+                reportHtml += `<tr><td colspan="3" style="text-align:center; padding:8px; background:#f9f9f9;"><button class="show-legacy-btn" onclick="toggleLegacy('card-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`;
+            }
+            reportHtml += `</tbody></table></div></div>`; 
+
+            // --- REST OF RENDER (Unchanged) ---
+            reportHtml += `<div class="split-row-wrapper"><div class="split-box onetime-box">${createOneTimeRecipientReport(oneTimeRecipients)}</div><div class="split-box security-box">${createSecurityReportContent(security)}</div></div>`; 
+            reportHtml += `<div id="chart-row"><h3>📈 Trend (${green.targetYear})</h3><div style="height: 350px;"><canvas id="monthlyChart"></canvas></div></div></div>`;
+            
+            const outputDiv = document.getElementById('output-reports'); outputDiv.innerHTML = reportHtml;
+            outputDiv.querySelectorAll('.report-container tr.year-total-row').forEach(row => { row.addEventListener('click', handleYearToggle); });
+            
+            const bdToggle = document.getElementById('breakdown-layout-toggle');
+            if(bdToggle) { bdToggle.addEventListener('change', function() { const wrappers = document.querySelectorAll('.breakdown-grid-wrapper'); wrappers.forEach(w => { if(this.checked) w.classList.add('single-col'); else w.classList.remove('single-col'); }); }); }
+
+            // --- AUTO-EXPAND LOGIC (Modified to just expand current) ---
+            const latestYear = green.targetYear;
+            const latestBreakdownRow = document.querySelector(`.year-total-row[data-year="${latestYear}"][data-type="breakdown"]`); 
+            if (latestBreakdownRow) setTimeout(() => latestBreakdownRow.click(), 50);
+
+            const latestHistoryRow = document.querySelector(`.year-total-row[data-year="${latestYear}"][data-report="green"]`); 
+            if (latestHistoryRow) setTimeout(() => latestHistoryRow.click(), 100);
+            
+            // Previous year auto-expand (optional - usually better to keep collapsed to save space)
+            const prevHistoryRow = document.querySelector(`.year-total-row[data-year="${latestYear - 1}"][data-report="green"]`); 
+            if (prevHistoryRow) setTimeout(() => prevHistoryRow.click(), 150);
+
+            const latestCardRow = document.querySelector(`.year-total-row[data-year="${latestYear}"][data-report="blue"]`); 
+            if (latestCardRow) setTimeout(() => latestCardRow.click(), 200);
+
+            const allMonthlyData = AppData.green.multiYearMonthlyData.filter(m => m.type === 'monthly_detail').sort((a, b) => a.key.localeCompare(b.key));
+            const rolling12Months = allMonthlyData.slice(-12);
+            renderChart(rolling12Months, latestYear);
+        }
+
+        function copyToClipboard(text, event) {
+            if (event) event.stopPropagation(); 
+            navigator.clipboard.writeText(text).then(function() { showToast("Copied: " + text); }, function(err) { console.error('Error: ', err); });
+        }
+
+        function showToast(message) { const toast = document.getElementById("toast"); toast.innerText = message; toast.className = "show"; setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000); }
+
+        function showFirstTxn(name, date, event) {
+            const popup = document.getElementById('mini-popup'); const content = popup.querySelector('.mini-content'); const popupBody = document.getElementById('mini-popup-body');
+            popupBody.innerHTML = `<div style="padding: 0; line-height: 1.2;"><div style="font-weight:bold; color: #333; font-size: 0.9em; margin-bottom: 2px;">${name}</div><div style="font-size: 0.7em; color: #888;">1st TXN</div><div style="color: #2e7d32; font-weight:bold; font-size: 1.1em;">${formatDateToReadable(date)}</div></div>`;
+            positionPopup(popup, content, event);
+        }
+
+        function showMiniMonthDetails(key, title, event) {
+            const popup = document.getElementById('mini-popup'); const content = popup.querySelector('.mini-content'); const popupBody = document.getElementById('mini-popup-body');
+            const data = AppData.monthlyDetails[key]; if (!data || Object.keys(data).length === 0) return;
+            const topRecipients = Object.values(data).sort((a,b) => b.sum - a.sum).slice(0, 5);
+            let html = `<div style="text-align:left; margin-bottom:4px; font-size:0.85em; color:#777; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:2px;">Top 5 (${title})</div>`;
+            topRecipients.forEach(r => { html += `<div class="mini-list-item"><div class="mini-name">${r.receiver}</div><div class="mini-amt">${formatCompact(r.sum)}</div></div>`; });
+            popupBody.innerHTML = html; positionPopup(popup, content, event);
+        }
+
+        function positionPopup(popup, content, event) {
+            popup.style.display = "block"; const clickX = event.clientX; const clickY = event.clientY; const screenWidth = window.innerWidth; const popupWidth = 180; 
+            let posX = clickX + 15; let posY = clickY - 20;
+            if (posX + popupWidth > screenWidth) { posX = clickX - popupWidth - 10; }
+            if (posY + content.offsetHeight > window.innerHeight) { posY = window.innerHeight - content.offsetHeight - 10; }
+            content.style.left = posX + 'px'; content.style.top = posY + 'px';
+        }
+
+        function closeMiniPopup() { document.getElementById('mini-popup').style.display = "none"; }
+        function closeModal() { document.getElementById('detail-modal').style.display = "none"; }
+
+        function createSecurityReportContent(securityData) {
+            const sameDay = securityData.sameDaySameReceiver; 
+            const lateNight = securityData.lateNight; 
+            const businesses = securityData.potentialBusiness || []; 
+            
+            let html = `<div class="security-header">Activity Watchlist</div>`;
+
+            // --- 1. NEW SECTION: POTENTIAL BUSINESSES ---
+            html += `<div class="simple-subhead">Potential Commercial / Business</div>`;
+            
+            if (businesses.length === 0) {
+                html += `<p style="padding: 10px; color: #1b5e20;">✅ No business names detected.</p>`;
+            } else {
+                html += `<p style="margin: 0 0 10px 0; color: #424242; font-size: 0.9em;">Found ${businesses.length} non-standard names.</p>`;
+                html += `<div class="table-scroll" style="max-height: 200px;"><table class="simple-table"><thead><tr><th>Name</th><th>Cnt</th><th>Sum</th></tr></thead><tbody>`;
+                businesses.forEach(r => {
+                    html += `<tr><td style="font-weight:600; color:#d81b60;">${r.Receiver}</td><td style="text-align:center;">${r.Count}</td><td class="numeric">${formatCompact(r.Sum)}</td></tr>`;
+                });
+                html += `</tbody></table></div>`;
+            }
+
+            // --- 2. SAME DAY SECTION ---
+            html += `<div class="simple-subhead" style="margin-top: 25px;">Multiple Daily Transactions</div>`;
+            
+            if (sameDay.summary.length === 0) { 
+                html += `<p style="padding: 10px; color: #1b5e20;">✅ No repeat daily recipients found.</p>`; 
+            } else { 
+                html += `<div class="table-scroll"><table class="simple-table"><thead><tr><th>Name</th><th>Days</th><th>Txns</th></tr></thead><tbody>`; 
+                sameDay.summary.forEach(r => { html += `<tr><td>${r.receiver}</td><td>${r.incidents}</td><td>${r.transactions}</td></tr>`; }); 
+                html += `</tbody></table></div>`; 
+            }
+
+            // --- 3. LATE NIGHT SECTION ---
+            html += `<div class="simple-subhead" style="margin-top: 25px;">Late Night Activity</div>`;
+            
+            if (lateNight.summary.totalIncidents === 0) { 
+                html += `<p style="padding: 10px; color: #1b5e20;">✅ No late-night activity detected.</p>`; 
+            } else { 
+                html += `<p style="margin: 0 0 10px 0; color: #424242; font-size: 0.9em;">${lateNight.summary.totalIncidents} incidents found.</p>`;
+                html += `<div class="table-scroll"><table class="simple-table"><thead><tr><th>Date</th><th>PST</th><th>Local</th><th>Name</th></tr></thead><tbody>`; 
+                lateNight.details.forEach((d) => { html += `<tr><td>${formatDateToReadable(d.date)}</td><td>${d.time}</td><td style="font-weight:bold; color:#d32f2f;">${d.localTime}</td><td>${d.receiver}</td></tr>`; }); 
+                html += `</tbody></table></div>`; 
+            }
+            return html;
+        }
+
+        function createOneTimeRecipientReport(data) {
+            let html = `<div class="onetime-header">One-Time Recipients</div>`;
+            html += `<p style="margin: 0 0 10px 0; color: #424242; font-size: 0.9em;">Total: ${data.total} recipients (${data.targetPeriod})</p>`;
+            if (data.total === 0) { html += `<p style="padding: 10px; color: #1b5e20;">✅ No one-time recipients found.</p>`; } 
+            else { 
+                html += `<div class="table-scroll"><table class="simple-table"><thead><tr><th>Name</th><th>Date</th><th>Amount</th></tr></thead><tbody>`; 
+                data.details.forEach(r => { html += `<tr><td>${r.receiver}</td><td>${formatDateToReadable(r.latestTxnDate)}</td><td class="numeric">${formatCurrencyFull(r.latestTxnAmount)}</td></tr>`; }); 
+                html += `</tbody></table></div>`; 
+            }
+            return html;
+        }
+
+        function renderChart(rollingData, targetYear) {
+            if (monthlyChart) { monthlyChart.destroy(); }
+
+            const labels = rollingData.map(m => `${m.monthName} '${String(m.year).slice(-2)}`); 
+            const sums = rollingData.map(m => m.sum);
+            const lateNightSums = rollingData.map(m => m.lateNightSum || 0); 
+            const regularSums = sums.map((total, index) => total - lateNightSums[index]);
+            const counts = rollingData.map(m => m.count);
+            const keys = rollingData.map(m => m.key); 
+            const fullTitles = rollingData.map(m => `${m.monthName} ${m.year}`);
+
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Late Night', data: lateNightSums, backgroundColor: '#dc3545', stack: 'Stack 1', maxBarThickness: 35, datalabels: { display: false } },
+                        { label: 'Daytime', data: regularSums, backgroundColor: '#2e7d32', stack: 'Stack 1', maxBarThickness: 35, datalabels: { display: (c) => sums[c.dataIndex] > 0, align: 'end', anchor: 'end', color: '#37474f', font: { weight: 'bold', size: 10 }, formatter: (v, c) => formatCompact(sums[c.dataIndex]) } },
+                        { label: 'Txn Count', data: counts, type: 'line', borderColor: '#0d47a1', yAxisID: 'yCount', pointRadius: 4, tension: 0.4, datalabels: { display: false } }
+                    ]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    onClick: (e) => { 
+                        const points = monthlyChart.getElementsAtEventForMode(e, 'index', { intersect: false }, true); 
+                        if (points.length) { const idx = points[0].index; showMiniMonthDetails(keys[idx], fullTitles[idx], e.native); } 
+                    },
+                    plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } } },
+                    scales: { 
+                        y: { type: 'linear', position: 'left', beginAtZero: true, ticks: { callback: (v) => formatCompact(v) } }, 
+                        yCount: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, min: 0 } 
+                    }
+                },
+            });
+        }
+        
+        function handleYearToggle(event) {
+            const row = event.currentTarget; const year = row.dataset.year;
+            if (row.dataset.type === 'breakdown') {
+                const contentRow = document.querySelector(`.breakdown-year-container[data-year="${year}"]`); if (!contentRow) return;
+                const expand = !row.classList.contains('expanded'); row.classList.toggle('expanded', expand); contentRow.style.display = expand ? 'table-row' : 'none';
+            } else {
+                const detailBody = document.querySelector(`.monthly-detail-rows[data-year-details="${row.dataset.report}-${year}"]`); if (!detailBody) return;
+                const expand = !row.classList.contains('expanded'); row.classList.toggle('expanded', expand); detailBody.querySelectorAll('.monthly-detail-row').forEach(dr => { dr.style.display = expand ? 'table-row' : 'none'; });
+            }
+        }
+        
+        function toggleLegacy(className) {
+            const rows = document.querySelectorAll('.' + className);
+            rows.forEach(row => { row.classList.toggle('show-legacy'); });
+        }
+
+        function parseSingleFile(file) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(file, { header: true, skipEmptyLines: true, complete: (results) => { const data = results.data.filter(r => r['Amount Sent'] && r['Receiver'] && r['Submitted On'] && r['User Status'] === 'Completed'); resolve(data); }, error: (e) => reject(e) });
+            });
+        }
+        async function handleMultipleFiles(files) {
+            let combined = []; document.getElementById('output-reports').innerHTML = '<p>Processing...</p>';
+            try {
+                const results = await Promise.all(Array.from(files).map(parseSingleFile)); results.forEach(d => { combined = combined.concat(d); });
+                if (!combined.length) { document.getElementById('output-reports').innerHTML = '<p style="color:red;">No valid completed data.</p>'; return; }
+                AppCurrencySymbol = extractCurrencySymbol(combined[0]['Amount Sent']); document.querySelector('h1').textContent = `📊 EME (${AppCurrencySymbol})`;
+                AppData = generateAllData(combined); renderReports(AppData.green, AppData.orange, AppData.blue, AppData.security, AppData.oneTimeRecipients);
+            } catch (e) { document.getElementById('output-reports').innerHTML = `<p style="color:red;">Error: ${e.message}</p>`; }
+        }
+        function handleFileSelect(event) { if (event.target.files.length) handleMultipleFiles(event.target.files); }
+    </script>
+</body>
+</html>
