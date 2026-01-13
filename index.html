@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* DEFAULT (DARK OPS) VARIABLES */
             --bg-dark: #121820;
             --bg-medium: #18212e;
             --bg-light: #2a3447;
@@ -20,8 +21,36 @@
             --accent-color: #f7b733;
             --border-color: #2a3447;
             --button-secondary: #4a4a4a;
+            --calc-text: #00ff41; /* New variable for calculator */
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-primary); margin: 0; }
+
+        /* LIGHT THEME (DAY SHIFT) */
+        body.theme-light {
+            --bg-dark: #f4f6f8;
+            --bg-medium: #ffffff;
+            --bg-light: #e1e4e8;
+            --text-primary: #1a202c;
+            --text-secondary: #5f6c7b;
+            --accent-color: #2c5282; /* Professional Navy Blue */
+            --border-color: #cbd5e0;
+            --button-secondary: #e2e8f0;
+            --calc-text: #1a202c;
+        }
+
+        /* TERMINAL THEME (MATRIX) */
+        body.theme-terminal {
+            --bg-dark: #000000;
+            --bg-medium: #0a0a0a;
+            --bg-light: #1a1a1a;
+            --text-primary: #00ff41;
+            --text-secondary: #008f11;
+            --accent-color: #00ff41;
+            --border-color: #003b00;
+            --button-secondary: #003b00;
+            --calc-text: #00ff41;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-primary); margin: 0; transition: background-color 0.3s, color 0.3s; }
         .app-container {
             display: grid; grid-template-columns: 40px 1fr 350px; grid-template-rows: auto 1fr;
             grid-template-areas: "header header header" "left-sidebar main-content right-sidebar";
@@ -265,10 +294,12 @@
             border-color: var(--accent-color);
         }
 
+
+
         
         .calculator-display {
     background-color: var(--bg-dark); 
-    color: #00ff41; /* Pure Matrix Green */
+    color: var(--calc-text);
     font-size: 2.2em; 
     text-align: right; 
     padding: 15px;
@@ -286,6 +317,12 @@
         .calculator-grid button { padding: 10px; font-size: 1em; margin: 0; background-color: var(--bg-light); color: var(--text-primary); }
         .calculator-grid button.operator { background-color: var(--accent-color); color: var(--bg-dark); }
         .calculator-grid button.span-two { grid-column: span 2; }
+        
+        .calculator-display:focus {
+    outline: 1px solid var(--accent-color);
+    background-color: var(--bg-medium);
+    cursor: default;
+}
 
         /* RELOCATED SCRATCHPAD STYLE */
         .side-notepad {
@@ -420,10 +457,21 @@
 </head>
 <body>
     <div class="app-container sidebar-open" id="app-container">
+        
         <header class="app-header" id="app-header">
             <h1>CSI</h1>
-            <div id="mobile-right-sidebar-toggle" title="Toggle Tools">&#9874;</div>
+            
+            <div style="margin-left: auto; margin-right: 15px;">
+                <select id="theme-selector" style="width: auto; padding: 4px; margin: 0; font-size: 0.8em; height: 24px; border-color: var(--border-color); color: var(--text-primary); background: var(--bg-medium);">
+                    <option value="default">Dark Ops</option>
+                    <option value="light">Day Shift</option>
+                    <option value="terminal">Terminal</option>
+                </select>
+            </div>
+
+            <div id="mobile-right-sidebar-toggle" title="Toggle Tools" style="margin-left: 0;">&#9874;</div>
         </header>
+            
         <aside id="left-sidebar" class="sidebar">
             <div id="sidebar-toggle" title="Toggle Sidebar">&#9776;</div>
             <div class="sidebar-content">
@@ -502,7 +550,7 @@
                  <h3>Google Search</h3>
                  <input type="text" id="research-query" placeholder="Search Google...">
                  <button id="research-search-btn">Search</button>
-                 <div class="calculator-display" id="calculator-display">0</div>
+                 <div class="calculator-display" id="calculator-display" tabindex="0" title="Click to paste number">0</div>
                  <div class="calculator-grid">
                      <button data-clear class="operator">AC</button><button data-delete class="operator">DEL</button><button data-operation class="operator">%</button><button data-operation class="operator">÷</button>
                      <button data-number>7</button><button data-number>8</button><button data-number>9</button><button data-operation class="operator">×</button>
@@ -551,6 +599,37 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- THEME LOGIC ---
+        const themeSelector = document.getElementById('theme-selector');
+        
+        // 1. Load saved theme
+        const savedTheme = localStorage.getItem('csiHubTheme') || 'default';
+        applyTheme(savedTheme);
+        themeSelector.value = savedTheme;
+
+        // 2. Listen for changes
+        themeSelector.addEventListener('change', (e) => {
+            const selectedTheme = e.target.value;
+            applyTheme(selectedTheme);
+        });
+
+        function applyTheme(themeName) {
+            // Remove old theme classes
+            document.body.classList.remove('theme-light', 'theme-terminal');
+            
+            // Apply new class if not default
+            if (themeName === 'light') {
+                document.body.classList.add('theme-light');
+            } else if (themeName === 'terminal') {
+                document.body.classList.add('theme-terminal');
+            }
+            
+            // Save to storage
+            localStorage.setItem('csiHubTheme', themeName);
+        }
+        
+        
         // --- Globals ---
         let templates = JSON.parse(localStorage.getItem('csiHubTemplates')) || [];
         let editingTemplateIndex = null, currentFontSize = 16, timerInterval, totalSeconds = 0, alertTimeInSeconds = 0, alertTriggered = false;
@@ -811,6 +890,31 @@
         display.innerText = currentOperand;
     }
 }
+
+// --- CALCULATOR PASTE SUPPORT ---
+        const calcDisplay = document.getElementById('calculator-display');
+        
+        calcDisplay.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            
+            // 1. Sanitize: Remove everything that isn't a number or a dot
+            // This handles inputs like "$50,000.00" -> "50000.00"
+            let cleanNum = text.replace(/[^0-9.]/g, '');
+
+            // 2. Validate: simple check to ensure it's not empty and is a valid number
+            if (cleanNum && !isNaN(parseFloat(cleanNum))) {
+                currentOperand = cleanNum;
+                updateDisplay();
+                
+                // Visual feedback flash
+                const originalColor = calcDisplay.style.color;
+                calcDisplay.style.color = 'var(--text-primary)';
+                setTimeout(() => calcDisplay.style.color = originalColor, 150);
+            }
+        });
+        
+        
         function clear() { currentOperand = '0'; previousOperand = ''; operation = undefined; updateDisplay(); }
         function deleteDigit() { currentOperand = currentOperand.length <= 1 ? '0' : currentOperand.toString().slice(0, -1); updateDisplay(); }
         function appendNumber(num) {
@@ -1081,10 +1185,62 @@
             performNegativeNewsSearch(); performOffenderSearch(); performSocialMediaSearch(); performBusinessSearch();
         };
 
-        window.performNegativeNewsSearch = () => { const n = personNameInput.value; if (n) window.open(`https://www.google.com/search?q="${encodeURIComponent(n)}" AND (bribery OR fraud OR "money laundering" OR crime OR terrorism OR corruption OR "sex offender")`, "_blank"); };
+        window.performNegativeNewsSearch = () => { const n = personNameInput.value; if (n) window.open(`https://www.google.com/search?q="${encodeURIComponent(n)}" AND (bribery OR fraud OR "money laundering" OR crime OR terrorism OR corruption OR "sex offender" OR "child exploitation")`, "_blank"); };
         window.performOffenderSearch = () => { const n = personNameInput.value; if (!n) return; const p = n.split(' '), f = p[0], l = p.length > 1 ? p[p.length - 1] : ''; window.open(`https://www.nsopw.gov/en/search/results?firstName=${encodeURIComponent(f)}&lastName=${encodeURIComponent(l)}`, "_blank"); };
-        window.performSocialMediaSearch = () => { const n = personNameInput.value; if (!n) return; const en = encodeURIComponent(n); [`https://www.facebook.com/search/top/?q=${en}`, `https://www.linkedin.com/search/results/all/?keywords=${en}`, `https://twitter.com/search?q=${en}`, `https://www.instagram.com/explore/search/keyword/?q=${en}`].forEach(u => window.open(u, "_blank")); };
-        window.performBusinessSearch = () => { const n = personNameInput.value; if (n) [`https://opencorporates.com/officers?q=${encodeURIComponent(n)}`, `https://find-and-update.company-information.service.gov.uk/search?q=${encodeURIComponent(n)}`].forEach(u => window.open(u, "_blank")); };
+        
+        
+        
+        window.performSocialMediaSearch = () => { 
+            const n = personNameInput.value; 
+            if (!n) return; 
+            const en = encodeURIComponent(n); 
+            
+            // List of Social Media Search URLs
+            const urls = [
+                `https://www.facebook.com/search/top/?q=${en}`, 
+                `https://www.linkedin.com/search/results/all/?keywords=${en}`, 
+                `https://twitter.com/search?q=${en}`, 
+                `https://www.instagram.com/explore/search/keyword/?q=${en}`,
+                `https://www.youtube.com/results?search_query=${en}` // Added YouTube
+            ];
+
+            // Open each in a new tab
+            urls.forEach(u => window.open(u, "_blank")); 
+        };
+        
+        
+       window.performBusinessSearch = () => { 
+            const n = personNameInput.value; 
+            if (!n) return; 
+            const en = encodeURIComponent(n); 
+            
+            const urls = [
+                // --- GLOBAL / US ---
+                `https://opencorporates.com/officers?q=${en}`,
+                `https://offshoreleaks.icij.org/search?q=${en}`,
+                `https://www.sec.gov/edgar/search/#/q=${en}`,
+                `https://littlesis.org/search?q=${en}`,
+
+                // --- UK & EUROPE ---
+                `https://find-and-update.company-information.service.gov.uk/search?q=${en}`,
+                `https://www.northdata.com/${en}`,
+
+                // --- CANADA (UPDATED) ---
+                // 1. Canada's Business Registries (Official - Federal & Provincial Combined)
+                // This is the new stable URL (replaced the broken beta link)
+                `https://ised-isde.canada.ca/cbr-rec/en/search/results?search=${en}`,
+
+                // 2. Corporations Canada (Federal Corporations Only - Very reliable backup)
+                `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpSrch.html`,
+
+                // 3. SEDAR+ (Public Company Filings via Google Dork)
+                `https://www.google.com/search?q=site:sedar.com+"${en}"`
+            ];
+
+            urls.forEach(u => window.open(u, "_blank")); 
+        };
+        
+        
         
         window.calculateMonthlyIncome = () => {
             const i = document.getElementById('annualIncome').value, r = document.getElementById('monthlyIncomeResult'); if (!i.trim()) return r.innerText = '';
@@ -1166,11 +1322,12 @@
     // 1. CONFIGURATION (Your Updated Dictionary)
     const dictionary = [
         // core review terms
-        "cx", "txn", "txns", "rec", "recs","customer",
+        "suspension", "txn", "txns", "rec", "recs","customer",
         "susp", "suspended acct", "linked accts", "dup acct",
         "OAA", "MM", "HRF", "policy watch", "platform misuse", "not sustained", "Facebook", "LinkedIn", "Instagram", "social media",
         "mismatch", "PP name mismatch", "top recipient", "mixed male and female", "Could not locate the customer or the recipient(s) on social media or a general internet search that could help mitigate or collaborate with the investigation.", "not sustained", 
-        "Unlikely", "famillial sending","no links to any suspended acct",
+        "Unlikely", "familial sending","no links to any suspended acct", "unlikely", "Young cx", "Young adult cx", "Adult cx", "Elderly cx",
+        "[Action]", "[Action] Pass - ", "[Action] Pending - ", "[Action] Escalate to STAR - ", "[Action] EKYC FAILED - ",
         
         // behavior & pattern
         "spike", "one-time spike", "sustained activity",
