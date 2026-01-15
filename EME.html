@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EME - Updated as of Dec 21 2025</title>
+    <title>EME - Dashboard</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
@@ -20,22 +20,27 @@
         h1 { color: #1a1a1a; margin: 0; font-size: 1.8em; }
         
         /* --- TOGGLE SWITCH STYLES --- */
-        .toggle-container { display: flex; align-items: center; gap: 10px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .toggle-group { display: flex; align-items: center; gap: 15px; }
+        .toggle-container { display: flex; align-items: center; gap: 8px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #d81b60; }
-        input:checked + .slider:before { transform: translateX(26px); }
-        .toggle-label { font-weight: 600; font-size: 14px; color: #555; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2e7d32; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        /* Specific Colors for Toggles */
+        #theme-toggle:checked + .slider { background-color: #d81b60; }
+        #mono-toggle:checked + .slider { background-color: #424242; }
+
+        .toggle-label { font-weight: 600; font-size: 13px; color: #555; }
 
         /* --- MINI TOGGLE --- */
         .header-toggle-wrapper { display: flex; align-items: center; font-size: 0.75em; font-weight: normal; opacity: 0.9; }
         .switch.mini { width: 34px; height: 18px; margin-left: 8px; }
         .switch.mini .slider:before { height: 14px; width: 14px; left: 2px; bottom: 2px; }
-        .switch.mini input:checked + .slider { background-color: #fff; }
-        .switch.mini input:checked + .slider:before { transform: translateX(16px); background-color: #2e7d32; }
-        body.colored-mode .switch.mini input:checked + .slider:before { background-color: #1565c0; } 
+        .switch.mini input:checked + .slider { background-color: #2e7d32; }
+        .switch.mini input:checked + .slider:before { transform: translateX(16px); }
 
         /* --- Upload --- */
         #csv-upload { display: block; margin: 10px 0 20px 0; padding: 10px; border: 2px dashed #607d8b; background-color: #eceff1; cursor: pointer; border-radius: 6px; width: 95%; font-size: 1em; color: #37474f; }
@@ -54,7 +59,6 @@
         .onetime-box { background-color: #e3f2fd; border-color: #bbdefb; border-top: 4px solid #1976d2; }
         .onetime-header { color: #0d47a1; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
         .simple-subhead { font-weight: bold; font-size: 1em; color: #212121; margin-top: 15px; margin-bottom: 4px; }
-        .watchlist-desc { font-size: 0.85em; color: #546e7a; margin-bottom: 8px; line-height: 1.3; }
         
         /* TABLES */
         .simple-table { width: 100%; border-collapse: collapse; background: white; font-size: 0.95em; }
@@ -68,7 +72,7 @@
 
         .collapsible-header { cursor: default; user-select: none; position: relative; padding: 10px 15px; font-size: 1.15em; margin: 0; background-color: #fff; color: #2e7d32; border-bottom: 2px solid #2e7d32; font-weight: 700; transition: all 0.3s ease; } 
         
-        /* BOLD MODE */
+        /* --- BOLD MODE --- */
         body.colored-mode .report-box:nth-of-type(1) { border: 1px solid #1565c0; background-color: #f0f7ff; }
         body.colored-mode .report-box:nth-of-type(1) .collapsible-header { background-color: #1565c0; color: white; border-bottom: none; }
         body.colored-mode .report-box:nth-of-type(2) { border: 1px solid #00695c; background-color: #f0fdfc; }
@@ -83,27 +87,50 @@
         body.colored-mode .security-header { color: #b71c1c; font-size: 1.3em; text-decoration: underline; }
         body.colored-mode .data-table, body.colored-mode .simple-table { background-color: rgba(255,255,255, 0.7); }
 
+        /* --- MONO MODE (Black/Gray/White) --- */
+        body.mono-mode { background-color: #e0e0e0; color: #000; }
+        body.mono-mode .container { box-shadow: none; border: 1px solid #999; }
+        body.mono-mode .header-row { border-bottom: 4px solid #333; }
+        body.mono-mode h1 { color: #000; }
+        body.mono-mode .report-box { border: 1px solid #333; background-color: #fff; box-shadow: none; }
+        body.mono-mode .collapsible-header { background-color: #333 !important; color: #fff !important; border-bottom: 1px solid #000; }
+        body.mono-mode .security-box, body.mono-mode .onetime-box { background-color: #fff; border: 1px solid #333; border-top: 4px solid #000; }
+        body.mono-mode .security-header, body.mono-mode .onetime-header { color: #000; text-decoration: none; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        body.mono-mode .simple-subhead { color: #000; text-transform: uppercase; font-size: 0.9em; }
+        body.mono-mode .simple-table th { background-color: #333; color: #fff; border: 1px solid #000; }
+        body.mono-mode .simple-table td { border: 1px solid #666; color: #000; }
+        body.mono-mode .numeric { color: #000 !important; }
+        body.mono-mode .data-table th { background-color: #333; color: #fff; border: 1px solid #000; }
+        body.mono-mode .data-table td { border: 1px solid #ccc; color: #000; }
+        body.mono-mode .monthly-group-header { background-color: #eee !important; color: #000 !important; border-bottom: 1px solid #666 !important; }
+        body.mono-mode .high-sending, body.mono-mode .spike-month-header, body.mono-mode .spike-breakdown { background-color: #ccc !important; color: #000 !important; font-weight: bold; }
+        body.mono-mode .clickable-recipient { color: #000 !important; text-decoration: underline; }
+        body.mono-mode canvas { filter: grayscale(100%); }
+        body.mono-mode .search-container { background-color: #ddd; border-bottom: 1px solid #999; }
+        body.mono-mode .switch.mini input:checked + .slider { background-color: #333; }
+        body.mono-mode .year-total-row.latest-year { background-color: #000; border-bottom: 2px solid #666; }
+        body.mono-mode .year-total-row.latest-year td { color: #fff; }
+        body.mono-mode .year-total-row.latest-year .numeric { color: #fff !important; }
+
+        /* DATA TABLES */
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th, .data-table td { border: 1px solid #cfd8dc; padding: 6px 8px; text-align: left; word-wrap: break-word; }
         .data-table th { background-color: #455a64; color: white; font-weight: 600; text-transform: uppercase; font-size: 0.85em; border: 1px solid #455a64; }
-        
-        /* HOVER EFFECT FOR SORTABLE HEADERS */
         .data-table th.sortable:hover { background-color: #37474f; cursor: pointer; user-select: none; }
-
         .numeric { text-align: right; font-family: 'Consolas', 'Monaco', monospace; font-size: 1.0em; font-weight: 700; color: #212121; white-space: nowrap; }
 
         .year-total-row { cursor: pointer; border-top: 1px solid #b0bec5; transition: background-color 0.2s; }
         .year-total-row.latest-year { background-color: #263238; color: #ffffff !important; font-weight: bold; font-size: 1.05em; border-bottom: 2px solid #ff8f00; }
         .year-total-row.latest-year .numeric { color: #ffffff !important; }
-        .year-total-row.latest-year td { padding: 10px 8px; border-color: #263238; }
         .year-total-row.previous-year { background-color: #eceff1; color: #37474f; font-size: 0.95em; font-weight: 600; }
-        .year-total-row.previous-year:hover { background-color: #cfd8dc; }
         .year-total-row.expanded .year-arrow { transform: rotate(90deg); }
         .year-arrow { display: inline-block; margin-right: 6px; transition: transform 0.2s; }
+        
         .breakdown-year-container { display: none; background-color: #fff; padding: 0; border-bottom: 1px solid #cfd8dc; }
 
-        .breakdown-grid-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; transition: all 0.3s; }
-        .breakdown-grid-wrapper.single-col { grid-template-columns: 1fr !important; }
+        /* Updated Grid Wrapper - Default is 1 Column */
+        .breakdown-grid-wrapper { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 4px; transition: all 0.3s; }
+        .breakdown-grid-wrapper.two-col { grid-template-columns: 1fr 1fr; }
 
         .monthly-group { border: 1px solid #b0bec5; border-radius: 3px; overflow: hidden; margin-bottom: 0; }
         .monthly-group-header { background-color: #cfd8dc; color: #263238; padding: 3px 6px; font-weight: bold; font-size: 0.85em; border-bottom: 1px solid #b0bec5; display: flex; justify-content: space-between; }
@@ -111,20 +138,14 @@
         .monthly-group .data-table th, .monthly-group .data-table td { padding: 2px 3px; font-size: 0.85em; line-height: 1.2; }
         .monthly-group .data-table th { font-size: 0.75em; letter-spacing: -0.5px; }
 
-        .history-clickable-row { cursor: pointer; transition: background-color 0.15s; }
+        .history-clickable-row { cursor: default; transition: background-color 0.15s; }
         .history-clickable-row:hover { background-color: #e3f2fd !important; }
-
         .monthly-detail-row { background-color: #fff; }
         .spike-month-header { background-color: #ffebee !important; color: #c62828 !important; font-weight: bold; }
-        .spike-month-header td { border-color: #ffcdd2; }
-        .spike-month-header .numeric { color: #c62828 !important; }
-        .normal-month-header { background-color: #eceff1; color: #37474f; font-weight: bold; }
         .high-sending { background-color: #ffebee !important; color: #c62828 !important; font-weight: bold; }
-        .high-sending td { border-color: #ffcdd2; }
-        .high-sending .numeric { color: #c62828 !important; }
         .top-5-highlight { background-color: #fffde7 !important; }
-
         .annual-total-summary td { background-color: #212121 !important; color: #ffb300 !important; font-weight: 800; font-size: 1.1em; border-top: 3px solid #ffb300; padding: 8px; }
+        
         .monthly-breakdown-wrapper { max-height: 1800px; overflow-y: auto; }
         .top-recipients-wrapper { max-height: 800px; overflow-y: auto; }
         .stats-summary-box { background: #fff; padding: 10px; border-bottom: 1px solid #dee2e6; color: #333; font-size: 1em; line-height: 1.4; font-weight: 500; }
@@ -132,7 +153,6 @@
         /* SEARCH BAR */
         .search-container { padding: 8px 10px; background-color: #eceff1; border-bottom: 1px solid #cfd8dc; }
         #recipient-search { width: 95%; padding: 6px 8px; border: 1px solid #b0bec5; border-radius: 4px; font-size: 0.95em; outline: none; }
-        #recipient-search:focus { border-color: #29b6f6; box-shadow: 0 0 4px rgba(41, 182, 246, 0.3); }
 
         /* --- MAIN MODAL --- */
         #detail-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.3); backdrop-filter: blur(2px); }
@@ -141,51 +161,39 @@
         .modal-header h3 { margin: 0; font-size: 1.1em; color: white; border: none; }
         .close-modal { color: #fff; font-size: 20px; font-weight: bold; cursor: pointer; }
         .modal-body { padding: 0; }
-        .modal-body table { width: 100%; border-collapse: collapse; }
-        .modal-body th { position: sticky; top: 0; background: #eceff1; color: #333; font-size: 0.8em; padding: 6px 10px; text-transform: uppercase; border-bottom: 1px solid #ccc; text-align: left; }
-        .modal-body td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 0.9em; color: #333; }
-        .modal-body tr:last-child td { border-bottom: none; }
-        .modal-body tr:hover { background-color: #f5f5f5; }
         @keyframes fadeIn { from {opacity: 0; transform: translateY(-10px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* --- MINI POPUP STYLES --- */
+        /* --- POPUPS --- */
         #mini-popup { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: transparent; }
         .mini-content { 
             position: absolute; background-color: #fff; padding: 8px 10px; border: 1px solid #999; 
-            width: auto; min-width: 140px; max-width: 200px; border-radius: 4px; 
+            width: auto; min-width: 140px; max-width: 250px; border-radius: 4px; 
             box-shadow: 0 3px 8px rgba(0,0,0,0.2); text-align: center; animation: fadeIn 0.1s; pointer-events: none; 
         }
         .mini-list-item { display: flex; justify-content: space-between; font-size: 0.8em; padding: 2px 0; border-bottom: 1px dashed #eee; }
-        .mini-list-item:last-child { border-bottom: none; }
         .mini-name { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; font-weight: 500; }
         .mini-amt { font-weight: bold; color: #2e7d32; }
 
+        /* Selection Popup specific style */
+        .selection-popup-content {
+            text-align: left; border: 2px solid #2e7d32; background: #fff; color: #333; z-index: 2005; pointer-events: auto !important;
+        }
+        .sel-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 0.9em; }
+        .sel-label { color: #555; font-weight: 500; }
+        .sel-val { font-weight: bold; color: #000; }
+        .sel-avg { border-top: 1px solid #ccc; padding-top: 4px; margin-top: 2px; color: #1565c0; }
+
         /* --- COPY BUTTON & TOAST --- */
         .clickable-recipient:hover { text-decoration: underline; color: #01579b; }
-        .copy-btn { 
-            cursor: pointer; font-size: 1.1em; margin-left: 6px; color: #78909c; 
-            transition: color 0.2s, transform 0.1s; display: inline-block; 
-        }
+        .copy-btn { cursor: pointer; font-size: 1.1em; margin-left: 6px; color: #78909c; transition: color 0.2s, transform 0.1s; display: inline-block; }
         .copy-btn:hover { color: #007bff; transform: scale(1.1); }
-        .copy-btn:active { transform: scale(0.95); }
-
-        #toast {
-            visibility: hidden; min-width: 150px; background-color: #333; color: #fff; text-align: center;
-            border-radius: 4px; padding: 10px; position: fixed; z-index: 2000; left: 50%; bottom: 30px;
-            transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s;
-        }
+        
+        #toast { visibility: hidden; min-width: 150px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 10px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
         
-        /* --- LEGACY HISTORY TOGGLE --- */
-        .legacy-year-row { display: none; } /* Hidden by default */
-        .legacy-year-row.show-legacy { display: table-row; } /* Shown when toggled */
-
-        .show-legacy-btn {
-            background: none; border: none; cursor: pointer;
-            color: #0288d1; font-size: 0.85em; text-decoration: underline;
-            margin-left: 10px; padding: 0;
-        }
-        .show-legacy-btn:hover { color: #01579b; }
+        .legacy-year-row { display: none; }
+        .legacy-year-row.show-legacy { display: table-row; }
+        .show-legacy-btn { background: none; border: none; cursor: pointer; color: #0288d1; font-size: 0.85em; text-decoration: underline; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -194,55 +202,70 @@
         <div class="header-row">
             <h1>📊 EME</h1>
             
-            <div class="toggle-container">
-                <span class="toggle-label" style="font-weight: normal; font-size: 12px; color: #888;">Clean</span>
-                <label class="switch">
-                    <input type="checkbox" id="theme-toggle">
-                    <span class="slider round"></span>
-                </label>
-                <span class="toggle-label" style="color: #d81b60; font-weight:bold;">Bold Colors</span>
+            <div class="toggle-group">
+                <div class="toggle-container">
+                    <span class="toggle-label" style="font-weight: normal; color: #666;">Mono</span>
+                    <label class="switch">
+                        <input type="checkbox" id="mono-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-container">
+                    <span class="toggle-label" style="font-weight: normal; font-size: 12px; color: #888;">Clean</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="toggle-label" style="color: #d81b60; font-weight:bold;">Bold</span>
+                </div>
             </div>
         </div>
 
         <input type="file" id="csv-upload" accept=".csv" multiple />
         <div id="output-reports">
-            <p style="color: #546e7a; font-size: 1em;">Upload a CSV file to generate the reports. <br>Use the toggle above to switch between Clean (Green) and Bold Colored views.</p>
+            <p style="color: #546e7a; font-size: 1em;">Upload a CSV file to generate the reports. <br>Use the toggle above to switch themes.</p>
         </div>
     </div>
 
-    <div id="detail-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Details</h3>
-                <span class="close-modal" onclick="closeModal()">&times;</span>
-            </div>
-            <div class="modal-body" id="modal-body"></div>
-        </div>
-    </div>
-
-    <div id="mini-popup">
-        <div class="mini-content">
-            <div id="mini-popup-body"></div>
-        </div>
-    </div>
+    <div id="detail-modal"><div class="modal-content"><div class="modal-header"><h3 id="modal-title">Details</h3><span class="close-modal" onclick="closeModal()">&times;</span></div><div class="modal-body" id="modal-body"></div></div></div>
+    
+    <div id="mini-popup"><div class="mini-content"><div id="mini-popup-body"></div></div></div>
 
     <div id="toast">Copied!</div>
 
     <script>
         document.getElementById('csv-upload').addEventListener('change', handleFileSelect, false);
         
-        document.getElementById('theme-toggle').addEventListener('change', function() {
-            if(this.checked) {
-                document.body.classList.add('colored-mode');
-            } else {
-                document.body.classList.remove('colored-mode');
+        // --- THEME HANDLERS ---
+        const monoToggle = document.getElementById('mono-toggle');
+        const colorToggle = document.getElementById('theme-toggle');
+
+        colorToggle.addEventListener('change', function() {
+            if(this.checked) { document.body.classList.add('colored-mode'); } 
+            else { document.body.classList.remove('colored-mode'); }
+        });
+
+        monoToggle.addEventListener('change', function() {
+            if(this.checked) { 
+                document.body.classList.add('mono-mode'); 
+                colorToggle.disabled = true; // Disable color toggle when mono is on
+            } else { 
+                document.body.classList.remove('mono-mode'); 
+                colorToggle.disabled = false;
             }
         });
 
         window.onclick = function(event) { 
             if (event.target == document.getElementById('detail-modal')) { closeModal(); } 
-            if (event.target == document.getElementById('mini-popup')) { closeMiniPopup(); } 
+            // Close popups on click
+            if (event.target == document.getElementById('mini-popup')) { closeMiniPopup(); }
         }
+
+        // Global Mouse Up for Selection Calculation
+        document.addEventListener('mouseup', function(e) {
+            handleHistorySelection(e);
+        });
 
         if (typeof ChartDataLabels !== 'undefined') { Chart.register(ChartDataLabels); }
 
@@ -250,8 +273,6 @@
         let monthlyChart;
         let AppCurrencySymbol = '$'; 
         const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        
-        // --- SORTING STATE ---
         let currentSort = { column: 'sum', direction: 'desc' }; 
 
         // --- HELPER FUNCTIONS ---
@@ -275,8 +296,7 @@
         
         function getRelevantMonthKeys(year, globalMinDate, globalMaxDate) {
             const keys = [];
-            let startM = 1;
-            let endM = 12;
+            let startM = 1; let endM = 12;
             if (globalMinDate && year === globalMinDate.getFullYear()) { startM = globalMinDate.getMonth() + 1; }
             if (globalMaxDate && year === globalMaxDate.getFullYear()) { endM = globalMaxDate.getMonth() + 1; }
             for (let i = startM; i <= endM; i++) { keys.push(`${year}-${String(i).padStart(2, '0')}`); }
@@ -324,8 +344,7 @@
             const firstTransactionDateByReceiver = {}; 
             let allTransactionsForAvg = [];
             let uniqueYearsRaw = new Set();
-            let minDateObj = null;
-            let maxDateObj = null;
+            let minDateObj = null; let maxDateObj = null;
 
             if (!Array.isArray(data)) return result;
 
@@ -340,14 +359,12 @@
             });
             let uniqueYears = Array.from(uniqueYearsRaw).map(Number).sort((a, b) => a - b);
             result.uniqueYears = uniqueYears;
-            result.globalDateRange.min = minDateObj;
-            result.globalDateRange.max = maxDateObj;
+            result.globalDateRange.min = minDateObj; result.globalDateRange.max = maxDateObj;
             
             const targetYear = uniqueYears.length > 0 ? Math.max(...uniqueYears) : new Date().getFullYear();
 
             data.forEach(row => {
-                if (!row) return; 
-                if (!row['Submitted On'] || !row['Amount Sent'] || !row['Receiver']) return;
+                if (!row || !row['Submitted On'] || !row['Amount Sent'] || !row['Receiver']) return;
 
                 const amount = cleanAmount(row['Amount Sent']);
                 const fee = cleanAmount(row['Fees']);
@@ -374,10 +391,7 @@
 
                 let timezoneOffset = 0; 
                 let originLocation = row['Sending Country'];
-                if (!originLocation && row['Corridor']) {
-                    const parts = row['Corridor'].split('=>');
-                    if (parts.length > 0) originLocation = parts[0].trim();
-                }
+                if (!originLocation && row['Corridor']) { const parts = row['Corridor'].split('=>'); if (parts.length > 0) originLocation = parts[0].trim(); }
 
                 const offsetMap = {
                     'UK': 8, 'GB': 8, 'United Kingdom': 8, 'Great Britain': 8, 'IE': 8, 'Ireland': 8,
@@ -388,21 +402,14 @@
                     'CA': 3, 'Canada': 3, 'US': 0, 'USA': 0, 'United States': 0 
                 };
 
-                if (originLocation && offsetMap[originLocation] !== undefined) {
-                    timezoneOffset = offsetMap[originLocation];
-                } else {
-                    if (currency === 'GBP') timezoneOffset = 8;
-                    else if (currency === 'EUR') timezoneOffset = 9;
-                    else if (currency === 'AED') timezoneOffset = 12;
-                    else if (currency === 'PHP') timezoneOffset = 16;
-                    else if (currency === 'AUD') timezoneOffset = 19;
-                    else if (currency === 'CAD') timezoneOffset = 3;
+                if (originLocation && offsetMap[originLocation] !== undefined) { timezoneOffset = offsetMap[originLocation]; } 
+                else {
+                    if (currency === 'GBP') timezoneOffset = 8; else if (currency === 'EUR') timezoneOffset = 9;
+                    else if (currency === 'AED') timezoneOffset = 12; else if (currency === 'PHP') timezoneOffset = 16;
+                    else if (currency === 'AUD') timezoneOffset = 19; else if (currency === 'CAD') timezoneOffset = 3;
                 }
 
-                let localHour = hour;
-                let localTimeString = timeString;
-                let isWeeHourTxn = false;
-
+                let localHour = hour; let localTimeString = timeString; let isWeeHourTxn = false;
                 if (hour !== null) {
                     localHour = (hour + timezoneOffset) % 24;
                     if (timezoneOffset !== 0) {
@@ -417,10 +424,7 @@
                 const sameDayKey = `${dateKey}|${receiver}`;
                 if (!sameDayTracker[sameDayKey]) sameDayTracker[sameDayKey] = 0; sameDayTracker[sameDayKey]++;
                 
-                if (isWeeHourTxn) {
-                    result.lateNightTransactions.push({ date: dateKey, time: timeString, localTime: localTimeString, receiver: receiver, amount: amount });
-                }
-                
+                if (isWeeHourTxn) { result.lateNightTransactions.push({ date: dateKey, time: timeString, localTime: localTimeString, receiver: receiver, amount: amount }); }
                 if (row['Corridor']) { if (!result.recipientCorridors[receiver]) result.recipientCorridors[receiver] = new Set(); result.recipientCorridors[receiver].add(row['Corridor']); }
 
                 if (!result.monthlyTotals[monthKey]) result.monthlyTotals[monthKey] = { monthName: MONTH_NAMES[month - 1], year: fullYear, sum: 0, count: 0, fee: 0, key: monthKey, lateNightSum: 0 }; 
@@ -532,12 +536,9 @@
                 FirstTxnDate: firstTransactionDateByReceiver[name] 
             })).sort((a, b) => b.Sum - a.Sum); 
 
-            // --- NEW: DETECT POTENTIAL BUSINESS / NON-PERSON NAMES ---
             const businessKeywords = /\b(inc|llc|ltd|corp|limited|company|co\.|pvt|plc|gmbh|solutions|services|service|enterprises|enterprise|group|holdings|global|trading|consulting|consultancy|agency|store|shop|market|mart|grocery|supermarket|pharmacy|hospital|clinic|med|medical|care|school|university|college|academy|bank|finance|financial|capital|fund|tech|technology|technologies|software|logistics|transport|shipping|cargo|freight|travel|tours|hotel|motel|resort|inn|cafe|coffee|restaurant|bistro|grill|bar|foods|bakery|auto|motors|motor|impex|export|import|media|systems|associates|partners|foundation|charity|trust|society|club|studio|design|construction|realty|estate|properties|property|law|legal|tax|accounting|account|payment|transfer|money|remit|express|exchange|fx|telecom|mobile|network|energy|power|water|utility|bill|gov|government|ministry|department|council|office|official)\b|[&@0-9]|\(.+\)/i;
 
-            result.potentialBusiness = orangeData.filter(r => {
-                return businessKeywords.test(r.Receiver);
-            }).sort((a, b) => b.Sum - a.Sum); 
+            result.potentialBusiness = orangeData.filter(r => { return businessKeywords.test(r.Receiver); }).sort((a, b) => b.Sum - a.Sum); 
 
             return {
                 green: { 
@@ -623,7 +624,7 @@
                 <div class="collapsible-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <span>📋 Breakdown</span>
                     <div class="header-toggle-wrapper">
-                        <span>1-Col</span>
+                        <span>2-Col</span>
                         <label class="switch mini">
                             <input type="checkbox" id="breakdown-layout-toggle">
                             <span class="slider round"></span>
@@ -641,7 +642,6 @@
                 const isLegacy = (year < green.targetYear - 1);
                 const rowClass = isLatest ? 'latest-year' : 'previous-year';
                 const hiddenClass = isLegacy ? 'legacy-year-row breakdown-legacy' : '';
-                
                 const yearTotalData = AppData.green.multiYearMonthlyData.find(d => d.type === 'year_total' && d.year === year) || {sum: 0};
                 
                 reportHtml += `<tr class="year-total-row ${rowClass} ${hiddenClass}" data-year="${year}" data-type="breakdown"><td style="width: 50%;"><span class="year-arrow">▶</span>${year}</td><td class="numeric" style="width: 50%;">${formatCurrencyFull(yearTotalData.sum)}</td></tr><tr class="breakdown-year-container" data-year="${year}" style="display:none;"><td colspan="2" style="padding: 0; background-color: transparent;"><div class="breakdown-grid-wrapper">`;
@@ -685,13 +685,11 @@
                 });
                 reportHtml += `</div></td></tr>`;
             });
-            if(hasLegacy) {
-                reportHtml += `<tr><td colspan="2" style="text-align:center; padding:8px; background:#f9f9f9;"><button class="show-legacy-btn" onclick="toggleLegacy('breakdown-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`;
-            }
+            if(hasLegacy) { reportHtml += `<tr><td colspan="2" style="text-align:center; padding:8px; background:#f9f9f9;"><button class="show-legacy-btn" onclick="toggleLegacy('breakdown-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`; }
             reportHtml += `</tbody></table></div></div>`;
 
             // --- 2. HISTORY REPORT ---
-            reportHtml += `<div class="report-box"><h2 class="collapsible-header">🗓️ History</h2><div class="report-content"><div class="stats-summary-box">Avg (Last6M): <strong>${formatCompact(green.averageStats.last6MAvg)}</strong></div><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 25%;">Date</th><th style="width: 35%;">Sum</th><th style="width: 10%; text-align: center;">#</th><th style="width: 30%;">Fees</th></tr></thead><tbody>`;
+            reportHtml += `<div class="report-box" id="history-box"><h2 class="collapsible-header">🗓️ History</h2><div class="report-content"><div class="stats-summary-box">Avg (Last6M): <strong>${formatCompact(green.averageStats.last6MAvg)}</strong></div><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 25%;">Date</th><th style="width: 35%;">Sum</th><th style="width: 10%; text-align: center;">#</th><th style="width: 30%;">Fees</th></tr></thead><tbody>`;
             
             green.multiYearMonthlyData.forEach(r => {
                 if (r.type === 'year_total') { 
@@ -702,17 +700,16 @@
                 } else if (r.type === 'monthly_detail') { 
                     let countStyle = 'text-align: center;';
                     if (last7Months.includes(r.key) && r.count === maxCountInLast7Months && r.count > 0) { countStyle += 'background-color: #ff9800; color: white; font-weight: bold; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);'; }
-                    reportHtml += `<tr class="monthly-detail-row history-clickable-row ${r.volumeClass}" style="display: none;" onclick="showMiniMonthDetails('${r.key}', '${r.monthName} ${r.year}', event)"><td class="month-name-cell" style="padding-left:15px !important;">${r.monthName}</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric" style="${countStyle}">${formatNumber(r.count, 0)}</td><td class="numeric" style="color: #666; font-size:0.9em;">${formatCurrencyFull(r.fee)}</td></tr>`; 
+                    reportHtml += `<tr class="monthly-detail-row history-clickable-row ${r.volumeClass}" style="display: none;" onclick="showMiniMonthDetails('${r.key}', '${r.monthName} ${r.year}', event)"><td class="month-name-cell" style="padding-left:15px !important;">${r.monthName}</td><td class="numeric val-sum">${formatCurrencyFull(r.sum)}</td><td class="numeric val-count" style="${countStyle}">${formatNumber(r.count, 0)}</td><td class="numeric" style="color: #666; font-size:0.9em;">${formatCurrencyFull(r.fee)}</td></tr>`; 
                 }
             });
             reportHtml += `</tbody>`;
-            if(hasLegacy) {
-                reportHtml += `<tr><td colspan="4" style="text-align:center; padding:8px; background:#f9f9f9; border-top:1px solid #eee;"><button class="show-legacy-btn" onclick="toggleLegacy('history-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`;
-            }
+            if(hasLegacy) { reportHtml += `<tr><td colspan="4" style="text-align:center; padding:8px; background:#f9f9f9; border-top:1px solid #eee;"><button class="show-legacy-btn" onclick="toggleLegacy('history-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`; }
             reportHtml += `<tr class="annual-total-summary"><td>TOTAL</td><td class="numeric">${formatCurrencyFull(green.grandTotal.sum)}</td><td class="numeric" style="text-align: center;">${formatNumber(green.grandTotal.count, 0)}</td><td class="numeric">${formatCurrencyFull(green.grandTotal.fee)}</td></tr></table></div></div>`; 
 
-            // --- 3. RECIPIENTS (Unchanged) ---
-            reportHtml += `<div class="report-box"><h2 class="collapsible-header">👤 Top Overall</h2><div class="search-container"><input type="text" id="recipient-search" placeholder="🔍 Search recipient name..." onkeyup="filterRecipients()"></div><div class="report-content top-recipients-wrapper"><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 8%;">#</th><th style="width: 42%;">Recipient</th><th class="sortable" id="header-cnt" style="width: 12%; text-align: center;" onclick="sortRecipients('count')" title="Sort by Count">Cnt ⇅</th><th class="sortable" id="header-sum" style="width: 38%;" onclick="sortRecipients('sum')" title="Sort by Amount">Total ▼</th></tr></thead><tbody id="recipients-table-body">${renderRecipientRows(orange)}</tbody></table></div></div>`; 
+            // --- 3. RECIPIENTS (UPDATED COUNT) ---
+            const totalRecipients = orange.length;
+            reportHtml += `<div class="report-box"><h2 class="collapsible-header">👤 Top Overall (${totalRecipients})</h2><div class="search-container"><input type="text" id="recipient-search" placeholder="🔍 Search recipient name..." onkeyup="filterRecipients()"></div><div class="report-content top-recipients-wrapper"><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 8%;">#</th><th style="width: 42%;">Recipient</th><th class="sortable" id="header-cnt" style="width: 12%; text-align: center;" onclick="sortRecipients('count')" title="Sort by Count">Cnt ⇅</th><th class="sortable" id="header-sum" style="width: 38%;" onclick="sortRecipients('sum')" title="Sort by Amount">Total ▼</th></tr></thead><tbody id="recipients-table-body">${renderRecipientRows(orange)}</tbody></table></div></div>`; 
 
             // --- 4. CARDS REPORT ---
             reportHtml += `<div class="report-box"><h2 class="collapsible-header">💳 Cards</h2><div class="report-content"><table class="data-table" style="background:transparent;"><thead><tr><th style="width: 55%;">Detail</th><th style="width: 30%;">Sum</th><th style="width: 15%;">#</th></tr></thead><tbody>`;
@@ -734,22 +731,28 @@
                     } 
                 }
             });
-            if(hasLegacy) {
-                reportHtml += `<tr><td colspan="3" style="text-align:center; padding:8px; background:#f9f9f9;"><button class="show-legacy-btn" onclick="toggleLegacy('card-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`;
-            }
+            if(hasLegacy) { reportHtml += `<tr><td colspan="3" style="text-align:center; padding:8px; background:#f9f9f9;"><button class="show-legacy-btn" onclick="toggleLegacy('card-legacy')">Show Older Years (${legacyYears[0]} - ${legacyYears[legacyYears.length-1]}) ▼</button></td></tr>`; }
             reportHtml += `</tbody></table></div></div>`; 
 
-            // --- REST OF RENDER (Unchanged) ---
+            // --- REST OF RENDER ---
             reportHtml += `<div class="split-row-wrapper"><div class="split-box onetime-box">${createOneTimeRecipientReport(oneTimeRecipients)}</div><div class="split-box security-box">${createSecurityReportContent(security)}</div></div>`; 
             reportHtml += `<div id="chart-row"><h3>📈 Trend (${green.targetYear})</h3><div style="height: 350px;"><canvas id="monthlyChart"></canvas></div></div></div>`;
             
             const outputDiv = document.getElementById('output-reports'); outputDiv.innerHTML = reportHtml;
             outputDiv.querySelectorAll('.report-container tr.year-total-row').forEach(row => { row.addEventListener('click', handleYearToggle); });
             
+            // --- UPDATED BREAKDOWN TOGGLE LOGIC ---
             const bdToggle = document.getElementById('breakdown-layout-toggle');
-            if(bdToggle) { bdToggle.addEventListener('change', function() { const wrappers = document.querySelectorAll('.breakdown-grid-wrapper'); wrappers.forEach(w => { if(this.checked) w.classList.add('single-col'); else w.classList.remove('single-col'); }); }); }
+            if(bdToggle) { 
+                bdToggle.addEventListener('change', function() { 
+                    const wrappers = document.querySelectorAll('.breakdown-grid-wrapper'); 
+                    wrappers.forEach(w => { 
+                        if(this.checked) w.classList.add('two-col'); // Add class to make 2 columns
+                        else w.classList.remove('two-col'); 
+                    }); 
+                }); 
+            }
 
-            // --- AUTO-EXPAND LOGIC (Modified to just expand current) ---
             const latestYear = green.targetYear;
             const latestBreakdownRow = document.querySelector(`.year-total-row[data-year="${latestYear}"][data-type="breakdown"]`); 
             if (latestBreakdownRow) setTimeout(() => latestBreakdownRow.click(), 50);
@@ -757,10 +760,6 @@
             const latestHistoryRow = document.querySelector(`.year-total-row[data-year="${latestYear}"][data-report="green"]`); 
             if (latestHistoryRow) setTimeout(() => latestHistoryRow.click(), 100);
             
-            // Previous year auto-expand (optional - usually better to keep collapsed to save space)
-            const prevHistoryRow = document.querySelector(`.year-total-row[data-year="${latestYear - 1}"][data-report="green"]`); 
-            if (prevHistoryRow) setTimeout(() => prevHistoryRow.click(), 150);
-
             const latestCardRow = document.querySelector(`.year-total-row[data-year="${latestYear}"][data-report="blue"]`); 
             if (latestCardRow) setTimeout(() => latestCardRow.click(), 200);
 
@@ -778,12 +777,17 @@
 
         function showFirstTxn(name, date, event) {
             const popup = document.getElementById('mini-popup'); const content = popup.querySelector('.mini-content'); const popupBody = document.getElementById('mini-popup-body');
+            content.classList.remove('selection-popup-content');
             popupBody.innerHTML = `<div style="padding: 0; line-height: 1.2;"><div style="font-weight:bold; color: #333; font-size: 0.9em; margin-bottom: 2px;">${name}</div><div style="font-size: 0.7em; color: #888;">1st TXN</div><div style="color: #2e7d32; font-weight:bold; font-size: 1.1em;">${formatDateToReadable(date)}</div></div>`;
             positionPopup(popup, content, event);
         }
 
         function showMiniMonthDetails(key, title, event) {
+            // Prevent showing this if text is selected (because user might be selecting for calculation)
+            if(window.getSelection() && window.getSelection().toString().length > 0) return;
+
             const popup = document.getElementById('mini-popup'); const content = popup.querySelector('.mini-content'); const popupBody = document.getElementById('mini-popup-body');
+            content.classList.remove('selection-popup-content');
             const data = AppData.monthlyDetails[key]; if (!data || Object.keys(data).length === 0) return;
             const topRecipients = Object.values(data).sort((a,b) => b.sum - a.sum).slice(0, 5);
             let html = `<div style="text-align:left; margin-bottom:4px; font-size:0.85em; color:#777; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:2px;">Top 5 (${title})</div>`;
@@ -792,11 +796,66 @@
         }
 
         function positionPopup(popup, content, event) {
-            popup.style.display = "block"; const clickX = event.clientX; const clickY = event.clientY; const screenWidth = window.innerWidth; const popupWidth = 180; 
+            popup.style.display = "block"; 
+            const clickX = event.clientX; const clickY = event.clientY; 
+            const screenWidth = window.innerWidth; 
+            
+            // Adjust popup position based on type
             let posX = clickX + 15; let posY = clickY - 20;
-            if (posX + popupWidth > screenWidth) { posX = clickX - popupWidth - 10; }
+            if(content.classList.contains('selection-popup-content')) {
+                posX = clickX + 15; posY = clickY + 15;
+            }
+
+            if (posX + content.offsetWidth > screenWidth) { posX = clickX - content.offsetWidth - 10; }
             if (posY + content.offsetHeight > window.innerHeight) { posY = window.innerHeight - content.offsetHeight - 10; }
             content.style.left = posX + 'px'; content.style.top = posY + 'px';
+        }
+
+        // --- SELECTION CALCULATION LOGIC ---
+        function handleHistorySelection(event) {
+            const selection = window.getSelection();
+            if(selection.isCollapsed) return; // No selection
+
+            const historyBox = document.getElementById('history-box');
+            if(!historyBox) return;
+
+            // Get all visible rows in history table
+            const visibleRows = historyBox.querySelectorAll('.monthly-detail-row');
+            if(visibleRows.length === 0) return;
+
+            let selectedSum = 0;
+            let selectedCount = 0;
+            let rowsFound = 0;
+
+            visibleRows.forEach(row => {
+                if (selection.containsNode(row, true)) {
+                    // Extract Sum (Column 2) and Count (Column 3)
+                    const sumText = row.querySelector('.val-sum').innerText;
+                    const countText = row.querySelector('.val-count').innerText;
+                    
+                    selectedSum += cleanAmount(sumText);
+                    selectedCount += parseInt(countText.replace(/,/g, ''), 10);
+                    rowsFound++;
+                }
+            });
+
+            if(rowsFound > 0) {
+                const popup = document.getElementById('mini-popup'); 
+                const content = popup.querySelector('.mini-content'); 
+                const popupBody = document.getElementById('mini-popup-body');
+                
+                content.classList.add('selection-popup-content');
+                
+                const avg = rowsFound > 0 ? selectedSum / rowsFound : 0;
+                
+                popupBody.innerHTML = `
+                    <div style="font-weight:bold; border-bottom:1px solid #eee; margin-bottom:4px; padding-bottom:2px;">Selected: ${rowsFound} Mos</div>
+                    <div class="sel-row"><span class="sel-label">Sum:</span> <span class="sel-val">${formatCompact(selectedSum)}</span></div>
+                    <div class="sel-row"><span class="sel-label">Txns:</span> <span class="sel-val">${formatNumber(selectedCount,0)}</span></div>
+                    <div class="sel-row sel-avg"><span class="sel-label">Avg:</span> <span class="sel-val">${formatCompact(avg)}</span></div>
+                `;
+                positionPopup(popup, content, event);
+            }
         }
 
         function closeMiniPopup() { document.getElementById('mini-popup').style.display = "none"; }
@@ -806,40 +865,25 @@
             const sameDay = securityData.sameDaySameReceiver; 
             const lateNight = securityData.lateNight; 
             const businesses = securityData.potentialBusiness || []; 
-            
             let html = `<div class="security-header">Activity Watchlist</div>`;
-
-            // --- 1. NEW SECTION: POTENTIAL BUSINESSES ---
             html += `<div class="simple-subhead">Potential Commercial / Business</div>`;
-            
-            if (businesses.length === 0) {
-                html += `<p style="padding: 10px; color: #1b5e20;">✅ No business names detected.</p>`;
-            } else {
+            if (businesses.length === 0) { html += `<p style="padding: 10px; color: #1b5e20;">✅ No business names detected.</p>`; } 
+            else {
                 html += `<p style="margin: 0 0 10px 0; color: #424242; font-size: 0.9em;">Found ${businesses.length} non-standard names.</p>`;
                 html += `<div class="table-scroll" style="max-height: 200px;"><table class="simple-table"><thead><tr><th>Name</th><th>Cnt</th><th>Sum</th></tr></thead><tbody>`;
-                businesses.forEach(r => {
-                    html += `<tr><td style="font-weight:600; color:#d81b60;">${r.Receiver}</td><td style="text-align:center;">${r.Count}</td><td class="numeric">${formatCompact(r.Sum)}</td></tr>`;
-                });
+                businesses.forEach(r => { html += `<tr><td style="font-weight:600; color:#d81b60;">${r.Receiver}</td><td style="text-align:center;">${r.Count}</td><td class="numeric">${formatCompact(r.Sum)}</td></tr>`; });
                 html += `</tbody></table></div>`;
             }
-
-            // --- 2. SAME DAY SECTION ---
             html += `<div class="simple-subhead" style="margin-top: 25px;">Multiple Daily Transactions</div>`;
-            
-            if (sameDay.summary.length === 0) { 
-                html += `<p style="padding: 10px; color: #1b5e20;">✅ No repeat daily recipients found.</p>`; 
-            } else { 
+            if (sameDay.summary.length === 0) { html += `<p style="padding: 10px; color: #1b5e20;">✅ No repeat daily recipients found.</p>`; } 
+            else { 
                 html += `<div class="table-scroll"><table class="simple-table"><thead><tr><th>Name</th><th>Days</th><th>Txns</th></tr></thead><tbody>`; 
                 sameDay.summary.forEach(r => { html += `<tr><td>${r.receiver}</td><td>${r.incidents}</td><td>${r.transactions}</td></tr>`; }); 
                 html += `</tbody></table></div>`; 
             }
-
-            // --- 3. LATE NIGHT SECTION ---
             html += `<div class="simple-subhead" style="margin-top: 25px;">Late Night Activity</div>`;
-            
-            if (lateNight.summary.totalIncidents === 0) { 
-                html += `<p style="padding: 10px; color: #1b5e20;">✅ No late-night activity detected.</p>`; 
-            } else { 
+            if (lateNight.summary.totalIncidents === 0) { html += `<p style="padding: 10px; color: #1b5e20;">✅ No late-night activity detected.</p>`; } 
+            else { 
                 html += `<p style="margin: 0 0 10px 0; color: #424242; font-size: 0.9em;">${lateNight.summary.totalIncidents} incidents found.</p>`;
                 html += `<div class="table-scroll"><table class="simple-table"><thead><tr><th>Date</th><th>PST</th><th>Local</th><th>Name</th></tr></thead><tbody>`; 
                 lateNight.details.forEach((d) => { html += `<tr><td>${formatDateToReadable(d.date)}</td><td>${d.time}</td><td style="font-weight:bold; color:#d32f2f;">${d.localTime}</td><td>${d.receiver}</td></tr>`; }); 
@@ -862,7 +906,6 @@
 
         function renderChart(rollingData, targetYear) {
             if (monthlyChart) { monthlyChart.destroy(); }
-
             const labels = rollingData.map(m => `${m.monthName} '${String(m.year).slice(-2)}`); 
             const sums = rollingData.map(m => m.sum);
             const lateNightSums = rollingData.map(m => m.lateNightSum || 0); 
