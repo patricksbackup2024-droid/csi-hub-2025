@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EME - Dashboard v6.1 (Bug Fix)</title>
+    <title>EME - Dashboard v10 (Investigator Narrative)</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
@@ -18,6 +18,7 @@
         /* HEADER & CONTROLS */
         .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #2e7d32; padding-bottom: 8px; margin-bottom: 15px; }
         h1 { color: #1a1a1a; margin: 0; font-size: 1.8em; display:flex; align-items:center; gap:10px; cursor: default; user-select: none; }
+        h1:active { transform: scale(0.98); }
         
         /* --- TOGGLES --- */
         .toggle-group { display: flex; align-items: center; gap: 15px; }
@@ -64,7 +65,7 @@
         .security-header { color: #b71c1c; font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
         .onetime-box { background-color: #e3f2fd; border-color: #bbdefb; border-top: 4px solid #1976d2; }
         .onetime-header { color: #0d47a1; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
-        .simple-subhead { font-weight: bold; font-size: 1em; color: #212121; margin-top: 15px; margin-bottom: 4px; }
+        .simple-subhead { font-weight: bold; font-size: 1em; color: #212121; margin-top: 15px; margin-bottom: 4px; display:flex; justify-content:space-between; align-items:center; }
         
         /* TABLES */
         .simple-table { width: 100%; border-collapse: collapse; background: white; font-size: 0.95em; }
@@ -149,8 +150,10 @@
         .monthly-group .data-table th, .monthly-group .data-table td { padding: 2px 3px; font-size: 0.85em; line-height: 1.2; }
         .monthly-group .data-table th { font-size: 0.75em; letter-spacing: -0.5px; }
 
-        .history-clickable-row { cursor: default; transition: background-color 0.15s; }
+        /* CLICKABLE ROW RESTORED */
+        .history-clickable-row { cursor: pointer; transition: background-color 0.15s; }
         .history-clickable-row:hover { background-color: #e3f2fd !important; }
+        
         .monthly-detail-row { background-color: #fff; }
         .spike-month-header { background-color: #ffebee !important; color: #c62828 !important; font-weight: bold; }
         .high-sending { background-color: #ffebee !important; color: #c62828 !important; font-weight: bold; }
@@ -168,7 +171,7 @@
         /* --- MODALS --- */
         #detail-modal, #risk-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.3); backdrop-filter: blur(2px); }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 400px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: fadeIn 0.2s; }
-        #risk-modal .modal-content { width: 500px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        #risk-modal .modal-content { width: 600px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .modal-header { padding: 10px 15px; background-color: #2e7d32; color: white; border-top-left-radius: 8px; border-top-right-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .risk-header { background-color: #263238; color: #fff; }
         .modal-header h3 { margin: 0; font-size: 1.1em; color: white; border: none; }
@@ -176,7 +179,12 @@
         .modal-body { padding: 0; }
         .risk-body { padding: 15px; background-color: #fcfcfc; }
         
-        /* RISK METERS */
+        /* RISK METERS & NARRATIVE */
+        .narrative-box { background-color: #eceff1; border: 1px solid #cfd8dc; border-radius: 6px; padding: 12px; margin-bottom: 15px; font-size: 0.95em; line-height: 1.5; color: #37474f; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        .narrative-title { font-weight: bold; color: #263238; display: block; margin-bottom: 4px; font-size: 1em; border-bottom: 1px solid #cfd8dc; padding-bottom: 4px; }
+        .narrative-highlight { color: #d32f2f; font-weight: 700; }
+        .narrative-name { color: #0277bd; font-weight: 600; }
+
         .risk-item { margin-bottom: 15px; border-bottom: 1px dashed #ddd; padding-bottom: 10px; }
         .risk-item:last-child { border-bottom: none; }
         .risk-title { font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 5px; color: #333; }
@@ -193,18 +201,18 @@
         /* --- POPUPS --- */
         #mini-popup { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: transparent; }
         .mini-content { 
-            position: absolute; background-color: #fff; padding: 8px 10px; border: 1px solid #999; 
-            width: auto; min-width: 140px; max-width: 250px; border-radius: 4px; 
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2); text-align: center; animation: fadeIn 0.1s; pointer-events: none; 
+            position: absolute; background-color: #fff; padding: 0; border: 1px solid #999; 
+            width: auto; min-width: 140px; max-width: 250px; border-radius: 6px; 
+            box-shadow: 0 3px 12px rgba(0,0,0,0.25); text-align: center; animation: fadeIn 0.1s; overflow: hidden;
         }
         .mini-header-box { background-color: #e8eaf6; padding: 8px 10px; border-bottom: 1px solid #c5cae9; text-align: center; }
-        .mini-list-item { display: flex; justify-content: space-between; font-size: 0.8em; padding: 2px 0; border-bottom: 1px dashed #eee; }
+        .mini-list-item { display: flex; justify-content: space-between; font-size: 0.8em; padding: 4px 10px; border-bottom: 1px dashed #eee; }
         .mini-name { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; font-weight: 500; }
         .mini-amt { font-weight: bold; color: #2e7d32; }
 
         /* Selection Popup specific style */
         .selection-popup-content {
-            text-align: left; border: 2px solid #2e7d32; background: #fff; color: #333; z-index: 2005; pointer-events: auto !important;
+            text-align: left; border: 2px solid #2e7d32; background: #fff; color: #333; z-index: 2005; pointer-events: auto !important; padding: 8px 10px;
         }
         .sel-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 0.9em; }
         .sel-label { color: #555; font-weight: 500; }
@@ -265,7 +273,7 @@
 
     <div id="detail-modal"><div class="modal-content"><div class="modal-header"><h3 id="modal-title">Details</h3><span class="close-modal" onclick="closeModal('detail-modal')">&times;</span></div><div class="modal-body" id="modal-body"></div></div></div>
     
-    <div id="risk-modal"><div class="modal-content"><div class="modal-header risk-header"><h3>⚠️ Risk Likelihood Assessment</h3><span class="close-modal" onclick="closeModal('risk-modal')">&times;</span></div><div class="modal-body risk-body" id="risk-body">Calculating...</div></div></div>
+    <div id="risk-modal"><div class="modal-content"><div class="modal-header risk-header"><h3>⚠️ Analyst Risk & Narrative</h3><span class="close-modal" onclick="closeModal('risk-modal')">&times;</span></div><div class="modal-body risk-body" id="risk-body">Calculating...</div></div></div>
 
     <div id="mini-popup"><div class="mini-content"><div id="mini-popup-body"></div></div></div>
 
@@ -319,7 +327,7 @@
 
         if (typeof ChartDataLabels !== 'undefined') { Chart.register(ChartDataLabels); }
 
-        let AppData = { monthlyTotals: {}, monthlyDetails: {}, orange: [], riskScoreData: null }; 
+        let AppData = { monthlyTotals: {}, monthlyDetails: {}, orange: [], riskScoreData: null, rawData: [] }; 
         let monthlyChart;
         let AppCurrencySymbol = '$'; 
         const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -387,6 +395,140 @@
             }
             return { fullYear: year, month: month, day: day, hour: hour, dateString: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`, timeString: timeString, dateObj: new Date(year, month - 1, day) };
         }
+
+        // --- NEW: INVESTIGATOR NARRATIVE GENERATOR ---
+        function generateRiskNarrative(allTxns) {
+            allTxns.sort((a, b) => a.dateObj - b.dateObj); // Sort Ascending
+            if (allTxns.length === 0) return "No data available.";
+
+            const latestDate = allTxns[allTxns.length - 1].dateObj;
+            const sixMonthsAgo = new Date(latestDate);
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            const twelveMonthsAgo = new Date(latestDate);
+            twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
+
+            const last12MonthsTxns = allTxns.filter(t => t.dateObj >= twelveMonthsAgo);
+            const last6MonthsTxns = allTxns.filter(t => t.dateObj >= sixMonthsAgo);
+            
+            // --- 6 MONTHS ANALYSIS FOR "SIDELINED" ---
+            const stats6M = {};
+            last6MonthsTxns.forEach(t => {
+                const k = `${t.fullYear}-${String(t.month).padStart(2,'0')}`;
+                if(!stats6M[k]) stats6M[k] = { sum: 0, count: 0 };
+                stats6M[k].sum += t.amount;
+                stats6M[k].count += 1;
+            });
+
+            let narrative = "";
+            let sidelinedReason = "";
+            
+            let max6MSum = 0; let peakSumKey = "";
+            let max6MCount = 0; let peakCountKey = "";
+
+            Object.keys(stats6M).forEach(k => {
+                if(stats6M[k].sum > max6MSum) { max6MSum = stats6M[k].sum; peakSumKey = k; }
+                if(stats6M[k].count > max6MCount) { max6MCount = stats6M[k].count; peakCountKey = k; }
+            });
+
+            // Thresholds (Placeholder logic, adjust as needed)
+            const hasHighVelocity = max6MSum > 0; // Logic trigger
+            const hasHighFrequency = max6MCount > 0; // Logic trigger
+
+            if (hasHighVelocity && hasHighFrequency) {
+                const monthSumName = MONTH_NAMES[parseInt(peakSumKey.split('-')[1])-1];
+                const monthCountName = MONTH_NAMES[parseInt(peakCountKey.split('-')[1])-1];
+                
+                if (peakSumKey === peakCountKey) {
+                    sidelinedReason = `The acct was sidelined for MM review due to <strong>High Velocity and High Frequency</strong> last <strong>${monthSumName}</strong>.`;
+                } else {
+                    sidelinedReason = `The acct was sidelined for MM review due to <strong>High Velocity</strong> last <strong>${monthSumName}</strong> and <strong>High Frequency</strong> last <strong>${monthCountName}</strong>.`;
+                }
+            } else if (hasHighVelocity) {
+                 const monthName = MONTH_NAMES[parseInt(peakSumKey.split('-')[1])-1];
+                 sidelinedReason = `The acct was sidelined for MM review due to <strong>High Velocity</strong> last <strong>${monthName}</strong>.`;
+            } else if (hasHighFrequency) {
+                 const monthName = MONTH_NAMES[parseInt(peakCountKey.split('-')[1])-1];
+                 sidelinedReason = `The acct was sidelined for MM review due to <strong>High Frequency</strong> last <strong>${monthName}</strong>.`;
+            }
+
+            if (sidelinedReason) narrative += `<div style="margin-bottom:8px; border-bottom:1px solid #ddd; padding-bottom:5px;">${sidelinedReason}</div>`;
+
+            // --- 12 MONTHS DEEP DIVE ---
+            const monthlyStats = {};
+            last12MonthsTxns.forEach(t => {
+                const k = `${t.fullYear}-${String(t.month).padStart(2,'0')}`;
+                if (!monthlyStats[k]) monthlyStats[k] = { sum: 0, count: 0, txns: [] };
+                monthlyStats[k].sum += t.amount;
+                monthlyStats[k].count += 1;
+                monthlyStats[k].txns.push(t);
+            });
+
+            // 1. SPIKE / SUSTAINED ACTIVITY ANALYSIS
+            const monthKeys = Object.keys(monthlyStats).sort();
+            let sums = monthKeys.map(k => monthlyStats[k].sum);
+            
+            const nonZeroSums = sums.filter(s => s > 0);
+            const avgSum = nonZeroSums.length > 0 ? nonZeroSums.reduce((a,b)=>a+b,0) / nonZeroSums.length : 0;
+            const threshold = avgSum * 1.8; 
+
+            let highMonths = [];
+            monthKeys.forEach(k => { if(monthlyStats[k].sum > threshold) highMonths.push(k); });
+
+            if (highMonths.length === 1) {
+                // ONE-TIME SPIKE
+                const k = highMonths[0];
+                const mName = MONTH_NAMES[parseInt(k.split('-')[1])-1] + ' ' + k.split('-')[0];
+                const amt = monthlyStats[k].sum;
+                
+                const txns = monthlyStats[k].txns;
+                const recSums = {};
+                txns.forEach(t => recSums[t.receiver] = (recSums[t.receiver] || 0) + t.amount);
+                const topRec = Object.keys(recSums).reduce((a, b) => recSums[a] > recSums[b] ? a : b);
+                
+                const firstSeen = allTxns.find(t => t.receiver === topRec);
+                const isNew = firstSeen && firstSeen.dateString >= (k + '-01');
+                const historyStr = isNew ? "a new recipient" : `a known recipient (Since: ${MONTH_NAMES[firstSeen.dateObj.getMonth()]} ${firstSeen.fullYear})`;
+
+                narrative += `One-time spike observed in <strong>${mName}</strong> (${formatCurrencyFull(amt)}). Top recipient: <span class="narrative-name">${topRec}</span> (${historyStr}). `;
+            
+            } else if (highMonths.length > 1) {
+                // SUSTAINED BURST
+                const monthNames = highMonths.map(k => MONTH_NAMES[parseInt(k.split('-')[1])-1]).join(', ');
+                
+                narrative += `Sustained high activity observed during <strong>${monthNames}</strong>. `;
+                
+                const aggRecs = {};
+                highMonths.forEach(k => { monthlyStats[k].txns.forEach(t => aggRecs[t.receiver] = (aggRecs[t.receiver] || 0) + t.amount); });
+                const topAggRec = Object.keys(aggRecs).reduce((a, b) => aggRecs[a] > aggRecs[b] ? a : b);
+                narrative += `Funds were mostly sent to <span class="narrative-name">${topAggRec}</span>. `;
+            
+            } else {
+                narrative += `Sending pattern is consistent over the last 12 months. `;
+            }
+
+            // 2. FREQUENCY ANALYSIS (Velocity)
+            let maxCount = 0; let freqKey = null;
+            monthKeys.forEach(k => {
+                if(monthlyStats[k].count > maxCount) { maxCount = monthlyStats[k].count; freqKey = k; }
+            });
+            
+            if (freqKey) {
+                const mName = MONTH_NAMES[parseInt(freqKey.split('-')[1])-1];
+                narrative += `Highest frequency was in <strong>${mName}</strong> with ${maxCount} txns. `;
+            }
+
+            // 3. OAA CHECK
+            const oaaRecs = new Set();
+            last12MonthsTxns.forEach(t => {
+                 if (t.isLateNight && (t.fee / t.amount) > 0.10) oaaRecs.add(t.receiver);
+            });
+            if(oaaRecs.size > 0) {
+                narrative += `<br><br>⚠️ <strong>Late Night & High Fee:</strong> <span class="narrative-name">${Array.from(oaaRecs).slice(0,3).join(', ')}</span>.`;
+            }
+
+            return narrative;
+        }
+
 
         // --- RISK CALCULATION LOGIC ---
         function calculateRiskScores(allTxns) {
@@ -557,7 +699,7 @@
                     receiver: row['Receiver'],
                     fullYear: fullYear,
                     month: month,
-                    isLateNight: isWeeHourTxn // Pass this flag to Risk Calc
+                    isLateNight: isWeeHourTxn 
                 });
 
                 allTransactionsForAvg.push({ date: dateObj, amount: amount });
@@ -613,6 +755,7 @@
             // --- RISK CALCULATION ---
             const riskData = calculateRiskScores(allTransactionsRaw);
             result.riskScoreData = riskData;
+            result.rawData = allTransactionsRaw; // Save for narrative generation
 
             // Calculate cutoff date for 12 months (for same-day check)
             let rolling12MonthStart = null;
@@ -743,7 +886,7 @@
 
             // IMPORTANT: EXPORT monthlyTotals HERE
             return {
-                monthlyTotals: result.monthlyTotals, // <--- CRITICAL FIX
+                monthlyTotals: result.monthlyTotals, // <--- THE CRITICAL FIX IS HERE
                 green: { 
                     latestYearMonthlyData: sortedMonthlyKeys.map(key => { const monthIndex = parseInt(key.substring(5, 7)) - 1; return result.monthlyTotals[key] || { monthName: MONTH_NAMES[monthIndex], year: parseInt(key.substring(0,4)), sum: 0, count: 0, fee: 0, key: key, lateNightSum: 0 }; }).filter(m => m.year === targetYear), 
                     multiYearMonthlyData: multiYearMonthlyData, 
@@ -762,7 +905,8 @@
                     lateNight: { summary: lateNightSummary, details: result.lateNightTransactions },
                     potentialBusiness: result.potentialBusiness 
                 },
-                riskScoreData: result.riskScoreData
+                riskScoreData: result.riskScoreData,
+                rawData: result.rawData // Pass data for narrative
             };
         }
 
@@ -805,8 +949,16 @@
 
             const r = AppData.riskScoreData;
             
+            // GENERATE NARRATIVE
+            let narrativeHtml = "";
+            if (AppData.rawData && AppData.rawData.length > 0) {
+                const narrativeText = generateRiskNarrative(AppData.rawData);
+                narrativeHtml = `<div class="narrative-box"><span class="narrative-title">🤖 Smart Narrative</span>${narrativeText}</div>`;
+            }
+
             let html = `<div style="margin-bottom:15px; font-size:0.9em; color:#555; border-bottom:1px solid #eee; padding-bottom:5px;">Based on analysis of <strong>last 6 months</strong> activity.</div>`;
             
+            html += narrativeHtml;
             html += renderRiskBar('Money Mule (Velocity)', r.mm);
             html += renderRiskBar('OAA (Fee/Freq)', r.oaa);
             html += renderRiskBar('Sending on Behalf (OTT)', r.sob);
@@ -957,9 +1109,10 @@
                     reportHtml += `<tr data-year="${r.year}" data-report="${r.report}" class="year-total-row ${rowClass} ${hiddenClass}"><td><span class="year-arrow">▶</span>${r.year}</td><td class="numeric">${formatCurrencyFull(r.sum)}</td><td class="numeric" style="text-align: center;">${formatNumber(r.count, 0)}</td><td class="numeric">${formatCurrencyFull(r.fee)}${feeAlert}</td></tr><tbody class="monthly-detail-rows" data-year-details="${r.report}-${r.year}">`; 
                 } else if (r.type === 'monthly_detail') { 
                     let countStyle = 'text-align: center;';
+                    // --- HIGHLIGHT RESTORED ---
                     if (last7Months.includes(r.key) && r.count === maxCountInLast7Months && r.count > 0) { countStyle += 'background-color: #ff9800; color: white; font-weight: bold; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);'; }
                     
-                    // --- CLASSIC CLICK LOGIC MAINTAINED ---
+                    // --- ROW CLICK RESTORED ---
                     reportHtml += `<tr class="monthly-detail-row history-clickable-row ${r.volumeClass}" style="display: none;" onclick="showMiniMonthDetails('${r.key}', '${r.monthName} ${r.year}', event)"><td class="month-name-cell" style="padding-left:15px !important;">${r.monthName}</td><td class="numeric val-sum">${formatCurrencyFull(r.sum)}</td><td class="numeric val-count" style="${countStyle}">${formatNumber(r.count, 0)}</td><td class="numeric" style="color: #666; font-size:0.9em;">${formatCurrencyFull(r.fee)}${feeAlert}</td></tr>`; 
                 }
             });
@@ -1104,17 +1257,14 @@
             const popup = document.getElementById('mini-popup'); 
             const content = popup.querySelector('.mini-content'); 
             const popupBody = document.getElementById('mini-popup-body');
-            
-            // Clear previous selection style just in case
+
+            // Tanggalin ang styling ng calculator popup
             content.classList.remove('selection-popup-content');
             
-            // Fetch Totals (Added back from new version)
+            const data = AppData.monthlyDetails[key]; 
             let totals = AppData.monthlyTotals[key];
             if (!totals) totals = { sum: 0, count: 0 };
-
-            const data = AppData.monthlyDetails[key]; 
-            // if (!data || Object.keys(data).length === 0) return; // Allow showing totals even if no recipient details
-
+            
             // Header HTML
             let html = `
                 <div class="mini-header-box">
@@ -1124,17 +1274,28 @@
                 </div>
             `;
 
-            if (data && Object.keys(data).length > 0) {
-                const topRecipients = Object.values(data).sort((a,b) => b.sum - a.sum).slice(0, 5);
-                html += `<div style="text-align:left; margin-bottom:4px; font-size:0.85em; color:#777; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:2px; padding-top:5px;">Top 5 Recipients</div>`;
-                topRecipients.forEach(r => { 
-                    html += `<div class="mini-list-item"><div class="mini-name">${r.receiver}</div><div class="mini-amt">${formatCompact(r.sum)}</div></div>`; 
-                });
+            // Recipients List HTML
+            if (data) {
+                const sorted = Object.values(data).sort((a, b) => b.sum - a.sum).slice(0, 5);
+                if(sorted.length > 0) {
+                    sorted.forEach(r => {
+                        html += `
+                        <div class="mini-list-item">
+                            <span class="mini-name">${r.receiver}</span>
+                            <span class="mini-amt">${formatCompact(r.sum)}</span>
+                        </div>`;
+                    });
+                } else {
+                    html += `<div style="padding:10px; color:#999; font-style:italic;">No data</div>`;
+                }
             } else {
-                html += `<div style="padding:10px; color:#999; font-style:italic;">No recipient data</div>`;
+                 html += `<div style="padding:10px; color:#999; font-style:italic;">No data</div>`;
             }
             
             popupBody.innerHTML = html; 
+            
+            // Force Show
+            popup.style.display = "block";
             positionPopup(popup, content, event);
         }
 
