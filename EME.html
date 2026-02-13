@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EME - Dashboard v10 (Investigator Narrative)</title>
+    <title>EME - Dashboard v11 (Local Time Fix)</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
@@ -662,13 +662,58 @@
                 let originLocation = row['Sending Country'];
                 if (!originLocation && row['Corridor']) { const parts = row['Corridor'].split('=>'); if (parts.length > 0) originLocation = parts[0].trim(); }
 
+                // Updated Mapping to include all requested ISO codes
+                // Offsets are calculated relative to Server Time (PST/UTC-8)
                 const offsetMap = {
-                    'UK': 8, 'GB': 8, 'United Kingdom': 8, 'Great Britain': 8, 'IE': 8, 'Ireland': 8,
-                    'DE': 9, 'Germany': 9, 'EUR': 9, 'France': 9, 'Italy': 9, 'Spain': 9,
-                    'AE': 12, 'UAE': 12, 'United Arab Emirates': 12, 'Dubai': 12,
-                    'SA': 11, 'Saudi Arabia': 11, 'QA': 11, 'Qatar': 11, 'KW': 11, 'Kuwait': 11,
-                    'PH': 16, 'Philippines': 16, 'AU': 19, 'Australia': 19, 'SG': 16, 'Singapore': 16,
-                    'CA': 3, 'Canada': 3, 'US': 0, 'USA': 0, 'United States': 0 
+                    // --- North America ---
+                    'USA': 0, 'US': 0,  // Baseline
+                    'CAN': 3, 'CA': 3,  // Approx East Coast (UTC-5)
+
+                    // --- Asia Pacific ---
+                    'AUS': 19, 'AU': 19, // Sydney (UTC+11 DST)
+                    'NZL': 21, 'NZ': 21, // Auckland (UTC+13 DST)
+                    'JPN': 17, 'JP': 17, // Tokyo (UTC+9)
+                    'SGP': 16, 'SG': 16, // Singapore (UTC+8)
+
+                    // --- Middle East ---
+                    'ARE': 12, 'AE': 12, // Dubai (UTC+4)
+                    'ISR': 10, 'IL': 10, // Tel Aviv (UTC+2)
+
+                    // --- Europe (UTC+0 / WET) ---
+                    'GBR': 8, 'UK': 8, 'GB': 8,
+                    'IRL': 8, 'IE': 8,
+                    'PRT': 8, 'PT': 8,
+
+                    // --- Europe (UTC+1 / CET) ---
+                    'AUT': 9, 'AT': 9, // Austria
+                    'BEL': 9, 'BE': 9, // Belgium
+                    'HRV': 9, 'HR': 9, // Croatia
+                    'CZE': 9, 'CZ': 9, // Czechia
+                    'DNK': 9, 'DK': 9, // Denmark
+                    'FRA': 9, 'FR': 9, // France
+                    'DEU': 9, 'DE': 9, // Germany
+                    'HUN': 9, 'HU': 9, // Hungary
+                    'ITA': 9, 'IT': 9, // Italy
+                    'LIE': 9, 'LI': 9, // Liechtenstein
+                    'LUX': 9, 'LU': 9, // Luxembourg
+                    'MLT': 9, 'MT': 9, // Malta
+                    'NLD': 9, 'NL': 9, // Netherlands
+                    'NOR': 9, 'NO': 9, // Norway
+                    'POL': 9, 'PL': 9, // Poland
+                    'SVK': 9, 'SK': 9, // Slovakia
+                    'SVN': 9, 'SI': 9, // Slovenia
+                    'ESP': 9, 'ES': 9, // Spain
+                    'SWE': 9, 'SE': 9, // Sweden
+
+                    // --- Europe (UTC+2 / EET) ---
+                    'BGR': 10, 'BG': 10, // Bulgaria
+                    'CYP': 10, 'CY': 10, // Cyprus
+                    'EST': 10, 'EE': 10, // Estonia
+                    'FIN': 10, 'FI': 10, // Finland
+                    'GRC': 10, 'GR': 10, // Greece
+                    'LVA': 10, 'LV': 10, // Latvia
+                    'LTU': 10, 'LT': 10, // Lithuania
+                    'ROU': 10, 'RO': 10  // Romania
                 };
 
                 if (originLocation && offsetMap[originLocation] !== undefined) { timezoneOffset = offsetMap[originLocation]; } 
