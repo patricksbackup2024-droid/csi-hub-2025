@@ -294,24 +294,21 @@
             border-color: var(--accent-color);
         }
 
-
-
-        
         .calculator-display {
-    background-color: var(--bg-dark); 
-    color: var(--calc-text);
-    font-size: 2.2em; 
-    text-align: right; 
-    padding: 15px;
-    border-radius: 8px; 
-    margin-top: 15px; 
-    word-wrap: break-word; 
-    word-break: break-all; 
-    min-height: 40px;
-    /* This creates the "glowing screen" effect */
-    text-shadow: 0 0 8px rgba(0, 255, 65, 0.5); 
-    font-family: 'Courier New', Courier, monospace; /* Optional: Makes it look more like a terminal */
-}
+            background-color: var(--bg-dark); 
+            color: var(--calc-text);
+            font-size: 2.2em; 
+            text-align: right; 
+            padding: 15px;
+            border-radius: 8px; 
+            margin-top: 15px; 
+            word-wrap: break-word; 
+            word-break: break-all; 
+            min-height: 40px;
+            /* This creates the "glowing screen" effect */
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.5); 
+            font-family: 'Courier New', Courier, monospace; /* Optional: Makes it look more like a terminal */
+        }
         
         .calculator-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex-grow: 1; margin-top: 15px; }
         .calculator-grid button { padding: 10px; font-size: 1em; margin: 0; background-color: var(--bg-light); color: var(--text-primary); }
@@ -319,10 +316,10 @@
         .calculator-grid button.span-two { grid-column: span 2; }
         
         .calculator-display:focus {
-    outline: 1px solid var(--accent-color);
-    background-color: var(--bg-medium);
-    cursor: default;
-}
+            outline: 1px solid var(--accent-color);
+            background-color: var(--bg-medium);
+            cursor: default;
+        }
 
         /* RELOCATED SCRATCHPAD STYLE */
         .side-notepad {
@@ -486,6 +483,15 @@
                     <button onclick="performOffenderSearch()">Sex Offender Registry Search</button>
                     <button onclick="performSocialMediaSearch()">Social Media Search</button>
                     <button onclick="performBusinessSearch()">Business Search</button>
+
+<select id="business-region" style="margin-top: 6px;">
+  <option value="all">All Regions</option>
+  <option value="us">US</option>
+  <option value="can">Canada</option>
+  <option value="aus">Australia</option>
+  <option value="uk">UK</option>
+  <option value="eu">EU</option>
+</select>
                     
                     <div style="border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 15px;">
                         <h3 style="color: var(--text-primary); margin-top: 0; font-size: 1.1em; border-left: 3px solid var(--accent-color); padding-left: 10px;">Phone Search (from CSV)</h3>
@@ -882,16 +888,16 @@
         const deleteButton = document.querySelector('[data-delete]'), clearButton = document.querySelector('[data-clear]'), display = document.getElementById('calculator-display');
         let currentOperand = '0', previousOperand = '', operation = undefined;
         function updateDisplay() {
-    if (operation != null) {
-        // If there is an operator (like +), show the first number, the operator, and the new number
-        display.innerText = `${previousOperand} ${operation} ${currentOperand}`;
-    } else {
-        // If no operator is chosen yet, just show the current number
-        display.innerText = currentOperand;
-    }
-}
+            if (operation != null) {
+                // If there is an operator (like +), show the first number, the operator, and the new number
+                display.innerText = `${previousOperand} ${operation} ${currentOperand}`;
+            } else {
+                // If no operator is chosen yet, just show the current number
+                display.innerText = currentOperand;
+            }
+        }
 
-// --- CALCULATOR PASTE SUPPORT ---
+        // --- CALCULATOR PASTE SUPPORT ---
         const calcDisplay = document.getElementById('calculator-display');
         
         calcDisplay.addEventListener('paste', (e) => {
@@ -918,138 +924,131 @@
         function clear() { currentOperand = '0'; previousOperand = ''; operation = undefined; updateDisplay(); }
         function deleteDigit() { currentOperand = currentOperand.length <= 1 ? '0' : currentOperand.toString().slice(0, -1); updateDisplay(); }
         function appendNumber(num) {
-    if (num === '.' && currentOperand.includes('.')) return;
-    
-    // If the display is "0", replace it. Otherwise, add the number to the end.
-    if (currentOperand === '0' && num !== '.') {
-        currentOperand = num.toString();
-    } else {
-        currentOperand = currentOperand.toString() + num.toString();
-    }
-    
-    updateDisplay(); // This ensures the screen updates every time you press a key
-}
+            if (num === '.' && currentOperand.includes('.')) return;
+            
+            // If the display is "0", replace it. Otherwise, add the number to the end.
+            if (currentOperand === '0' && num !== '.') {
+                currentOperand = num.toString();
+            } else {
+                currentOperand = currentOperand.toString() + num.toString();
+            }
+            
+            updateDisplay(); // This ensures the screen updates every time you press a key
+        }
         
         
         function chooseOperation(op) {
-    if (currentOperand === '' && previousOperand === '') return;
-    
-    // If you already have a math problem showing and click a new operator, 
-    // it calculates the first part before moving on.
-    if (previousOperand !== '' && currentOperand !== '0') {
-        compute();
-    }
-    
-    operation = op;
-    previousOperand = currentOperand;
-    currentOperand = '0';
-    
-    // This updates the display to show "100 +" instead of just clearing it
-    display.innerText = `${previousOperand} ${operation}`;
-}
+            if (currentOperand === '' && previousOperand === '') return;
+            
+            // If you already have a math problem showing and click a new operator, 
+            // it calculates the first part before moving on.
+            if (previousOperand !== '' && currentOperand !== '0') {
+                compute();
+            }
+            
+            operation = op;
+            previousOperand = currentOperand;
+            currentOperand = '0';
+            
+            // This updates the display to show "100 +" instead of just clearing it
+            display.innerText = `${previousOperand} ${operation}`;
+        }
         
         
         function compute() {
-    let comp;
-    const prev = parseFloat(previousOperand);
-    const curr = parseFloat(currentOperand);
+            let comp;
+            const prev = parseFloat(previousOperand);
+            const curr = parseFloat(currentOperand);
 
-    // If you haven't entered two numbers, don't do anything
-    if (isNaN(prev) || isNaN(curr)) return;
+            // If you haven't entered two numbers, don't do anything
+            if (isNaN(prev) || isNaN(curr)) return;
 
-    switch (operation) {
-        case '+': comp = prev + curr; break;
-        case '-': comp = prev - curr; break;
-        case '×': comp = prev * curr; break;
-        case '÷': 
-            if (curr === 0) {
-                alert("Cannot divide by zero");
-                clear();
-                return;
+            switch (operation) {
+                case '+': comp = prev + curr; break;
+                case '-': comp = prev - curr; break;
+                case '×': comp = prev * curr; break;
+                case '÷': 
+                    if (curr === 0) {
+                        alert("Cannot divide by zero");
+                        clear();
+                        return;
+                    }
+                    comp = prev / curr; 
+                    break;
+                case '%': comp = prev % curr; break;
+                default: return;
             }
-            comp = prev / curr; 
-            break;
-        case '%': comp = prev % curr; break;
-        default: return;
-    }
 
-    // 1. Set the current number to the result
-    currentOperand = comp.toString();
-    // 2. Clear the memory of the previous number and symbol
-    operation = undefined;
-    previousOperand = '';
-    
-    // 3. Update the display to show ONLY the result
-    updateDisplay();
-}
+            // 1. Set the current number to the result
+            currentOperand = comp.toString();
+            // 2. Clear the memory of the previous number and symbol
+            operation = undefined;
+            previousOperand = '';
+            
+            // 3. Update the display to show ONLY the result
+            updateDisplay();
+        }
         
         numberButtons.forEach(btn => btn.addEventListener('click', () => appendNumber(btn.innerText)));
         operationButtons.forEach(btn => btn.addEventListener('click', () => chooseOperation(btn.innerText)));
         equalsButton.addEventListener('click', compute); clearButton.addEventListener('click', clear); deleteButton.addEventListener('click', deleteDigit);
         
         
-        
-        
         document.addEventListener('keydown', (e) => {
             
-          // NEW CHECK STARTS HERE
-    const isTyping = e.target.tagName === 'INPUT' || 
-                   e.target.tagName === 'TEXTAREA' || 
-                   e.target.isContentEditable;
+            // NEW CHECK STARTS HERE
+            const isTyping = e.target.tagName === 'INPUT' || 
+                            e.target.tagName === 'TEXTAREA' || 
+                            e.target.isContentEditable;
 
-    if (isTyping) return; // If typing in a box, stop and don't run the calculator code
-    // NEW CHECK ENDS HERE
-    
-    let key = e.key;
-    let buttonToClick;
+            if (isTyping) return; // If typing in a box, stop and don't run the calculator code
+            // NEW CHECK ENDS HERE
+            
+            let key = e.key;
+            let buttonToClick;
 
-    if (key >= '0' && key <= '9') {
-        appendNumber(key);
-        // This looks for the button that has the number you just typed
-        buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === key);
-    }
-    
-    if (key === '.') {
-        appendNumber('.');
-        buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === '.');
-    }
+            if (key >= '0' && key <= '9') {
+                appendNumber(key);
+                // This looks for the button that has the number you just typed
+                buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === key);
+            }
+            
+            if (key === '.') {
+                appendNumber('.');
+                buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === '.');
+            }
 
-    if (key === '+' || key === '-' || key === '*' || key === '/') {
-        let op = key === '*' ? '×' : key === '/' ? '÷' : key;
-        chooseOperation(op);
-        buttonToClick = Array.from(operationButtons).find(btn => btn.innerText === op);
-    }
+            if (key === '+' || key === '-' || key === '*' || key === '/') {
+                let op = key === '*' ? '×' : key === '/' ? '÷' : key;
+                chooseOperation(op);
+                buttonToClick = Array.from(operationButtons).find(btn => btn.innerText === op);
+            }
 
-    if (key === '=' || key === 'Enter') {
-        e.preventDefault();
-        compute();
-        buttonToClick = equalsButton;
-    }
+            if (key === '=' || key === 'Enter') {
+                e.preventDefault();
+                compute();
+                buttonToClick = equalsButton;
+            }
 
-    if (key === 'Backspace') {
-        deleteDigit();
-        buttonToClick = deleteButton;
-    }
+            if (key === 'Backspace') {
+                deleteDigit();
+                buttonToClick = deleteButton;
+            }
 
-    if (key === 'Escape') {
-        clear();
-        buttonToClick = clearButton;
-    }
+            if (key === 'Escape') {
+                clear();
+                buttonToClick = clearButton;
+            }
 
-    // This part makes the button "glow" for a split second
-    if (buttonToClick) {
-        buttonToClick.style.backgroundColor = 'var(--text-secondary)';
-        setTimeout(() => {
-            buttonToClick.style.backgroundColor = ''; // Resets it back to normal
-        }, 100);
-    }
-});
+            // This part makes the button "glow" for a split second
+            if (buttonToClick) {
+                buttonToClick.style.backgroundColor = 'var(--text-secondary)';
+                setTimeout(() => {
+                    buttonToClick.style.backgroundColor = ''; // Resets it back to normal
+                }, 100);
+            }
+        });
 
-
-
-
-
-        
         const researchQueryInput = document.getElementById('research-query'), researchSearchBtn = document.getElementById('research-search-btn');
         researchSearchBtn.addEventListener('click', () => { const q = researchQueryInput.value; if (q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'); });
         researchQueryInput.addEventListener('keyup', e => { if (e.key === 'Enter') researchSearchBtn.click(); });
@@ -1106,10 +1105,93 @@
         let csvFileContent = null; 
         let currentCsvFileName = null; 
 
+        // ============================
+        // UPDATED: Phone search logic (ALL countries)
+        // ============================
+
+        // Normalizes phone for ALL countries:
+        // - Prefer E.164 when there's a + (keep + and digits)
+        // - Convert leading 00 -> +
+        // - If no +, keep digits only (local/national format)
+        // Convert +<countrycode><national_number> into local format: 0<national_number>
+// Example: +233531116140 -> 0531116140
+function normalizePhoneAllCountries(raw) {
+    if (!raw) return "";
+
+    let s = String(raw).trim();
+
+    // remove spaces/dashes/parentheses, keep + if present
+    s = s.replace(/[()\s-]/g, "");
+
+    // Convert leading 00 prefix to +
+    if (s.startsWith("00")) s = "+" + s.slice(2);
+
+    // If starts with +, convert to local format 0 + national number
+    if (s.startsWith("+")) {
+        const digits = s.slice(1).replace(/\D/g, "");
+        if (!digits) return "";
+
+        const cc = getCallingCode(digits); // 1-3 digit calling code
+        if (!cc) {
+            // fallback: if we can't detect cc, just return digits-only (no +)
+            return digits;
+        }
+
+        const national = digits.slice(cc.length);
+        if (!national) return "";
+
+        // Make it "0<national>"
+        return national.startsWith("0") ? national : ("0" + national);
+    }
+
+    // If no +: just digits-only
+    return s.replace(/\D/g, "");
+}
+
+// Detect country calling code (longest match wins)
+function getCallingCode(digits) {
+    // List of E.164 country calling codes (no +)
+    // Note: longest match wins, so we check 3 -> 2 -> 1 digits.
+    const codes = new Set([
+        "1","7",
+        "20","27","30","31","32","33","34","36","39",
+        "40","41","43","44","45","46","47","48","49",
+        "51","52","53","54","55","56","57","58",
+        "60","61","62","63","64","65","66",
+        "81","82","84","86","90","91","92","93","94","95","98",
+        "212","213","216","218","220","221","222","223","224","225","226","227","228","229",
+        "230","231","232","233","234","235","236","237","238","239",
+        "240","241","242","243","244","245","246","248","249",
+        "250","251","252","253","254","255","256","257","258","260","261","262","263","264","265","266","267","268","269",
+        "290","291","297","298","299",
+        "350","351","352","353","354","355","356","357","358","359",
+        "370","371","372","373","374","375","376","377","378","380","381","382","383","385","386","387","389",
+        "420","421","423",
+        "500","501","502","503","504","505","506","507","508","509",
+        "590","591","592","593","594","595","596","597","598","599",
+        "670","672","673","674","675","676","677","678","679","680","681","682","683","685","686","687","688","689",
+        "690","691","692","850","852","853","855","856","880","886",
+        "960","961","962","963","964","965","966","967","968","970","971","972","973","974","975","976","977","978","979",
+        "992","993","994","995","996","998"
+    ]);
+
+    // Longest match first
+    const c3 = digits.slice(0, 3);
+    if (codes.has(c3)) return c3;
+
+    const c2 = digits.slice(0, 2);
+    if (codes.has(c2)) return c2;
+
+    const c1 = digits.slice(0, 1);
+    if (codes.has(c1)) return c1;
+
+    return null;
+}
+
         window.performPhoneSearch = (phone) => {
-            const cleanPhone = phone.toString().replace(/[\s-]/g, ''); 
-            const query = encodeURIComponent(cleanPhone); 
-            const url = `https://www.google.com/search?q=${query}`;
+            const q = (phone || "").toString().trim();
+            if (!q) return;
+            const url = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
             window.open(url, '_blank');
         };
 
@@ -1165,18 +1247,18 @@
                     const dateStr = cells[dateColIndex] ? cells[dateColIndex].trim().replace(/"/g, '') : '';
                     let phone = cells[phoneColIndex] ? cells[phoneColIndex].trim().replace(/"/g, '') : '';
                     const entryDate = parseCsvDate(dateStr);
+
                     if (!isNaN(entryDate.getTime()) && entryDate >= sixMonthsAgo && entryDate <= currentDateForFilter) {
-                        if (phone.startsWith('+63')) phone = '0' + phone.substring(3); 
-                        else if (phone.startsWith('+')) phone = phone.replace(/^\+\d{1,3}/, '').trim(); 
-                        phone = phone.replace(/[\s-]/g, '');
-                        if (phone) uniquePhones.add(phone); 
+                        // UPDATED: apply same normalization for ALL countries
+                        phone = normalizePhoneAllCountries(phone);
+                        if (phone) uniquePhones.add(phone);
                     }
                 }
             });
 
             uniquePhones.forEach(phone => performPhoneSearch(phone));
+
             if (uniquePhones.size === 0) alert('No unique phones found within last 6 months.');
-           
         }
         
         window.performAllSearches = () => {
@@ -1188,61 +1270,86 @@
         window.performNegativeNewsSearch = () => { const n = personNameInput.value; if (n) window.open(`https://www.google.com/search?q="${encodeURIComponent(n)}" AND (bribery OR fraud OR "money laundering" OR crime OR terrorism OR corruption OR "sex offender" OR "child exploitation")`, "_blank"); };
         window.performOffenderSearch = () => { const n = personNameInput.value; if (!n) return; const p = n.split(' '), f = p[0], l = p.length > 1 ? p[p.length - 1] : ''; window.open(`https://www.nsopw.gov/en/search/results?firstName=${encodeURIComponent(f)}&lastName=${encodeURIComponent(l)}`, "_blank"); };
         
-        
-        
         window.performSocialMediaSearch = () => { 
-            const n = personNameInput.value; 
-            if (!n) return; 
-            const en = encodeURIComponent(n); 
-            
-            // List of Social Media Search URLs
-            const urls = [
-                `https://www.facebook.com/search/top/?q=${en}`, 
-                `https://www.linkedin.com/search/results/all/?keywords=${en}`, 
-                `https://twitter.com/search?q=${en}`, 
-                `https://www.instagram.com/explore/search/keyword/?q=${en}`,
-                `https://www.youtube.com/results?search_query=${en}` // Added YouTube
-            ];
+    const n = personNameInput.value; 
+    if (!n) return; 
+    const en = encodeURIComponent(n); 
+    
+    const urls = [
+        `https://www.facebook.com/search/top/?q=${en}`, 
+        `https://www.linkedin.com/search/results/all/?keywords=${en}`, 
+        `https://twitter.com/search?q=${en}`, 
+        `https://www.instagram.com/explore/search/keyword/?q=${en}`,
+        `https://www.youtube.com/results?search_query=${en}`,
+        `https://www.tiktok.com/search?q=${en}` // ✅ TikTok added
+    ];
 
-            // Open each in a new tab
-            urls.forEach(u => window.open(u, "_blank")); 
-        };
-        
+    urls.forEach(u => window.open(u, "_blank")); 
+};
         
        window.performBusinessSearch = () => { 
-            const n = personNameInput.value; 
-            if (!n) return; 
-            const en = encodeURIComponent(n); 
-            
-            const urls = [
-    // --- GLOBAL / US ---
-    `https://opencorporates.com/officers?q=${en}`,
-    `https://www.sec.gov/edgar/search/#/q=${en}`,
-    `https://littlesis.org/search?q=${en}`,
+    const n = personNameInput.value; 
+    if (!n) return; 
+    const en = encodeURIComponent(n);
 
-    // --- UK & EUROPE ---
-    `https://find-and-update.company-information.service.gov.uk/search?q=${en}`,
-    `https://www.northdata.com/${en}`,
+    const region = (document.getElementById('business-region')?.value || 'all').toLowerCase();
 
-    // --- CANADA ---
-    // Canada's Business Registries (Federal & Provincial Combined)
-    `https://ised-isde.canada.ca/cbr-rec/en/search/results?search=${en}`,
-    // Corporations Canada (Federal Corporations Only)
-    `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpSrch.html`,
+    const urlsByRegion = {
+        // --- GLOBAL / US ---
+        us: [
+            `https://opencorporates.com/officers?q=${en}`,
+            `https://www.sec.gov/edgar/search/#/q=${en}`,
+            `https://littlesis.org/search?q=${en}`
+        ],
 
-    // --- AUSTRALIA ---
-    // ABN Lookup (Main registry for all Australian businesses)
-    `https://abr.business.gov.au/Search/Results?SearchText=${en}`,
-    // ASIC Connect (Official search for registered companies and business names)
-    `https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx?searchText=${en}&searchType=OrgAndBusNames`,
-    // OpenCorporates Australia Filter
-    `https://opencorporates.com/companies/au?q=${en}`
-];
+        // --- CANADA ---
+        can: [
+            `https://ised-isde.canada.ca/cbr-rec/en/search/results?search=${en}`,
+            `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpSrch.html`
+        ],
 
-            urls.forEach(u => window.open(u, "_blank")); 
-        };
-        
-        
+        // --- AUSTRALIA ---
+        aus: [
+            `https://abr.business.gov.au/Search/Results?SearchText=${en}`,
+            `https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx?searchText=${en}&searchType=OrgAndBusNames`,
+            `https://opencorporates.com/companies/au?q=${en}`
+        ],
+
+        // --- UK ---
+        uk: [
+            `https://find-and-update.company-information.service.gov.uk/search?q=${en}`
+        ],
+
+        // --- EU / EUROPE (general) ---
+        eu: [
+            `https://www.northdata.com/${en}`
+        ]
+    };
+
+    // Build the final list based on region selection
+    let urls = [];
+
+    if (region === 'all') {
+        // Combine all regions (dedupe)
+        const combined = [
+            ...urlsByRegion.us,
+            ...urlsByRegion.can,
+            ...urlsByRegion.aus,
+            ...urlsByRegion.uk,
+            ...urlsByRegion.eu
+        ];
+        urls = Array.from(new Set(combined));
+    } else {
+        urls = urlsByRegion[region] || [];
+    }
+
+    if (urls.length === 0) {
+        alert("No URLs configured for that region.");
+        return;
+    }
+
+    urls.forEach(u => window.open(u, "_blank")); 
+};
         
         window.calculateMonthlyIncome = () => {
             const i = document.getElementById('annualIncome').value, r = document.getElementById('monthlyIncomeResult'); if (!i.trim()) return r.innerText = '';
