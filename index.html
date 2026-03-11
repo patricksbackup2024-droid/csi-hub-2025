@@ -503,7 +503,12 @@
                         
                         <span id="csvFileName" style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 10px; text-align: center; word-break: break-all;">No file selected.</span>
                         
-                        <button id="processCsvBtn" style="width: 100%;">Process & Search Phones</button>
+                        <select id="phone-format-mode" style="margin-bottom: 10px;">
+  <option value="with0">Search WITH 0 (Local)</option>
+  <option value="no0">Search WITHOUT 0 (NSN only)</option>
+</select>
+
+<button id="processCsvBtn" style="width: 100%;">Process & Search Phones</button>
                     </div>
                 </div>
 
@@ -1115,43 +1120,54 @@
         // - If no +, keep digits only (local/national format)
         // Convert +<countrycode><national_number> into local format: 0<national_number>
 // Example: +233531116140 -> 0531116140
-function normalizePhoneAllCountries(raw) {
+// Phone search mode:
+// - with0: return "0" + national number (PH stays 0xxxxxxxxxx)
+// - no0: return national number only, EXCEPT PH remains 0xxxxxxxxxx
+function normalizePhoneForSearch(raw, mode = "with0") {
     if (!raw) return "";
 
     let s = String(raw).trim();
 
-    // remove spaces/dashes/parentheses, keep + if present
+    // Remove spaces/dashes/parentheses, keep + if present
     s = s.replace(/[()\s-]/g, "");
 
     // Convert leading 00 prefix to +
     if (s.startsWith("00")) s = "+" + s.slice(2);
 
-    // If starts with +, convert to local format 0 + national number
+    // If starts with +, detect calling code and extract national number
     if (s.startsWith("+")) {
         const digits = s.slice(1).replace(/\D/g, "");
         if (!digits) return "";
 
-        const cc = getCallingCode(digits); // 1-3 digit calling code
+        const cc = getCallingCode(digits);
         if (!cc) {
-            // fallback: if we can't detect cc, just return digits-only (no +)
+            // fallback: no calling code detected -> digits only
             return digits;
         }
 
         const national = digits.slice(cc.length);
         if (!national) return "";
 
-        // Make it "0<national>"
+        // PH exception: always return 0 + national (e.g. +63935... -> 0935...)
+        if (cc === "63") {
+            return national.startsWith("0") ? national : ("0" + national);
+        }
+
+        if (mode === "no0") {
+            // No 0, just national number
+            return national.startsWith("0") ? national.slice(1) : national;
+        }
+
+        // Default: with0
         return national.startsWith("0") ? national : ("0" + national);
     }
 
-    // If no +: just digits-only
+    // If no +: just digits only
     return s.replace(/\D/g, "");
 }
 
 // Detect country calling code (longest match wins)
 function getCallingCode(digits) {
-    // List of E.164 country calling codes (no +)
-    // Note: longest match wins, so we check 3 -> 2 -> 1 digits.
     const codes = new Set([
         "1","7",
         "20","27","30","31","32","33","34","36","39",
@@ -1175,7 +1191,6 @@ function getCallingCode(digits) {
         "992","993","994","995","996","998"
     ]);
 
-    // Longest match first
     const c3 = digits.slice(0, 3);
     if (codes.has(c3)) return c3;
 
@@ -1250,7 +1265,8 @@ function getCallingCode(digits) {
 
                     if (!isNaN(entryDate.getTime()) && entryDate >= sixMonthsAgo && entryDate <= currentDateForFilter) {
                         // UPDATED: apply same normalization for ALL countries
-                        phone = normalizePhoneAllCountries(phone);
+                        const mode = (document.getElementById('phone-format-mode')?.value || 'with0');
+                        phone = normalizePhoneForSearch(phone, mode);
                         if (phone) uniquePhones.add(phone);
                     }
                 }
