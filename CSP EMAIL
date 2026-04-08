@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STAR Email Template Builder</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    .sub {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font: inherit;
+      background: #fff;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .checkboxes {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fafafa;
+    }
+    .check input {
+      width: auto;
+      margin-top: 3px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+    }
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .preview-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .preview {
+      white-space: pre-wrap;
+      line-height: 1.55;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      min-height: 700px;
+    }
+    .footer {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+    @media (max-width: 1000px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>📧 STAR Email Template Builder</h1>
+    <div class="sub">Select region, template type, and language. Fill in the fields and the email preview updates automatically.</div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>⚙️ Template settings</h2>
+
+        <div class="row">
+          <div class="field">
+            <label for="region">Region</label>
+            <select id="region"></select>
+          </div>
+          <div class="field">
+            <label for="language">Language</label>
+            <select id="language">
+              <option value="ENG">ENG</option>
+              <option value="ESP">ESP</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="templateType">Template type</label>
+          <select id="templateType"></select>
+        </div>
+
+        <div class="field">
+          <label for="customerName">Customer / recipient first name</label>
+          <input id="customerName" value="{{{Recipient.FirstName}}}" />
+        </div>
+
+        <div class="field">
+          <label for="recipientName">Name of recipients for CQ</label>
+          <textarea id="recipientName" placeholder="Karen López&#10;Wilber Almario&#10;Hamillthon Medina"></textarea>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="lastFour">Last 4 digits</label>
+            <input id="lastFour" placeholder="2313" />
+          </div>
+          <div class="field">
+            <label for="statementMonth">Statement month / year</label>
+            <input id="statementMonth" placeholder="February 2026" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="deadline">Deadline</label>
+            <input id="deadline" value="{{{Case.STAR_Reminder_Date__c}}}" />
+          </div>
+          <div class="field">
+            <label for="days">Days to respond</label>
+            <input id="days" placeholder="7" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="issueText">Issue / missing info</label>
+          <textarea id="issueText" placeholder="Example: the bank statement was missing page 2"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="stillNeedText">Still need from cx</label>
+          <textarea id="stillNeedText" placeholder="Example: full February 2026 BS&#10;pay stub&#10;page 2 of bank statement"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="additionalDoc">Additional document needed</label>
+          <input id="additionalDoc" placeholder="invoice OR savings statement OR contract" />
+        </div>
+
+        <div class="field">
+          <label for="depositLines">Deposits to clarify</label>
+          <textarea id="depositLines" placeholder="[date] [source] [amount]&#10;[date] [source] [amount]"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="identityQuestions">Extra identity questions</label>
+          <textarea id="identityQuestions" placeholder="[identity verification question]&#10;[identity verification question]"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Required actions for first contact / 28-day / security templates</label>
+          <div class="checkboxes">
+            <label class="check"><input type="checkbox" id="qna" checked> <span>Ask Q&amp;A about recs, job, and SOF</span></label>
+            <label class="check"><input type="checkbox" id="statement" checked> <span>Request full bank/card statement</span></label>
+            <label class="check"><input type="checkbox" id="paystub"> <span>Request pay stub</span></label>
+            <label class="check"><input type="checkbox" id="additionalInfo"> <span>Request additional information</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Optional warning for confirmation email</label>
+          <select id="warningType">
+            <option value="">None</option>
+            <option value="gambling">Gambling</option>
+            <option value="unknown">Sending to unknown persons</option>
+            <option value="shared">Shared payment method</option>
+            <option value="duplicate">Duplicate accounts</option>
+            <option value="sob">Sending on behalf of other people</option>
+            <option value="charity">Sending for charity</option>
+            <option value="business">Sending for business</option>
+            <option value="ownership">Account ownership</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="copyBtn" type="button">📋 Copy email</button>
+          <button class="secondary" id="copyHtmlBtn" type="button">🧾 Copy HTML</button>
+          <button class="secondary" id="resetBtn" type="button">🔄 Reset fields</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview-head">
+          <h2 style="margin:0;">👀 Preview</h2>
+          <span class="pill" id="templateLabel">US - First contact - ENG</span>
+        </div>
+        <div class="preview" id="preview"></div>
+        <div class="footer" id="footer"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var NL = String.fromCharCode(10);
+
+      var footers = {
+        UK: 'Remitly, Inc.' + NL +
+          '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+          'Remitly U.K., Ltd. (“Remitly”) is registered in England and Wales (company number 09896841). Registered Office: 90 Whitfield Street, London W1T 4EZ. Remitly is regulated by the Financial Conduct Authority under the Payment Services Regulations 2017 (reference number: 728639) for the provision of payment services. Any e-mail sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy or use it; please notify the sender immediately and delete it and any copies from your systems. Are you a Remitly supplier? If so, we process your personal details in accordance with our Supplier Privacy Policy',
+        AUS: 'Remitly, Inc.' + NL +
+          '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+          'Remitly Australia Pty Ltd (ACN 618 869 980), trading as Remitly, is registered with Australian Transaction Reports and Analysis Centre (AUSTRAC) as an independent remittance provider. Registered address: C/- King And Wood Mallesons, Level 61, Governor Philip Tower, 1 Farrer Place, Sydney, NSW, 2000, Australia',
+        NZL: 'Remitly, Inc.' + NL +
+          '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+          'Remitly NZ Limited (NZBN: 9429050549382), trading as Remitly, is registered with the Department of Internal Affairs of New Zealand (DIA) as a Financial Service Provider. Registered address: C/- Russell McVeagh, Level 30, Vero Centre, 48 Shortland Street, Auckland Central, 1010, NZ',
+        CAN: 'Remitly, Inc.' + NL +
+          '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+          'Remitly Canada, Inc.' + NL +
+          '250 Howe Street, 20th Floor, Vancouver, BC, V6C 3R8' + NL +
+          '(888) 736-4859' + NL +
+          'www.remitly.ca',
+        SGP: 'Remitly, Inc.' + NL +
+          '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+          'Remitly Singapore Pte. Ltd. (201920838N) is regulated by the Monetary Authority of Singapore (MAS) for the provision of payment services. Registered address: 38 Beach Road, #29-11 South Beach Tower, Singapore 189767',
+        EU: 'Remitly, Inc.' + NL +
+          '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+          'Remitly Europe Limited, trading as Remitly, is regulated by the Central Bank of Ireland. Remitly Europe Limited is a limited liability company registered in Ireland (company registration number 629909). Registered Office: 7th Floor, Penrose Two, Penrose Dock, Cork, T23 YY09. Directors: T. Woods, A. Khindria and J. McKenzie. Any email sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy or use it; please notify the sender immediately and delete it and any copies from your systems.',
+        US: 'Remitly, Inc.' + NL +
+          '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+          'Remitly, Inc. is Licensed as a Money Transmitter by the New York State Department of Financial Services, as a Foreign Transmittal Agency by the Massachusetts Division of Banks, and LICENSED BY THE GEORGIA DEPARTMENT OF BANKING AND FINANCE. NMLS No. 1028236.'
+      };
+
+      var warnings = {
+        ENG: {
+          gambling: 'During our review, we noticed you might be sending money for gambling purposes. This is not allowed under the terms of our User Agreement. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.',
+          unknown: 'During our review, we noticed that you might be sending money to people you have not personally met. This is not allowed under the terms of our User Agreement. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.',
+          shared: 'During our review, we noticed that you might be using someone else’s payment method. This is not allowed under the terms of our User Agreement. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.',
+          duplicate: 'During our review, we noticed that you have created multiple Remitly profiles. This is not allowed under the terms of our User Agreement. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.',
+          sob: 'During our review, we noticed that you might be sending money on someone else’s behalf. This is not allowed under the terms of our User Agreement. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.',
+          charity: 'During our review, we noticed that you might be sending money for charitable purposes. This is not allowed under the terms of our User Agreement. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.',
+          business: 'During our review, we noticed that you might be sending money for business purposes. This is not allowed under the terms of our User Agreement. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.',
+          ownership: 'During our review, we noticed that you have multiple people registered on your profile. This is not allowed under the terms of our User Agreement, and each person should have their own profile. You may not have been aware of this policy, so we are giving you another chance. If this activity continues, we may need to suspend your account to help keep our service safe for everyone.'
+        },
+        ESP: {
+          gambling: 'Durante nuestra revisión, observamos que podrías estar enviando dinero con fines de juego. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.',
+          unknown: 'Durante nuestra revisión, observamos que podrías estar enviando dinero a personas que no conoces personalmente. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.',
+          shared: 'Durante nuestra revisión, observamos que podrías estar utilizando el método de pago de otra persona. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.',
+          duplicate: 'Durante nuestra revisión, observamos que has creado varios perfiles de Remitly. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.',
+          sob: 'Durante nuestra revisión, observamos que podrías estar enviando dinero en nombre de otra persona. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.',
+          charity: 'Durante nuestra revisión, observamos que podrías estar enviando dinero con fines benéficos. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.',
+          business: 'Durante nuestra revisión, observamos que podrías estar enviando dinero con fines comerciales. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.',
+          ownership: 'Durante nuestra revisión, observamos que tienes varias personas registradas en tu perfil. Esto no está permitido según los términos de nuestro Acuerdo de Usuario, y cada persona debería tener su propio perfil. Puede que no hayas sido consciente de esta política, así que te damos otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para mantener nuestro servicio seguro para todos.'
+        }
+      };
+
+      var regionOptions = ['UK', 'AUS', 'NZL', 'CAN', 'SGP', 'EU', 'US'];
+      var templateOptions = [
+        { value: 'first_contact', label: 'First contact' },
+        { value: 'confirmation', label: 'Thank you / confirmation' },
+        { value: 'followup_7', label: 'Follow-up after 7 days' },
+        { value: 'followup_14', label: 'Follow-up after 14 days' },
+        { value: 'followup_28', label: 'Follow-up after 28 days' },
+        { value: 'incorrect_submission', label: 'Follow-up after incorrect submission' },
+        { value: 'additional_questions', label: 'Follow-up with additional questions' },
+        { value: 'security_privacy', label: 'Security and privacy concerns' },
+        { value: 'suspension', label: 'Suspension after review' }
+      ];
+
+      var regionEl = document.getElementById('region');
+      var languageEl = document.getElementById('language');
+      var templateTypeEl = document.getElementById('templateType');
+      function get(id) { return document.getElementById(id); }
+
+      regionOptions.forEach(function (r) {
+        var o = document.createElement('option');
+        o.value = r;
+        o.textContent = r;
+        regionEl.appendChild(o);
+      });
+
+      templateOptions.forEach(function (t) {
+        var o = document.createElement('option');
+        o.value = t.value;
+        o.textContent = t.label;
+        templateTypeEl.appendChild(o);
+      });
+
+      function splitLines(text) {
+        return (text || '').split('\n').map(function (x) { return x.trim(); }).filter(function (x) { return x; });
+      }
+
+      function getRecipientLines() {
+        var items = splitLines(get('recipientName').value || '');
+        return items.length ? items : ['[Recipient Name]'];
+      }
+
+      function bulletBlock(items) {
+        return items.map(function (name) { return '- ' + name; }).join(NL);
+      }
+
+      function buildQuestionSet(lang) {
+        var recipients = bulletBlock(getRecipientLines());
+        if (lang === 'ESP') {
+          return [
+            '1. Responde a este correo electrónico con las respuestas a las siguientes preguntas:',
+            '¿Cuál es tu motivo para enviar dinero a estos destinatarios?',
+            recipients,
+            '',
+            '¿Cómo conociste a estos destinatarios?',
+            recipients,
+            '',
+            '¿Has conocido a estos destinatarios en persona?',
+            recipients,
+            '',
+            '¿Cuál es tu relación con estos destinatarios?',
+            recipients,
+            '',
+            '¿Cuál es tu trabajo? Si eres autónomo, danos algunos detalles sobre tu negocio.',
+            'Dinos de dónde sacas el dinero que utilizas para tus transferencias de Remitly.',
+            '',
+            'Una vez que hayas enviado tus respuestas, inicia sesión en tu perfil de Remitly y completa los siguientes pasos:'
+          ].join(NL);
+        }
+        return [
+          '1. Respond to this email with the answers to the following questions:',
+          'What is your reason for sending money to these recipients?',
+          recipients,
+          '',
+          'How did you meet these recipients?',
+          recipients,
+          '',
+          'Have you met these recipients in person?',
+          recipients,
+          '',
+          'What is your relationship with these recipients?',
+          recipients,
+          '',
+          'What is your job? If you are self-employed, please give us some details about your business.',
+          'Please tell us where you get the money you use for your Remitly transfers.',
+          '',
+          'Once you have sent your answers, sign in to your Remitly profile and complete the following steps:'
+        ].join(NL);
+      }
+
+      function selectedActions(lang) {
+        var lastFour = get('lastFour').value || '[last four digits]';
+        var statementMonth = get('statementMonth').value || '[month and year of statement required]';
+        var actions = [];
+
+        if (get('qna').checked) {
+          actions.push(buildQuestionSet(lang));
+        }
+
+        if (get('statement').checked) {
+          if (lang === 'ESP') {
+            actions.push([
+              '2. Sigue las instrucciones para enviar un extracto completo de tu tarjeta o cuenta bancaria que termine en ' + lastFour + ' para ' + statementMonth + '. Para asegurarte de que podemos aceptar tu extracto, comprueba que:',
+              'El nombre y la dirección residencial que aparecen en el extracto coinciden con tu perfil de Remitly.',
+              'El logotipo o el nombre de la entidad bancaria o de la empresa aparece en el extracto.',
+              'El extracto es del mes y año correctos.',
+              'El extracto está completo y se incluyen todas las páginas.',
+              'El extracto no está escrito a mano.'
+            ].join(NL));
+          } else {
+            actions.push([
+              '2. Follow the instructions to upload a complete statement for your card or bank account ending in ' + lastFour + ' for ' + statementMonth + '. To ensure we can accept your statement, check that:',
+              'The name and residential address on the statement match your Remitly profile.',
+              'The logo or name of the banking institution or company appears on the statement.',
+              'The statement is from the correct month and year.',
+              'The statement is complete and all of the pages are included.',
+              'The statement is not handwritten.'
+            ].join(NL));
+          }
+        }
+
+        if (get('paystub').checked) {
+          actions.push(lang === 'ESP' ? '3. Sigue las instrucciones para enviar tu recibo de pago más reciente.' : '3. Follow the instructions to upload your most recent pay stub.');
+        }
+
+        if (get('additionalInfo').checked) {
+          actions.push(lang === 'ESP' ? '3. Sigue las instrucciones para enviar cualquier información adicional solicitada.' : '3. Follow the instructions to upload any additional requested information.');
+        }
+
+        return actions.join(NL + NL);
+      }
+
+      function renderTemplate() {
+        var region = regionEl.value;
+        var lang = languageEl.value;
+        var type = templateTypeEl.value;
+        var name = get('customerName').value || '{{{Recipient.FirstName}}}';
+        var deadline = get('deadline').value || '{{{Case.STAR_Reminder_Date__c}}}';
+        var days = get('days').value || '[number of days]';
+        var issue = get('issueText').value || '[write a short explanation of what was wrong — for example, the document was cropped or the bank statement was missing a page]';
+        var stillNeedText = get('stillNeedText').value || '[list required info, removing any details that have already been correctly provided]';
+        var recipientBullets = bulletBlock(getRecipientLines());
+        var additionalDoc = get('additionalDoc').value || '[invoice OR savings statement OR contract]';
+        var deposits = get('depositLines').value || '[date] [source] [amount]' + NL + '[date] [source] [amount]';
+        var identityQuestions = get('identityQuestions').value || '[identity verification question]' + NL + '[identity verification question]';
+        var warning = get('warningType').value;
+        var firstActions = selectedActions(lang);
+        var footer = footers[region];
+        var tLabel = templateOptions.filter(function (t) { return t.value === type; })[0].label;
+        var body = '';
+
+        document.getElementById('templateLabel').textContent = region + ' - ' + tLabel + ' - ' + lang;
+
+        if (type === 'first_contact') {
+          if (lang === 'ESP') {
+            body = [
+              'Hola ' + name + ',',
+              '',
+              '¡Gracias por ser cliente de Remitly! Necesitamos información adicional antes de poder completar tu próxima transferencia.',
+              '',
+              'Con frecuencia se nos pide retirar información de nuestros clientes para ayudarnos a entender cómo utilizan nuestro servicio y asegurarnos de que siguen nuestro Acuerdo de Usuario. Esto nos ayuda a cumplir las leyes aplicables, mantener nuestro servicio seguro y proteger a nuestros clientes.',
+              '',
+              'Sigue estas instrucciones para enviarnos la información requerida:',
+              '',
+              firstActions,
+              '',
+              'Completar mi perfil',
+              '',
+              'Es posible que no podamos procesar tus transferencias hasta que completemos este proceso. Para evitar una interrupción de tu servicio, proporciona la información solicitada antes de ' + deadline + '.',
+              '',
+              'Nos disculpamos por las molestias. Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por tu ayuda.',
+              '',
+              'Saludos cordiales,',
+              'El equipo de Remitly'
+            ].join(NL);
+          } else {
+            body = [
+              'Hello ' + name + ' —',
+              '',
+              'Thank you for being a Remitly customer! We need some additional information from you before we are able to complete your next transfer.',
+              '',
+              'We are often required to collect information from our customers to help us understand how they use our service and ensure they are following our User Agreement. This helps us comply with applicable laws, keep our service secure, and keep our customers safe.',
+              '',
+              'Follow these instructions to send us the required information:',
+              '',
+              firstActions,
+              '',
+              'Complete my profile',
+              '',
+              'We may not be able to process your transfers until we complete this process. To avoid a disruption in your service, please provide the requested information by ' + deadline + '.',
+              '',
+              'We apologize for any inconvenience this may cause. If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for your assistance.',
+              '',
+              'Best regards,',
+              'The Remitly team'
+            ].join(NL);
+          }
+        } else if (type === 'confirmation') {
+          if (lang === 'ESP') {
+            body = [
+              'Hola ' + name + ',',
+              '',
+              'Gracias por responder a nuestra solicitud. Hemos revisado la información que nos has proporcionado y no se requiere ninguna otra acción en este momento.',
+              '',
+              warning ? warnings.ESP[warning] : '',
+              warning ? '' : '',
+              'Apreciamos tu ayuda para mantener nuestro servicio seguro para todos.',
+              '',
+              'Saludos cordiales,',
+              'El equipo de Remitly'
+            ].filter(Boolean).join(NL);
+          } else {
+            body = [
+              'Hello ' + name + ' —',
+              '',
+              'Thank you for responding to our request. We have reviewed the information you provided and no further action is required at this time.',
+              '',
+              warning ? warnings.ENG[warning] : '',
+              warning ? '' : '',
+              'We appreciate your help with keeping our service safe for everyone.',
+              '',
+              'Best regards,',
+              'The Remitly team'
+            ].filter(Boolean).join(NL);
+          }
+        } else if (type === 'followup_7') {
+          body = [
+            'Hello ' + name + ',',
+            '',
+            'We are following up on our previous email request for more information. If we are not able to collect these details from you by (1st email + 21 days), we may not be able to process additional transfers.',
+            '',
+            'We are required to collect information from our customers to help us understand how they use our service and ensure they are following our User Agreement. This helps us comply with applicable laws, keep our service secure, and keep our customers safe.',
+            '',
+            'If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.',
+            '',
+            'Best regards,',
+            'The Remitly team'
+          ].join(NL);
+        } else if (type === 'followup_14') {
+          body = [
+            'Hello ' + name + ',',
+            '',
+            'We have not received a response to our previous requests for information, so we are following up again. We will not be able to process your transfers until we receive the details we requested.',
+            '',
+            'We are required to collect information from our customers to help us understand how they use our service and ensure they are following our User Agreement. This helps us comply with applicable laws, keep our service secure, and keep our customers safe.',
+            '',
+            'If you are not able to provide the information requested by (1st email day + 21 days), you will not be able to send transfers with Remitly in the future.',
+            '',
+            'If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.',
+            '',
+            'Best regards,',
+            'The Remitly team'
+          ].join(NL);
+        } else if (type === 'followup_28') {
+          if (lang === 'ESP') {
+            body = [
+              'Hola ' + name + ',',
+              '',
+              'Te damos seguimiento nuevamente porque no hemos recibido respuesta a nuestros mensajes anteriores. No podrás enviar transferencias hasta que recibamos la información que necesitamos.',
+              '',
+              'Lamentamos cualquier inconveniente. Debemos recopilar información de nuestros clientes para entender cómo usan nuestro servicio y asegurarnos de que cumplen con nuestro Acuerdo de Usuario. Esto nos ayuda a cumplir con las leyes aplicables y a mantener nuestro servicio seguro para todos.',
+              '',
+              'Para seguir enviando dinero con Remitly, por favor sigue estas instrucciones.',
+              '',
+              firstActions,
+              '',
+              'Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por tu ayuda.',
+              '',
+              'Saludos cordiales,',
+              'El equipo de Remitly'
+            ].join(NL);
+          } else {
+            body = [
+              'Hello ' + name + ' —',
+              '',
+              'We are following up again since we have not received a response to our previous messages. You will not be able to send transfers until we receive the information we need.',
+              '',
+              'We apologize for any inconvenience. We are required to collect information from our customers to help us understand how they use our service and ensure they are following our User Agreement. This helps us comply with applicable laws and keep our service safe for everyone.',
+              '',
+              'To continue sending money with Remitly, please follow these instructions.',
+              '',
+              firstActions,
+              '',
+              'If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for your assistance.',
+              '',
+              'Best regards,',
+              'The Remitly team'
+            ].join(NL);
+          }
+        } else if (type === 'incorrect_submission') {
+          body = [
+            'Hello ' + name + ' —',
+            '',
+            'Thank you for providing the information we requested. Unfortunately, we are still missing the details we need.',
+            '',
+            'The issue is: ' + issue,
+            '',
+            'We still need: ' + stillNeedText + '.',,
+            'We apologize for the inconvenience. We may not be able to process any further transfers for you until we complete this process. To avoid a disruption in your service, please provide the requested information within the next ' + days + ' days.',
+            '',
+            firstActions,
+            '',
+            'If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.',
+            '',
+            'Best regards,',
+            'The Remitly team'
+          ].join(NL);
+        } else if (type === 'additional_questions') {
+          if (lang === 'ESP') {
+            body = [
+              'Hola ' + name + ',',
+              '',
+              'Gracias por la información que hemos solicitado. Necesitamos entender un poco más la información proporcionada.',
+              '',
+              'Por favor, responde a este correo electrónico con esta información:',
+              '',
+              'Por favor, confirma tu relación con estos destinatarios:',
+              recipientBullets,
+              '',
+              'Por favor, confirma el origen de estos depósitos:',
+              deposits,
+              '',
+              'Por favor, sube un documento adicional: ' + additionalDoc,
+              '',
+              'Por favor, responde a este correo electrónico con las respuestas a la(s) siguiente(s) pregunta(s):',
+              identityQuestions,
+              '',
+              'Nos disculpamos por las molestias. Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.',
+              '',
+              'Un saludo,',
+              'El equipo de Remitly'
+            ].join(NL);
+          } else {
+            body = [
+              'Hello ' + name + ' —',
+              '',
+              'Thank you for the information we requested. We need to understand a little bit more about the information provided.',
+              '',
+              'Please respond to this email with this information:',
+              '',
+              'Please confirm your relationship with these recipients:',
+              recipientBullets,
+              '',
+              'Please confirm the source of these deposits:',
+              deposits,
+              '',
+              'Please upload an additional document: ' + additionalDoc,
+              '',
+              'Please respond to this email with the answers to the following question(s):',
+              identityQuestions,
+              '',
+              'We apologize for the inconvenience. If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.',
+              '',
+              'Best regards,',
+              'The Remitly team'
+            ].join(NL);
+          }
+        } else if (type === 'security_privacy') {
+          if (lang === 'ESP') {
+            body = [
+              'Hola ' + name + ',',
+              '',
+              'Entendemos tu preocupación y tienes toda la razón al ser precavido con tu información personal. Invertimos mucho en seguridad para garantizar que tu información esté protegida.',
+              '',
+              'Sabemos que pedir esta información puede parecer invasivo, y lamentamos el estrés que esto haya causado.',
+              '',
+              'Para seguir ofreciendo a nuestros clientes una forma segura y fiable de enviar dinero, tenemos que asegurarnos de que todos los que utilizan nuestro servicio cumplen nuestro Acuerdo de Usuario. También estamos obligados a recopilar información sobre nuestros clientes para cumplir con las leyes aplicables y mantener la seguridad de nuestro servicio.',
+              '',
+              'Esta es la información que necesitamos:',
+              '',
+              firstActions,
+              '',
+              'Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.',
+              '',
+              'Un saludo,',
+              'El equipo de Remitly'
+            ].join(NL);
+          } else {
+            body = [
+              'Hello ' + name + ' —',
+              '',
+              'We understand your concerns and you are absolutely right to be cautious with your personal information. We invest heavily in safety and security to ensure that your information is protected.',
+              '',
+              'We know asking for this information can feel invasive, and we are sorry for any stress this has caused.',
+              '',
+              'To continue offering our customers a safe and reliable way to send money, we have to make sure everyone using our service is following our User Agreement. We are also required to collect information about our customers to comply with applicable laws and keep our service secure.',
+              '',
+              'Here is the information we need:',
+              '',
+              firstActions,
+              '',
+              'If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.',
+              '',
+              'Best regards,',
+              'The Remitly team'
+            ].join(NL);
+          }
+        } else if (type === 'suspension') {
+          if (lang === 'ESP') {
+            body = [
+              'Hola ' + name + ',',
+              '',
+              'Hemos completado nuestra revisión y hemos determinado que tenemos que desactivar tu perfil de Remitly.',
+              '',
+              'Te pedimos disculpas por las molestias. Para seguir ofreciendo a nuestros clientes una forma segura y fiable de enviar dinero, tenemos que asegurarnos de que todos los que utilizan nuestro servicio cumplen nuestro Acuerdo de Usuario. Desgraciadamente, eso puede obligarnos a tomar decisiones difíciles sobre los perfiles de los clientes.',
+              '',
+              'Esta decisión es definitiva y no podemos proporcionar más detalles específicos. No podemos reactivar tu perfil ni responder a la correspondencia adicional, y cualquier otro perfil creado también será desactivado.',
+              '',
+              'Gracias por tu comprensión.',
+              '',
+              'Saludos cordiales,',
+              'El equipo de Remitly'
+            ].join(NL);
+          } else {
+            body = [
+              'Hello ' + name + ',',
+              '',
+              'We have completed our review and determined that we need to deactivate your Remitly profile.',
+              '',
+              'We apologize for the inconvenience. To continue offering our customers a safe and reliable way to send money, we have to make sure everyone using our service is following our User Agreement. Unfortunately, that can require us to make difficult decisions about customer profiles.',
+              '',
+              'This decision is final and we are not able to provide more specific details. We are unable to reactivate your profile or respond to additional correspondence, and any additional profiles created will also be deactivated.',
+              '',
+              'Thank you for your understanding,',
+              'The Remitly team'
+            ].join(NL);
+          }
+        }
+
+        document.getElementById('preview').textContent = body;
+        document.getElementById('footer').textContent = footer;
+      }
+
+      function showManualCopy(content) {
+        window.prompt('Copy this text:', content);
+      }
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>');
+      }
+
+      function copyText(asHtml) {
+        var body = document.getElementById('preview').textContent;
+        var footer = document.getElementById('footer').textContent;
+        var content;
+        if (asHtml) {
+          content = '<div style="font-family: Arial, sans-serif; white-space: pre-wrap; line-height: 1.55;">' +
+            escapeHtml(body) +
+            '<br><br><hr style="border:none;border-top:1px solid #ccc;margin:16px 0;">' +
+            '<div style="color:#666;font-size:12px;white-space: pre-wrap;">' +
+            escapeHtml(footer) +
+            '</div></div>';
+        } else {
+          content = body + NL + NL + footer;
+        }
+        showManualCopy(content);
+      }
+
+      document.querySelectorAll('input, select, textarea').forEach(function (el) {
+        el.addEventListener('input', renderTemplate);
+        el.addEventListener('change', renderTemplate);
+      });
+
+      document.getElementById('copyBtn').addEventListener('click', function () { copyText(false); });
+      document.getElementById('copyHtmlBtn').addEventListener('click', function () { copyText(true); });
+      document.getElementById('resetBtn').addEventListener('click', function () {
+        get('customerName').value = '{{{Recipient.FirstName}}}';
+        get('recipientName').value = '';
+        get('lastFour').value = '';
+        get('statementMonth').value = '';
+        get('deadline').value = '{{{Case.STAR_Reminder_Date__c}}}';
+        get('days').value = '';
+        get('issueText').value = '';
+        get('stillNeedText').value = '';
+        get('additionalDoc').value = '';
+        get('depositLines').value = '';
+        get('identityQuestions').value = '';
+        get('qna').checked = true;
+        get('statement').checked = true;
+        get('paystub').checked = false;
+        get('additionalInfo').checked = false;
+        get('warningType').value = '';
+        regionEl.value = 'US';
+        languageEl.value = 'ENG';
+        templateTypeEl.value = 'first_contact';
+        renderTemplate();
+      });
+
+      regionEl.value = 'US';
+      languageEl.value = 'ENG';
+      templateTypeEl.value = 'first_contact';
+      renderTemplate();
+    })();
+  </script>
+</body>
+</html>
