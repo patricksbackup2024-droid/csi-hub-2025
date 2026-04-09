@@ -90,6 +90,49 @@
       font-size: 12px;
       margin-bottom: 10px;
     }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .edit-swatch {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+    }
+    .remove-swatch {
+      background: #fee2e2;
+      border: 1px solid #ef4444;
+    }
+    .preview .edit-token {
+      background: #fef3c7;
+      outline: 1px solid #f59e0b;
+      border-radius: 4px;
+      padding: 0 2px;
+    }
+    .preview .remove-token {
+      background: #fee2e2;
+      outline: 1px solid #ef4444;
+      border-radius: 4px;
+      padding: 0 2px;
+    }
     .preview {
       white-space: pre-wrap;
       line-height: 1.55;
@@ -164,6 +207,10 @@
           <span class="pill" id="templateLabel">US - First contact - ENG</span>
         </div>
         <div class="note">Editable preview. You can update any part before copying.</div>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch edit-swatch"></span> edit before sending</div>
+          <div class="legend-item"><span class="swatch remove-swatch"></span> remove before sending</div>
+        </div>
         <div class="preview" id="preview" contenteditable="true" spellcheck="false"></div>
       </div>
     </div>
@@ -453,6 +500,38 @@
         templateTypeEl.appendChild(option);
       });
 
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      function highlightTemplateText(text) {
+        var html = escapeHtml(text);
+
+        // highlight square bracket placeholders
+        html = html.replace(/\[[^\]]+\]/g, function (match) {
+          var lower = match.toLowerCase();
+          if (lower.indexOf('delete') !== -1 || lower.indexOf('copy and paste') !== -1 || lower.indexOf('if appropriate') !== -1 || lower.indexOf('choose one') !== -1 || lower.indexOf('choose the appropriate') !== -1) {
+            return '<span class="remove-token">' + match + '</span>';
+          }
+          return '<span class="edit-token">' + match + '</span>';
+        });
+
+        // highlight triple curly placeholders (e.g. {{{Recipient.FirstName}}})
+        html = html.replace(/\{\{\{[^}]+\}\}\}/g, function (match) {
+          return '<span class="edit-token">' + match + '</span>';
+        });
+
+        // highlight common name placeholders like (customers name)
+        html = html.replace(/\(customers name\)/gi, function (match) {
+          return '<span class="edit-token">' + match + '</span>';
+        });
+
+        return html.split(String.fromCharCode(10)).join('<br>');
+      }
+
       function renderTemplate() {
         var region = regionEl.value;
         var language = languageEl.value;
@@ -460,7 +539,7 @@
         document.getElementById('templateLabel').textContent = region + ' - ' + templateOptions.filter(function (t) { return t.value === templateType; })[0].label + ' - ' + language;
         var body = templates[templateType][language];
         var footer = footers[region];
-        previewEl.textContent = body + NL + NL + footer;
+        previewEl.innerHTML = highlightTemplateText(body + NL + NL + footer);
       }
 
       function fallbackCopy(content) {
