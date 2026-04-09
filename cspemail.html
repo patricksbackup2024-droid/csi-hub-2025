@@ -581,6 +581,21 @@
         }
       }
 
+      // force plain text paste inside preview
+      previewEl.addEventListener('paste', function (e) {
+        e.preventDefault();
+        var text = (e.clipboardData || window.clipboardData).getData('text');
+        if (document.queryCommandSupported('insertText')) {
+          document.execCommand('insertText', false, text);
+        } else {
+          // fallback
+          var selection = window.getSelection();
+          if (!selection.rangeCount) return;
+          selection.deleteFromDocument();
+          selection.getRangeAt(0).insertNode(document.createTextNode(text));
+        }
+      });
+
       templateTypeEl.addEventListener('change', renderTemplate);
       regionEl.addEventListener('change', renderTemplate);
       languageEl.addEventListener('change', renderTemplate);
