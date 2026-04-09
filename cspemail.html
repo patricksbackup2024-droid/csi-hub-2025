@@ -54,6 +54,38 @@
     .field {
       margin-bottom: 14px;
     }
+    .section-block {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .section-block h3 {
+      margin: 0 0 12px;
+      font-size: 14px;
+    }
+    .section-basic {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .section-docs {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .section-review {
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+    .section-actions {
+      background: #faf5ff;
+      border-color: #e9d5ff;
+    }
+    .section-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: -4px;
+      margin-bottom: 10px;
+    }
     label {
       display: block;
       font-size: 13px;
@@ -137,6 +169,11 @@
       border-radius: 12px;
       padding: 18px;
       min-height: 700px;
+      outline: none;
+    }
+    .preview:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     }
     .footer {
       margin-top: 18px;
@@ -145,6 +182,26 @@
       color: var(--muted);
       white-space: pre-wrap;
       font-size: 13px;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #111827;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 9999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
     @media (max-width: 1000px) {
       .grid { grid-template-columns: 1fr; }
@@ -160,110 +217,122 @@
       <div class="card">
         <h2>⚙️ Template settings</h2>
 
-        <div class="row">
-          <div class="field">
-            <label for="region">Region</label>
-            <select id="region"></select>
+        <div class="section-block section-basic">
+          <h3>Basic details</h3>
+          <div class="row">
+            <div class="field">
+              <label for="region">Region</label>
+              <select id="region"></select>
+            </div>
+            <div class="field">
+              <label for="language">Language</label>
+              <select id="language">
+                <option value="ENG">ENG</option>
+                <option value="ESP">ESP</option>
+              </select>
+            </div>
           </div>
+
           <div class="field">
-            <label for="language">Language</label>
-            <select id="language">
-              <option value="ENG">ENG</option>
-              <option value="ESP">ESP</option>
+            <label for="templateType">Template type</label>
+            <select id="templateType"></select>
+          </div>
+
+          <div class="field">
+            <label for="customerName">Customer / recipient first name</label>
+            <input id="customerName" value="{{{Recipient.FirstName}}}" />
+          </div>
+
+          <div class="field">
+            <label for="recipientName">Name of recipients for CQ</label>
+            <textarea id="recipientName" placeholder="Karen López&#10;Wilber Almario&#10;Hamillthon Medina"></textarea>
+          </div>
+        </div>
+
+        <div class="section-block section-docs">
+          <h3>Documents and timeline</h3>
+          <div class="row">
+            <div class="field">
+              <label for="lastFour">Last 4 digits</label>
+              <input id="lastFour" placeholder="2313" />
+            </div>
+            <div class="field">
+              <label for="statementMonth">Statement month / year</label>
+              <input id="statementMonth" placeholder="February 2026" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="deadline">Deadline</label>
+              <input id="deadline" value="{{{Case.STAR_Reminder_Date__c}}}" />
+            </div>
+            <div class="field">
+              <label for="days">Days to respond</label>
+              <input id="days" placeholder="7" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="additionalDoc">Additional document needed</label>
+            <input id="additionalDoc" placeholder="invoice OR savings statement OR contract" />
+          </div>
+        </div>
+
+        <div class="section-block section-review">
+          <h3>Review details</h3>
+          <div class="field">
+            <label for="issueText">Issue / missing info</label>
+            <textarea id="issueText" placeholder="Example: the bank statement was missing page 2"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="stillNeedText">Still need from cx</label>
+            <textarea id="stillNeedText" placeholder="Example: full February 2026 BS&#10;pay stub&#10;page 2 of bank statement"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="depositLines">Deposits to clarify</label>
+            <textarea id="depositLines" placeholder="[date] [source] [amount]&#10;[date] [source] [amount]"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="identityQuestions">Extra identity questions</label>
+            <textarea id="identityQuestions" placeholder="[identity verification question]&#10;[identity verification question]"></textarea>
+          </div>
+        </div>
+
+        <div class="section-block section-actions">
+          <h3>Actions and warnings</h3>
+          <div class="field">
+            <label>Required actions for first contact / 28-day / security templates</label>
+            <div class="section-note">Pick only the actions you want included in the email.</div>
+            <div class="checkboxes">
+              <label class="check"><input type="checkbox" id="qna" checked> <span>Ask Q&amp;A about recs, job, and SOF</span></label>
+              <label class="check"><input type="checkbox" id="statement" checked> <span>Request full bank/card statement</span></label>
+              <label class="check"><input type="checkbox" id="paystub"> <span>Request pay stub</span></label>
+              <label class="check"><input type="checkbox" id="additionalInfo"> <span>Request additional information</span></label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Optional warning for confirmation email</label>
+            <select id="warningType">
+              <option value="">None</option>
+              <option value="gambling">Gambling</option>
+              <option value="unknown">Sending to unknown persons</option>
+              <option value="shared">Shared payment method</option>
+              <option value="duplicate">Duplicate accounts</option>
+              <option value="sob">Sending on behalf of other people</option>
+              <option value="charity">Sending for charity</option>
+              <option value="business">Sending for business</option>
+              <option value="ownership">Account ownership</option>
             </select>
           </div>
         </div>
 
-        <div class="field">
-          <label for="templateType">Template type</label>
-          <select id="templateType"></select>
-        </div>
-
-        <div class="field">
-          <label for="customerName">Customer / recipient first name</label>
-          <input id="customerName" value="{{{Recipient.FirstName}}}" />
-        </div>
-
-        <div class="field">
-          <label for="recipientName">Name of recipients for CQ</label>
-          <textarea id="recipientName" placeholder="Karen López&#10;Wilber Almario&#10;Hamillthon Medina"></textarea>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="lastFour">Last 4 digits</label>
-            <input id="lastFour" placeholder="2313" />
-          </div>
-          <div class="field">
-            <label for="statementMonth">Statement month / year</label>
-            <input id="statementMonth" placeholder="February 2026" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="deadline">Deadline</label>
-            <input id="deadline" value="{{{Case.STAR_Reminder_Date__c}}}" />
-          </div>
-          <div class="field">
-            <label for="days">Days to respond</label>
-            <input id="days" placeholder="7" />
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="issueText">Issue / missing info</label>
-          <textarea id="issueText" placeholder="Example: the bank statement was missing page 2"></textarea>
-        </div>
-
-        <div class="field">
-          <label for="stillNeedText">Still need from cx</label>
-          <textarea id="stillNeedText" placeholder="Example: full February 2026 BS&#10;pay stub&#10;page 2 of bank statement"></textarea>
-        </div>
-
-        <div class="field">
-          <label for="additionalDoc">Additional document needed</label>
-          <input id="additionalDoc" placeholder="invoice OR savings statement OR contract" />
-        </div>
-
-        <div class="field">
-          <label for="depositLines">Deposits to clarify</label>
-          <textarea id="depositLines" placeholder="[date] [source] [amount]&#10;[date] [source] [amount]"></textarea>
-        </div>
-
-        <div class="field">
-          <label for="identityQuestions">Extra identity questions</label>
-          <textarea id="identityQuestions" placeholder="[identity verification question]&#10;[identity verification question]"></textarea>
-        </div>
-
-        <div class="field">
-          <label>Required actions for first contact / 28-day / security templates</label>
-          <div class="checkboxes">
-            <label class="check"><input type="checkbox" id="qna" checked> <span>Ask Q&amp;A about recs, job, and SOF</span></label>
-            <label class="check"><input type="checkbox" id="statement" checked> <span>Request full bank/card statement</span></label>
-            <label class="check"><input type="checkbox" id="paystub"> <span>Request pay stub</span></label>
-            <label class="check"><input type="checkbox" id="additionalInfo"> <span>Request additional information</span></label>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Optional warning for confirmation email</label>
-          <select id="warningType">
-            <option value="">None</option>
-            <option value="gambling">Gambling</option>
-            <option value="unknown">Sending to unknown persons</option>
-            <option value="shared">Shared payment method</option>
-            <option value="duplicate">Duplicate accounts</option>
-            <option value="sob">Sending on behalf of other people</option>
-            <option value="charity">Sending for charity</option>
-            <option value="business">Sending for business</option>
-            <option value="ownership">Account ownership</option>
-          </select>
-        </div>
-
         <div class="actions">
           <button class="primary" id="copyBtn" type="button">📋 Copy email</button>
-          <button class="secondary" id="copyHtmlBtn" type="button">🧾 Copy HTML</button>
           <button class="secondary" id="resetBtn" type="button">🔄 Reset fields</button>
         </div>
       </div>
@@ -273,11 +342,14 @@
           <h2 style="margin:0;">👀 Preview</h2>
           <span class="pill" id="templateLabel">US - First contact - ENG</span>
         </div>
-        <div class="preview" id="preview"></div>
+        <div class="section-note">You can edit this preview directly before copying.</div>
+        <div class="preview" id="preview" contenteditable="true" spellcheck="false"></div>
         <div class="footer" id="footer"></div>
       </div>
     </div>
   </div>
+
+  <div class="toast" id="copyToast">Copied email</div>
 
   <script>
     (function () {
@@ -561,7 +633,7 @@
           body = [
             'Hello ' + name + ',',
             '',
-            'We are following up on our previous email request for more information. If we are not able to collect these details from you by (1st email + 21 days), we may not be able to process additional transfers.',
+            'We are following up on our previous email request for more information. If we are not able to collect these details from you by ' + deadline + ', we may not be able to process additional transfers.',
             '',
             'We are required to collect information from our customers to help us understand how they use our service and ensure they are following our User Agreement. This helps us comply with applicable laws, keep our service secure, and keep our customers safe.',
             '',
@@ -578,7 +650,7 @@
             '',
             'We are required to collect information from our customers to help us understand how they use our service and ensure they are following our User Agreement. This helps us comply with applicable laws, keep our service secure, and keep our customers safe.',
             '',
-            'If you are not able to provide the information requested by (1st email day + 21 days), you will not be able to send transfers with Remitly in the future.',
+            'If you are not able to provide the information requested by ' + deadline + ', you will not be able to send transfers with Remitly in the future.',
             '',
             'If you have questions, please reply to this email or call us. We are available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.',
             '',
@@ -629,7 +701,7 @@
             '',
             'The issue is: ' + issue,
             '',
-            'We still need: ' + stillNeedText + '.',,
+            'We still need: ' + stillNeedText + '.' ,
             'We apologize for the inconvenience. We may not be able to process any further transfers for you until we complete this process. To avoid a disruption in your service, please provide the requested information within the next ' + days + ' days.',
             '',
             firstActions,
@@ -761,12 +833,25 @@
           }
         }
 
-        document.getElementById('preview').textContent = body;
+        var previewEl = document.getElementById('preview');
+        if (document.activeElement !== previewEl) {
+          previewEl.textContent = body;
+        }
         document.getElementById('footer').textContent = footer;
       }
 
-      function showManualCopy(content) {
-        window.prompt('Copy this text:', content);
+      function fallbackCopy(content) {
+        var textarea = document.createElement('textarea');
+        textarea.value = content;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand('copy');
+        } catch (err) {}
+        document.body.removeChild(textarea);
       }
 
       function escapeHtml(text) {
@@ -777,21 +862,34 @@
           .replace(/\n/g, '<br>');
       }
 
-      function copyText(asHtml) {
-        var body = document.getElementById('preview').textContent;
+      function showToast(message) {
+        var toast = document.getElementById('copyToast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(function () {
+          toast.classList.remove('show');
+        }, 1600);
+      }
+
+      function copyText() {
+        var body = document.getElementById('preview').innerText || document.getElementById('preview').textContent;
         var footer = document.getElementById('footer').textContent;
-        var content;
-        if (asHtml) {
-          content = '<div style="font-family: Arial, sans-serif; white-space: pre-wrap; line-height: 1.55;">' +
-            escapeHtml(body) +
-            '<br><br><hr style="border:none;border-top:1px solid #ccc;margin:16px 0;">' +
-            '<div style="color:#666;font-size:12px;white-space: pre-wrap;">' +
-            escapeHtml(footer) +
-            '</div></div>';
+        var content = body + NL + NL + footer;
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(content)
+            .then(function () {
+              showToast('Copied email');
+            })
+            .catch(function () {
+              fallbackCopy(content);
+              showToast('Copied email');
+            });
         } else {
-          content = body + NL + NL + footer;
+          fallbackCopy(content);
+          showToast('Copied email');
         }
-        showManualCopy(content);
       }
 
       document.querySelectorAll('input, select, textarea').forEach(function (el) {
@@ -799,8 +897,7 @@
         el.addEventListener('change', renderTemplate);
       });
 
-      document.getElementById('copyBtn').addEventListener('click', function () { copyText(false); });
-      document.getElementById('copyHtmlBtn').addEventListener('click', function () { copyText(true); });
+      document.getElementById('copyBtn').addEventListener('click', function () { copyText(); });
       document.getElementById('resetBtn').addEventListener('click', function () {
         get('customerName').value = '{{{Recipient.FirstName}}}';
         get('recipientName').value = '';
