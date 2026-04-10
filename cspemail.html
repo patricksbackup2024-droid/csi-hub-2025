@@ -126,12 +126,20 @@
       outline: 1px solid #f59e0b;
       border-radius: 4px;
       padding: 0 2px;
+      cursor: text;
+    }
+    .preview .edit-token.cleared {
+      background: #fff8db;
     }
     .preview .remove-token {
       background: #fee2e2;
       outline: 1px solid #ef4444;
       border-radius: 4px;
       padding: 0 2px;
+      cursor: text;
+    }
+    .preview .remove-token.cleared {
+      background: #fff1f2;
     }
     .preview {
       white-space: pre-wrap;
@@ -514,9 +522,9 @@
         html = html.replace(/\[[^\]]+\]/g, function (match) {
           var lower = match.toLowerCase();
           if (lower.indexOf('delete') !== -1 || lower.indexOf('copy and paste') !== -1 || lower.indexOf('if appropriate') !== -1 || lower.indexOf('choose one') !== -1 || lower.indexOf('choose the appropriate') !== -1) {
-            return '<span class="remove-token">' + match + '</span>';
+            return '<span class="remove-token" contenteditable="true" tabindex="0">' + match + '</span>'; 
           }
-          return '<span class="edit-token">' + match + '</span>';
+          return '<span class="edit-token" contenteditable="true" tabindex="0">' + match + '</span>'; 
         });
 
         // highlight triple curly placeholders (e.g. {{{Recipient.FirstName}}})
@@ -599,6 +607,29 @@
       templateTypeEl.addEventListener('change', renderTemplate);
       regionEl.addEventListener('change', renderTemplate);
       languageEl.addEventListener('change', renderTemplate);
+      function placeCaretAtEnd(el) {
+        var range = document.createRange();
+        var sel = window.getSelection();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      previewEl.addEventListener('click', function (e) {
+        var token = e.target.closest('.edit-token, .remove-token');
+        if (!token || !previewEl.contains(token)) return;
+
+        if (!token.dataset.cleared) {
+          token.textContent = '';
+          token.dataset.cleared = 'true';
+          token.classList.add('cleared');
+        }
+
+        token.focus();
+        placeCaretAtEnd(token);
+      });
+
       document.getElementById('copyBtn').addEventListener('click', copyText);
 
       regionEl.value = 'US';
