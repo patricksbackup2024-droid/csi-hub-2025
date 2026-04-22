@@ -63,6 +63,16 @@ button{cursor:pointer;background:var(--accent);color:#fff;border:0;margin-top:10
 
 <script>
 (function(){
+
+// force plain text paste (no formatting)
+document.addEventListener('paste', function(e){
+  const target = e.target;
+  if(target && target.id === 'preview'){
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    document.execCommand('insertText', false, text);
+  }
+});
 var NL="\n";
 
 // ===== FULL FOOTERS (VERBATIM) =====
@@ -359,7 +369,6 @@ function highlight(text){
   // highlight (customers name)
   text = text.replace(/\(customers name\)/gi,'<span class="edit-token">(customers name)</span>');
 
-  
   // highlight date placeholder (ALL variants)
 text = text.replace(/\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi, function(m){
   return '<span class="edit-token">' + m + '</span>';
