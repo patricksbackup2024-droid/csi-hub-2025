@@ -1679,7 +1679,7 @@
       recentMonths.forEach(m => {
         const baseLine = `${m.monthName} ${m.year}: ${formatCurrencyCompact(m.sum)}`;
         if ((m.count || 0) > 0) {
-          lines.push(`${baseLine.padEnd(baseWidth + 6, ' ')}${formatNumber(m.count, 0)} txns`);
+          lines.push(`${baseLine.padEnd(baseWidth + 6, ' ')}---   ${formatNumber(m.count, 0)} txns`);
         } else {
           lines.push(baseLine);
         }
