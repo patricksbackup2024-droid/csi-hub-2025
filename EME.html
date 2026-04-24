@@ -609,6 +609,9 @@
     
     
     
+    
+    
+    
     body.mono-mode {
       background-color: #e0e0e0;
       color: #000;
@@ -1671,8 +1674,15 @@
       lines.push('');
 
       const recentMonths = [...last6Months].reverse();
+      const baseWidth = Math.max(...recentMonths.map(m => `${m.monthName} ${m.year}: ${formatCurrencyCompact(m.sum)}`.length));
+
       recentMonths.forEach(m => {
-        lines.push(`${m.monthName} ${m.year}: ${formatCurrencyCompact(m.sum)}`);
+        const baseLine = `${m.monthName} ${m.year}: ${formatCurrencyCompact(m.sum)}`;
+        if ((m.count || 0) > 0) {
+          lines.push(`${baseLine.padEnd(baseWidth + 6, ' ')}${formatNumber(m.count, 0)} txns`);
+        } else {
+          lines.push(baseLine);
+        }
       });
 
       return lines.join('\n');
@@ -2587,7 +2597,7 @@
               else if (lower.includes('fraud') || lower.includes('auto decline') || lower.includes('stolen') || lower.includes('dispute') || lower.includes('chargeback')) cls = 'badge-danger';
               
               
-              return `<span class="badge ${cls} linked-label-click" onclick="showSenderIds('${item.id.replace(/'/g, "\'")}', '${l.replace(/'/g, "\'")}')">${l}</span>`;
+              return `<span class="badge ${cls} linked-label-click" onclick="showSenderIds('${item.id.replace(/'/g, "\\'")}', '${l.replace(/'/g, "\\'")}')">${l}</span>`;
             }).join('')}</div>`
           : `<span class="linked-empty">No labels</span>`;
 
@@ -2627,7 +2637,7 @@
 
       const head = `<div class="sender-id-head">${uniqueIds.length} sender ID(s) found for this label under linked value ${linkValue}</div>`;
       const body = uniqueIds.length
-        ? `<div class="sender-id-list">${uniqueIds.map(id => `<div class="sender-id-row"><code>${id}</code><button class="sender-id-copy" onclick="copyToClipboard('${id.replace(/'/g, "\'")}', event)">Copy</button></div>`).join('')}</div>`
+        ? `<div class="sender-id-list">${uniqueIds.map(id => `<div class="sender-id-row"><code>${id}</code><button class="sender-id-copy" onclick="copyToClipboard('${id.replace(/'/g, "\\'")}', event)">Copy</button></div>`).join('')}</div>`
         : `<div class="linked-empty" style="padding:10px 2px;">No sender ID found for this label.</div>`;
 
       document.getElementById('modal-body').innerHTML = head + body;
@@ -2670,22 +2680,6 @@
       const totalActive = recipientData.reduce((s,r)=>s + (r.active || 0), 0);
       const totalPolicy = recipientData.reduce((s,r)=>s + (r.policy || 0), 0);
       const totalFraud = recipientData.reduce((s,r)=>s + (r.fraud || 0), 0);
-      const totalRisk = totalPolicy + totalFraud;
-      const totalReviewed = totalActive + totalPolicy + totalFraud;
-      const activeShare = totalReviewed > 0 ? totalActive / totalReviewed : 0;
-      const fraudShare = totalReviewed > 0 ? totalFraud / totalReviewed : 0;
-      const policyShare = totalReviewed > 0 ? totalPolicy / totalReviewed : 0;
-
-      let overall = 'GREEN FLAG';
-      let overallNarrative = 'Majority of linked accts are active, so overall view looks healthy.';
-
-      if (fraudShare >= 0.35 || totalFraud > totalActive) {
-        overall = 'HIGH RISK';
-        overallNarrative = 'Fraud suspended accts carry heavier weight than active accts, so linked page looks risky.';
-      } else if (totalRisk > totalActive || fraudShare >= 0.2 || policyShare >= 0.35) {
-        overall = 'SO-SO / NEEDS REVIEW';
-        overallNarrative = 'There are still many good accts, but policy or fraud links are already meaningful enough for review.';
-      }
 
       const buildList = (arr, field) => {
         if (!arr.length) return 'None';
@@ -2714,8 +2708,6 @@
 
         <div class="narrative-box">
           <div class="narrative-title">Overall Assessment</div>
-          <div style="font-size:16px; font-weight:700; margin-bottom:8px;">${overall}</div>
-          <div style="margin-bottom:10px;">${overallNarrative}</div>
           <div>Active accts: ${totalActive}</div>
           <div>Policy suspensions: ${totalPolicy}</div>
           <div>Fraud suspensions: ${totalFraud}</div>
