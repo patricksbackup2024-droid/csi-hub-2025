@@ -1306,6 +1306,9 @@
         allTransactionsForAvg.sort((a, b) => a.date - b.date);
         const latestTxnDate = allTransactionsForAvg[allTransactionsForAvg.length - 1].date;
         const latestMonthDate = new Date(latestTxnDate.getFullYear(), latestTxnDate.getMonth(), 1);
+        const lastCompletedMonthDate = shouldExcludeOngoingMonthFromLast6(latestMonthDate)
+          ? new Date(latestMonthDate.getFullYear(), latestMonthDate.getMonth() - 1, 1)
+          : new Date(latestMonthDate.getFullYear(), latestMonthDate.getMonth(), 1);
         const monthlySums = {};
         allTransactionsForAvg.forEach(t => {
           const key = `${t.date.getFullYear()}-${String(t.date.getMonth() + 1).padStart(2, '0')}`;
@@ -1313,7 +1316,7 @@
         });
         let totalLast6 = 0;
         for (let i = 5; i >= 0; i--) {
-          const d = new Date(latestMonthDate.getFullYear(), latestMonthDate.getMonth() - i, 1);
+          const d = new Date(lastCompletedMonthDate.getFullYear(), lastCompletedMonthDate.getMonth() - i, 1);
           const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
           totalLast6 += monthlySums[key] || 0;
         }
@@ -1626,18 +1629,63 @@
       if (!restoreBar || !container) return;
       restoreBar.style.display = container.children.length > 0 ? 'block' : 'none';
     }
+    function isSameMonthYear(dateA, dateB) {
+      return dateA.getFullYear() === dateB.getFullYear() && dateA.getMonth() === dateB.getMonth();
+    }
+
+    function shouldExcludeOngoingMonthFromLast6(latestMonthDate) {
+      return isSameMonthYear(latestMonthDate, new Date());
+    }
+
+    function buildMonthRecordFromDate(dateObj, monthlyTotals) {
+      const key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+      return monthlyTotals[key] || {
+        key,
+        monthName: MONTH_NAMES[dateObj.getMonth()],
+        year: dateObj.getFullYear(),
+        sum: 0,
+        count: 0,
+        fee: 0,
+        lateNightSum: 0
+      };
+    }
+
+    function getCompletedLast6Months(maxDate, monthlyTotals) {
+      const anchorMonth = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+      if (shouldExcludeOngoingMonthFromLast6(anchorMonth)) anchorMonth.setMonth(anchorMonth.getMonth() - 1);
+
+      const months = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(anchorMonth.getFullYear(), anchorMonth.getMonth() - i, 1);
+        months.push(buildMonthRecordFromDate(d, monthlyTotals));
+      }
+      return months;
+    }
+
+    function getSendPatternDisplayMonths(maxDate, monthlyTotals) {
+      const latestMonthDate = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+      const showCount = shouldExcludeOngoingMonthFromLast6(latestMonthDate) ? 7 : 6;
+
+      const months = [];
+      for (let i = showCount - 1; i >= 0; i--) {
+        const d = new Date(latestMonthDate.getFullYear(), latestMonthDate.getMonth() - i, 1);
+        months.push(buildMonthRecordFromDate(d, monthlyTotals));
+      }
+      return months;
+    }
 
     function generateSendPatternText() {
       const monthlyTotals = AppData.monthlyTotals || {};
       const monthKeys = Object.keys(monthlyTotals).sort();
-      if (monthKeys.length === 0) return '[Send Pattern] ----------\nNo data available';
+      if (monthKeys.length === 0) return '[Send Pattern] ----------' + String.fromCharCode(10) + 'No data available';
 
       const minDate = AppData.green.globalDateRange.min;
       const maxDate = AppData.green.globalDateRange.max;
 
       let monthCount = 0;
-      let current = new Date(minDate);
-      while (current <= maxDate) {
+      let current = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+      const endMonth = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+      while (current <= endMonth) {
         monthCount++;
         current.setMonth(current.getMonth() + 1);
       }
@@ -1646,26 +1694,8 @@
       const totalSum = allMonths.reduce((sum, m) => sum + (m.sum || 0), 0);
       const allTimeAvg = monthCount > 0 ? totalSum / monthCount : 0;
 
-      const last6Months = [];
-      const latestMonthDate = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
-
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(latestMonthDate.getFullYear(), latestMonthDate.getMonth() - i, 1);
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        last6Months.push(
-          monthlyTotals[key] || {
-            key,
-            monthName: MONTH_NAMES[d.getMonth()],
-            year: d.getFullYear(),
-            sum: 0,
-            count: 0,
-            fee: 0,
-            lateNightSum: 0
-          }
-        );
-      }
-
-      const last6Sum = last6Months.reduce((sum, m) => sum + (m.sum || 0), 0);
+      const completedLast6Months = getCompletedLast6Months(maxDate, monthlyTotals);
+      const last6Sum = completedLast6Months.reduce((sum, m) => sum + (m.sum || 0), 0);
       const last6Avg = last6Sum / 6;
 
       let lines = [];
@@ -1673,19 +1703,19 @@
       lines.push(`all-time ${formatCurrencyTrailing(allTimeAvg)} m/avg, ${formatCurrencyTrailing(last6Avg)} m/avg last 6M`);
       lines.push('');
 
-      const recentMonths = [...last6Months].reverse();
+      const recentMonths = [...getSendPatternDisplayMonths(maxDate, monthlyTotals)].reverse();
       const baseWidth = Math.max(...recentMonths.map(m => `${m.monthName} ${m.year}: ${formatCurrencyCompact(m.sum)}`.length));
 
       recentMonths.forEach(m => {
         const baseLine = `${m.monthName} ${m.year}: ${formatCurrencyCompact(m.sum)}`;
         if ((m.count || 0) > 0) {
-          lines.push(`${baseLine.padEnd(baseWidth + 6, ' ')}---   ${formatNumber(m.count, 0)} txns`);
+          lines.push(`${baseLine.padEnd(baseWidth + 4, ' ')}---   ${formatNumber(m.count, 0)} txns`);
         } else {
           lines.push(baseLine);
         }
       });
 
-      return lines.join('\n');
+      return lines.join(String.fromCharCode(10));
     }
 
     function copyReportText(elementId) {
