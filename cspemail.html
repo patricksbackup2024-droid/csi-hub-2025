@@ -148,6 +148,43 @@ button:disabled{opacity:.65;cursor:not-allowed}
 (function(){
   var NL = "\n";
   var datePlaceholderRegex = /\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi;
+  var lastAutoFilledDate = '';
+
+  function hasDatePlaceholder(text){
+    return /\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/i.test(text || '');
+  }
+
+  function replaceDatePlaceholders(text, newDate){
+    return (text || '').replace(/\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi, newDate);
+  }
+
+  function applyAutoDateToHtml(html, newDate){
+    if(!html) return html;
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+
+    wrapper.querySelectorAll('.edit-token, .remove-token').forEach(function(el){
+      var tokenText = (el.innerText || el.textContent || '').trim();
+      if(hasDatePlaceholder(tokenText) || (lastAutoFilledDate && tokenText === lastAutoFilledDate)){
+        el.replaceWith(document.createTextNode(newDate));
+      }
+    });
+
+    var walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT, null);
+    var nodes = [];
+    while(walker.nextNode()){
+      nodes.push(walker.currentNode);
+    }
+    nodes.forEach(function(node){
+      if(hasDatePlaceholder(node.nodeValue)) {
+        node.nodeValue = replaceDatePlaceholders(node.nodeValue, newDate);
+      } else if(lastAutoFilledDate && node.nodeValue.indexOf(lastAutoFilledDate) !== -1) {
+        node.nodeValue = node.nodeValue.split(lastAutoFilledDate).join(newDate);
+      }
+    });
+
+    return wrapper.innerHTML;
+  }
 
   var footers = {
     UK: 'Remitly, Inc.' + NL +
@@ -743,7 +780,7 @@ El equipo de Remitly`
     var rawBody = templateSet.ENG || '';
     rawBody = normalizeGreeting(rawBody);
     if(plusDateEl.value.trim()){
-      rawBody = rawBody.replace(datePlaceholderRegex, plusDateEl.value.trim());
+      rawBody = replaceDatePlaceholders(rawBody, plusDateEl.value.trim());
     }
     return tokenizeBody(rawBody, templateId);
   }
@@ -998,10 +1035,29 @@ El equipo de Remitly`
   });
 
   baseDateEl.addEventListener('change', function(){
-    plusDateEl.value = formatSelectedDate(baseDateEl.value);
-    englishDraftHtml = '';
-    spanishDraftHtml = '';
-    renderEnglish(true);
+    var formattedDate = formatSelectedDate(baseDateEl.value);
+    plusDateEl.value = formattedDate;
+
+    saveCurrentDraft();
+
+    if(!englishDraftHtml){
+      englishDraftHtml = buildEnglishTemplateBody(getCurrentTemplateId());
+    }
+
+    englishDraftHtml = applyAutoDateToHtml(englishDraftHtml, formattedDate);
+    if(spanishDraftHtml){
+      spanishDraftHtml = applyAutoDateToHtml(spanishDraftHtml, formattedDate);
+    }
+    lastAutoFilledDate = formattedDate;
+
+    if(currentView === 'ENG'){
+      previewBodyEl.innerHTML = englishDraftHtml;
+      bindTokenBehavior();
+      bindBodyTracking();
+    } else {
+      previewBodyEl.innerHTML = spanishDraftHtml || '';
+      bindBodyTracking();
+    }
   });
 
   regionEl.addEventListener('change', function(){
@@ -1011,6 +1067,7 @@ El equipo de Remitly`
 
   templateTypeEl.addEventListener('change', function(){
     resetTemplateDraftState();
+    lastAutoFilledDate = plusDateEl.value.trim();
     renderEnglish(true);
   });
 
@@ -1040,6 +1097,7 @@ El equipo de Remitly`
     templateTypeEl.value = 'first_contact';
     baseDateEl.value = '';
     plusDateEl.value = '';
+    lastAutoFilledDate = '';
     englishDraftHtml = '';
     spanishDraftHtml = '';
     tokenValuesByTemplate = {};
