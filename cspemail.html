@@ -5,463 +5,1060 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>STAR Email Template Picker</title>
 <style>
-:root{--bg:#f5f7fb;--card:#ffffff;--text:#1f2937;--muted:#6b7280;--line:#d1d5db;--accent:#2563eb;--accent-soft:#dbeafe}
+:root {
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:#d1d5db;
+  --accent:#2563eb;
+  --accent-soft:#dbeafe;
+  --warn:#fff3c4;
+  --danger:#ffdede;
+}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
 .wrap{max-width:1280px;margin:0 auto;padding:24px}
 h1{margin:0 0 8px;font-size:28px}
 .sub{color:var(--muted);margin-bottom:24px}
 .grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
 .field{margin-bottom:14px}
 label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
 select,input,button{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
-button{cursor:pointer;background:var(--accent);color:#fff;border:0;margin-top:10px}
-.subject-box{background:#eef2ff;border:1px solid #c7d2fe;padding:10px;border-radius:10px;font-weight:700;color:#1e3a8a}
-.preview{white-space:pre-wrap;line-height:1.55;background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;min-height:760px;}
-.edit-token{background:#fef3c7; cursor:text;} .remove-token{background:#fee2e2; cursor:text;}
-.remove-token{background:#fee2e2}
-.footer{font-style:italic;color:#444}
+button{cursor:pointer;background:var(--accent);color:white;border:0;margin-top:10px;font-weight:700}
+button.secondary{background:#9ca3af}
+button.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+button:disabled{opacity:.65;cursor:not-allowed}
+.subject-box{background:#eef2ff;border:1px solid #c7d2fe;padding:12px 14px;border-radius:12px;font-weight:700;color:#1e3a8a;cursor:pointer;margin-bottom:14px}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.translate-panel{display:grid;grid-template-columns:1fr;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.translate-status{font-size:13px;font-weight:700;color:var(--accent)}
+.inline-help{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+.preview-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700}
+.note{color:var(--muted);font-size:12px;margin-bottom:10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:#f9fafb;border:1px solid var(--line);border-radius:999px;padding:6px 10px}
+.swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+.edit-swatch{background:#fff3c4;border:1px solid #f59e0b}
+.remove-swatch{background:#ffdede;border:1px solid #ef4444}
+.preview{background:#fff;border:1px solid var(--line);border-radius:12px;min-height:760px;overflow:hidden}
+.preview-body{white-space:pre-wrap;line-height:1.55;padding:18px;min-height:600px;outline:none}
+.preview-body:focus{box-shadow:inset 0 0 0 2px rgba(37,99,235,.12)}
+.preview-footer{white-space:pre-wrap;line-height:1.5;padding:18px;border-top:1px solid #e5e7eb;font-style:italic;color:#444;background:#fafafa}
+.edit-token,.remove-token{border-radius:4px;padding:0 2px;cursor:text}
+.edit-token{background:var(--warn);outline:1px solid #f59e0b}
+.remove-token{background:var(--danger);outline:1px solid #ef4444}
+#toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:12px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-size:13px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:9999}
+#toast.show{opacity:1;transform:translateY(0)}
+#introModal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:9998;padding:20px}
+#introCard{background:#fff;border:1px solid var(--line);border-radius:16px;max-width:560px;width:100%;padding:22px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+#introCard h2{margin:0 0 10px 0}
+#introCard p{margin:0 0 10px 0;color:#374151;line-height:1.45}
+.intro-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#374151}
+.checkbox-row input{width:auto;padding:0;border:none}
+.hidden{display:none !important}
+@media (max-width:1000px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<div id="introModal">
+  <div id="introCard">
+    <h2>How to use this tool</h2>
+    <p>1. Select Region first before editing anything.</p>
+    <p>2. Choose the correct Template, then edit the email in English.</p>
+    <p>3. Update all yellow and red highlighted fields before translating.</p>
+    <p>4. Pick the first email date for follow-up templates. The tool will auto-fill the +30 day date inside the email.</p>
+    <p>5. Click Translate to Spanish when the English email is ready. The footer always stays in English.</p>
+    <p>6. Paste is plain text only, so outside formatting will not carry over.</p>
+    <p>7. Use Copy email only after the final email is ready.</p>
+    <div class="intro-actions">
+      <label class="checkbox-row"><input type="checkbox" id="hideIntro"> Don’t show again</label>
+      <button type="button" id="introBtn">Got it</button>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
-<h1>📧 STAR Email Template Picker</h1>
-<div class="sub">Final compliant version</div>
+  <h1>📧 STAR Email Template Picker</h1>
+  <div class="sub">Edit in English first, then translate your final email body to Spanish. Layout is preserved and the footer remains in English.</div>
 
-<div class="grid">
-<div class="card">
-<div class="subject-box" id="subjectBox" title="Click to copy subject" style="cursor:pointer;">Action required to continue using Remitly</div>
+  <div class="grid">
+    <div class="card">
+      <div class="subject-box" id="subjectBox" title="Click to copy subject">Action required to continue using Remitly</div>
 
-<label>Region (select FIRST)</label>
-<select id="region"></select>
+      <div class="field">
+        <label for="region">Region (select first)</label>
+        <select id="region"></select>
+      </div>
 
-<label>Template</label>
-<select id="templateType"></select>
+      <div class="field">
+        <label for="templateType">Template</label>
+        <select id="templateType"></select>
+      </div>
 
-<label>Language</label>
-<select id="language">
-<option value="ENG">ENG</option>
-<option value="ESP">ESP</option>
-</select>
+      <div class="field">
+        <label>Language / translation</label>
+        <div class="translate-panel">
+          <div class="translate-status" id="viewStatus">Current view: English draft</div>
+          <button id="translateBtn" type="button">Translate to Spanish</button>
+          <button id="backToEnglishBtn" type="button" class="ghost hidden">Back to English draft</button>
+        </div>
+        <div class="inline-help">Translate uses your edited English body, keeps the email layout, and leaves the footer in English. First use may be slower while the browser loads the translator.</div>
+      </div>
 
-<label>Pick First Email Date</label>
-<input type="date" id="baseDate">
+      <div class="field">
+        <label for="baseDate">Pick First Email Date</label>
+        <input type="date" id="baseDate">
+        <div class="inline-help">Used to auto-fill follow-up deadline placeholders.</div>
+      </div>
 
-<label>Auto +30 Days</label>
-<input type="text" id="plusDate" readonly>
+      <div class="field">
+        <label for="plusDate">Auto +30 Days</label>
+        <input type="text" id="plusDate" readonly>
+      </div>
 
-<button id="copyBtn">Copy email</button>
-<button id="resetBtn" type="button" style="background:#9ca3af;">Reset</button>
+      <button id="copyBtn" type="button">Copy email</button>
+      <button id="resetBtn" type="button" class="secondary">Reset</button>
+    </div>
+
+    <div class="card">
+      <div class="preview-head">
+        <h2 style="margin:0;">Preview</h2>
+        <span class="pill" id="templateLabel">🇺🇸 US - First contact - ENG</span>
+      </div>
+      <div class="note">You can edit anywhere in the email body. Highlighted areas must be reviewed before translating or copying.</div>
+      <div class="legend">
+        <div class="legend-item"><span class="swatch edit-swatch"></span> edit before sending</div>
+        <div class="legend-item"><span class="swatch remove-swatch"></span> remove before sending</div>
+      </div>
+      <div class="preview">
+        <div id="previewBody" class="preview-body" contenteditable="true" spellcheck="false"></div>
+        <div id="previewFooter" class="preview-footer"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="card">
-<div id="preview" class="preview" contenteditable="true"></div>
-</div>
-</div>
-</div>
+<div id="toast">Copied</div>
 
 <script>
 (function(){
+  var NL = "\n";
+  var datePlaceholderRegex = /\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi;
 
-// force plain text paste (no formatting)
-document.addEventListener('paste', function(e){
-  const target = e.target;
-  if(target && target.id === 'preview'){
-    e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData).getData('text');
-    document.execCommand('insertText', false, text);
-  }
-});
-var NL="\n";
+  var footers = {
+    UK: 'Remitly, Inc.' + NL +
+      '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + ' ' + NL +
+      'Remitly U.K., Ltd. (“Remitly”) is registered in England and Wales (company number 09896841). Registered Office: 90 Whitfield Street, London W1T 4EZ. Remitly is regulated by the Financial Conduct Authority under the Payment Services Regulations 2017 (reference number: 728639) for the provision of payment services. Any e-mail sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy or use it; please notify the sender immediately and delete it and any copies from your systems. Are you a Remitly supplier? If so, we process your personal details in accordance with our Supplier Privacy Policy',
+    AUS: 'Remitly, Inc.' + NL +
+      '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+      'Remitly Australia Pty Ltd (ACN 618 869 980), trading as Remitly, is registered with Australian Transaction Reports and Analysis Centre (AUSTRAC) as an independent remittance provider. Registered address: C/- King And Wood Mallesons, Level 61, Governor Philip Tower, 1 Farrer Place, Sydney, NSW,  2000, Australia',
+    NZL: 'Remitly, Inc.' + NL +
+      '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+      'Remitly NZ Limited (NZBN: 9429050549382), trading as Remitly, is registered with the Department of Internal Affairs of New Zealand (DIA) as a Financial Service Provider. Registered address: C/- Russell McVeagh, Level 30, Vero Centre, 48 Shortland Street, Auckland Central, 1010, NZ',
+    CAN: 'Remitly, Inc.' + NL +
+      '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+      'Remitly Canada, Inc.' + NL +
+      '250 Howe Street, 20th Floor, Vancouver, BC, V6C 3R8' + NL +
+      '(888) 736-4859' + NL +
+      'www.remitly.ca',
+    SGP: 'Remitly, Inc.' + NL +
+      '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + NL +
+      'Remitly Singapore Pte. Ltd. (201920838N) is regulated by the Monetary Authority of Singapore (MAS) for the provision of payment services. Registered address: 38 Beach Road, #29-11 South Beach Tower, Singapore 189767 ',
+    EU: 'Remitly, Inc.' + NL +
+      '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + ' ' + NL +
+      'Remitly Europe Limited, trading as Remitly, is regulated by the Central Bank of Ireland. Remitly Europe Limited is a limited liability company registered in Ireland (company registration number 629909). Registered Office: 7th Floor, Penrose Two, Penrose Dock, Cork, T23 YY09. Directors: T. Woods, A. Khindria and J. McKenzie. Any email sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy or use it; please notify the sender immediately and delete it and any copies from your systems.',
+    US: 'Remitly, Inc.' + NL +
+      '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + ' ' + NL +
+      'Remitly, Inc. is Licensed as a Money Transmitter by the New York State Department of Financial Services, as a Foreign Transmittal Agency by the Massachusetts Division of Banks, and LICENSED BY THE GEORGIA DEPARTMENT OF BANKING AND FINANCE. NMLS No. 1028236.'
+  };
 
-// ===== FULL FOOTERS (VERBATIM) =====
-var footers = {
-UK: `Remitly, Inc.${NL}1111 3rd Ave, Suite 2100 | Seattle, WA 98101${NL} ${NL}Remitly U.K., Ltd. (“Remitly”) is registered in England and Wales (company number 09896841). Registered Office: 90 Whitfield Street, London W1T 4EZ. Remitly is regulated by the Financial Conduct Authority under the Payment Services Regulations 2017 (reference number: 728639) for the provision of payment services. Any e-mail sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy or use it; please notify the sender immediately and delete it and any copies from your systems. Are you a Remitly supplier? If so, we process your personal details in accordance with our Supplier Privacy Policy`,
-AUS: `Remitly, Inc.${NL}1111 3rd Ave, Suite 2100 | Seattle, WA 98101${NL}${NL}Remitly Australia Pty Ltd (ACN 618 869 980), trading as Remitly, is registered with Australian Transaction Reports and Analysis Centre (AUSTRAC) as an independent remittance provider. Registered address: C/- King And Wood Mallesons, Level 61, Governor Philip Tower, 1 Farrer Place, Sydney, NSW,  2000, Australia`,
-NZL: `Remitly, Inc.${NL}1111 3rd Ave, Suite 2100 | Seattle, WA 98101${NL}${NL}Remitly NZ Limited (NZBN: 9429050549382), trading as Remitly, is registered with the Department of Internal Affairs of New Zealand (DIA) as a Financial Service Provider. Registered address: C/- Russell McVeagh, Level 30, Vero Centre, 48 Shortland Street, Auckland Central, 1010, NZ`,
-CAN: `Remitly, Inc.${NL}1111 3rd Ave, Suite 2100 | Seattle, WA 98101${NL}${NL}Remitly Canada, Inc.${NL}250 Howe Street, 20th Floor, Vancouver, BC, V6C 3R8${NL}(888) 736-4859${NL}www.remitly.ca`,
-SGP: `Remitly, Inc.${NL}1111 3rd Ave, Suite 2100 | Seattle, WA 98101${NL}${NL}Remitly Singapore Pte. Ltd. (201920838N) is regulated by the Monetary Authority of Singapore (MAS) for the provision of payment services. Registered address: 38 Beach Road, #29-11 South Beach Tower, Singapore 189767 `,
-EU: `Remitly, Inc.${NL}1111 3rd Ave, Suite 2100 | Seattle, WA 98101${NL} ${NL}Remitly Europe Limited, trading as Remitly, is regulated by the Central Bank of Ireland. Remitly Europe Limited is a limited liability company registered in Ireland (company registration number 629909). Registered Office: 7th Floor, Penrose Two, Penrose Dock, Cork, T23 YY09. Directors: T. Woods, A. Khindria and J. McKenzie. Any email sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy or use it; please notify the sender immediately and delete it and any copies from your systems.`,
-US: `Remitly, Inc.${NL}1111 3rd Ave, Suite 2100 | Seattle, WA 98101${NL} ${NL}Remitly, Inc. is Licensed as a Money Transmitter by the New York State Department of Financial Services, as a Foreign Transmittal Agency by the Massachusetts Division of Banks, and LICENSED BY THE GEORGIA DEPARTMENT OF BANKING AND FINANCE. NMLS No. 1028236.`
-};
+  var templates = {
+    first_contact: {
+      ENG: `Hello {{{Recipient.FirstName}}} —
 
-// ===== TEMPLATES (VERBATIM FROM USER) =====
-var templates = {
-first_contact: {
-ENG: 'Hello {{{Recipient.FirstName}}} —' + NL + NL +
-'Thank you for being a Remitly customer! We need some additional information from you before we’re able to complete your next transfer.' + NL + NL +
-'We’re often required to collect information from our customers to help us understand how they use our service and ensure they’re following our User Agreement. This in turn helps us comply with applicable laws, keep our service secured, and keep our customers safe.' + NL + NL +
-'Follow these instructions to send us the required information:' + NL +
-'[Delete the required actions that don’t apply.]' + NL + NL +
-'1. Respond to this email with the answers to the following questions:' + NL +
-'What is your reason for sending money to [Recipient’s Name]' + NL +
-'How did you meet your recipient, [Recipient’s Name]?' + NL +
-'Have you met [Recipient’s Name] in person?' + NL +
-'What is your relationship with [Recipient’s Name]?' + NL +
-'What is your job? If you’re self-employed, please give us some details about your business.' + NL +
-'Please tell us where you get the money you use for your Remitly transfers.' + NL +
-"Once you've sent your answers, sign in to your Remitly profile and complete the following steps:" + NL + NL +
-'2. Follow the instructions to upload a complete statement for your card or bank account ending in  [last four digits] for [month and year of statement required]. To ensure we can accept your statement, check that:' + NL +
-'The name and residential address on the statement match your Remitly profile.' + NL +
-'The logo or name of the banking institution or company appears on the statement.' + NL +
-'The statement is from the correct month and year.' + NL +
-'The statement is complete and all of the pages are included.' + NL +
-'The statement is not handwritten.' + NL + NL +
-'3. Follow the instructions to upload any additional requested information.' + NL + NL +
+Thank you for being a Remitly customer! We need some additional information from you before we’re able to complete your next transfer.
 
-'We may not be able to process your transfers until we complete this process. In order to avoid a disruption in your service, please provide the requested information by {{{Case.STAR_Reminder_Date__c}}}.' + NL + NL +
-'We apologize for any inconvenience this may cause. If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for your assistance!' + NL + NL +
-'Best regards,' + NL + 'The Remitly team',
-ESP: 'Hola {{{Recipient.FirstName}}},' + NL + NL +
-'¡Gracias por ser cliente de Remitly! Necesitamos información adicional antes de poder completar tu próxima transferencia.' + NL + NL +
-'Con frecuencia se nos pide que retiremos información de nuestros clientes para ayudarnos a entender cómo utilizan nuestro servicio y asegurarnos de que siguen nuestro Acuerdo de Usuario. Esto, a su vez, nos ayuda a cumplir las leyes correspondientes, a mantener nuestro servicio seguro y a mantener a nuestros clientes a salvo.' + NL + NL +
-'Sigue estas instrucciones para enviarnos la información requerida:' + NL + NL +
-'[Delete the required actions that don’t apply.]' + NL + NL +
-'1. Responde a este correo electrónico con las respuestas a las siguientes preguntas:' + NL +
-'¿Cuál es tu motivo para enviar dinero a [Recipient\'s name]?' + NL +
-'¿Cómo conociste a tu destinatario, [Recipient\'s name]?' + NL +
-'¿Has conocido a [Recipient\'s name] en persona?' + NL +
-'¿Cuál es tu relación con [Recipient\'s name]?' + NL +
-'¿Cuál es tu trabajo? Si eres autónomo, danos algunos detalles sobre tu negocio.' + NL +
-'Dinos de dónde sacas el dinero que utilizas para tus transferencias de Remitly.' + NL + NL +
-'Una vez que hayas enviado tus respuestas, inicia sesión en tu perfil de Remitly y completa los siguientes pasos:' + NL + NL +
-'2. Sigue las instrucciones para enviar un extracto completo de tu tarjeta o cuenta bancaria que termine en [last four digits] para [month and year of statement required]. Para asegurarte de que podemos aceptar tu extracto, comprueba que:' + NL +
-'El nombre y la dirección residencial que aparecen en el extracto coinciden con tu perfil de Remitly.' + NL +
-'El logotipo o el nombre de la entidad bancaria o de la empresa aparece en el extracto.' + NL +
-'El extracto es del mes y año correctos.' + NL +
-'El extracto está completo y se incluyen todas las páginas.' + NL +
-'El extracto no está escrito a mano.' + NL + NL +
-'3. Sigue las instrucciones para enviar cualquier información adicional solicitada.' + NL + NL +
+We’re often required to collect information from our customers to help us understand how they use our service and ensure they’re following our User Agreement. This in turn helps us comply with applicable laws, keep our service secured, and keep our customers safe.
 
-'Es posible que no podamos procesar tus transferencias hasta que completemos este proceso. Para evitar una interrupción de tu servicio, proporciona la información solicitada antes de {{{Case.STAR_Reminder_Date__c}}}.' + NL + NL +
-'Nos disculpamos por las molestias que esto pueda causar. Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por tu ayuda.' + NL + NL +
-'Saludos cordiales,' + NL + 'El equipo de Remitly'
-},
-confirmation: {
-ENG: 'Hello {{{Recipient.FirstName}}} —' + NL + NL +
-'Thank you for responding to our request. We’ve reviewed the information you provided and no further action is required at this time.' + NL + NL +
-'[If appropriate, include an educational or warning message from this list and delete the rest. Be sure to also delete the header in brackets.]' + NL + NL +
-'[Gambling]' + NL + NL +
-'During our review, we noticed you might be sending money for gambling purposes. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'[Sending to unknown persons]' + NL + NL +
-'During our review, we noticed that you might be sending money to people you haven’t personally met. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'[Shared payment method]' + NL + NL +
-'During our review, we noticed that you might be using someone else’s payment method. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'[Duplicate accounts]' + NL + NL +
-'During our review, we noticed that you’ve created multiple Remitly profiles. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'[Sending on behalf of other people]' + NL + NL +
-'During our review, we noticed that you might be sending money on someone else’s behalf. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'[Sending for charity from locations where charitable transfers are not allowed]' + NL + NL +
-'During our review, we noticed that you might be sending money for charitable purposes. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'[Sending for business from locations where business transfers are not allowed]' + NL + NL +
-'During our review, we noticed that you might be sending money for business purposes. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'[Account ownership]' + NL + NL +
-'During our review, we noticed that you have multiple people registered on your profile. This isn’t allowed under the terms of our User Agreement, and each person should have their own profile. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.' + NL + NL +
-'We appreciate your help with keeping our service safe for everyone.' + NL + NL +
-'Best regards,' + NL + 'The Remitly team',
-ESP: 'Hola {{{Recipient.FirstName}}},' + NL + NL +
-'Gracias por responder a nuestra solicitud. Hemos revisado la información que nos has proporcionado y no se requiere ninguna otra acción en este momento.' + NL + NL +
-'[If appropriate, include an educational or warning message from this list and delete the rest. Be sure to also delete the header in brackets.]' + NL + NL +
-'[Juegos de azar]' + NL + NL +
-'Durante nuestra revisión, nos hemos dado cuenta de que podrías estar enviando dinero con fines de juego. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'[Envío a personas desconocidas]' + NL + NL +
-'Durante nuestra revisión, hemos observado que podrías estar enviando dinero a personas que no conoces personalmente. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'[Método de pago compartido]' + NL + NL +
-'Durante nuestra revisión, nos hemos dado cuenta de que podrías estar utilizando el método de  pago de otra persona. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'[Cuentas duplicadas]' + NL + NL +
-'Durante nuestra revisión, hemos observado que has creado varios perfiles de Remitly. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'[Enviando en nombre de otras personas]' + NL + NL +
-'Durante nuestra revisión, nos hemos dado cuenta de que podrías estar enviando dinero en nombre de otra persona. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'[Enviando por caridad desde lugares donde no se permiten las transferencias por caridad]' + NL + NL +
-'Durante nuestra revisión, hemos observado que podrías estar enviando dinero con fines benéficos. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'[Enviar por negocios desde lugares en los que no se permiten las transferencias por negocios]' + NL + NL +
-'Durante nuestra revisión, nos hemos dado cuenta de que podrías estar enviando dinero con fines comerciales. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'[Propiedad de la cuenta]' + NL + NL +
-'Durante nuestra revisión, hemos observado que tienes varias personas registradas en tu perfil. Esto no está permitido según los términos de nuestro Acuerdo de Usuario, y cada persona debería tener su propio perfil. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.' + NL + NL +
-'Apreciamos tu ayuda para mantener nuestro servicio seguro para todos.' + NL + NL +
-'Saludos cordiales,' + NL + NL + 'El equipo de Remitly'
-},
-followup_7: {
-ENG: 'Hello (customers name),' + NL + NL +
-" We’re following up on our previous email request for more information. If we’re not able to collect these details from you by (1st email + 21days), we may not be able to process additional transfers ." + NL + NL +
-" We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe." + NL + NL +
-" If you have questions, please reply to this email or call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-" Best regards," + NL + NL + 'The Remitly team',
-ESP: 'Hello (customers name),' + NL + NL +
-" We’re following up on our previous email request for more information. If we’re not able to collect these details from you by (1st email + 21days), we may not be able to process additional transfers ." + NL + NL +
-" We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe." + NL + NL +
-" If you have questions, please reply to this email or call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-" Best regards," + NL + NL + 'The Remitly team'
-},
-followup_14: {
-ENG: 'Hello Kathy,' + NL + NL +
-" We haven’t received a response to our previous requests for information, so we’re following up again. We won’t be able to process your transfers until we receive the details we’ve requested ." + NL + NL +
-" We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe." + NL + NL +
-" If you’re not able to provide the information requested by  (1st email day + 21days), you won’t be able to send transfers with Remitly in the future." + NL + NL +
-" If you have questions, please reply to this email or  call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-" Best regards," + NL + NL + 'The Remitly team',
-ESP: 'Hello Kathy,' + NL + NL +
-" We haven’t received a response to our previous requests for information, so we’re following up again. We won’t be able to process your transfers until we receive the details we’ve requested ." + NL + NL +
-" We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe." + NL + NL +
-" If you’re not able to provide the information requested by  (1st email day + 21days), you won’t be able to send transfers with Remitly in the future." + NL + NL +
-" If you have questions, please reply to this email or  call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-" Best regards," + NL + NL + 'The Remitly team'
-},
-followup_21: {
-ENG: 'Hello Kathy,' + NL + NL +
-" We haven’t received a response to our previous requests for information, so we’re following up again. We may not be able to process your transfers until we receive the details we’ve requested ." + NL + NL +
-" We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe." + NL + NL +
-" If we don’t receive the requested information by  (1st email day + 21days), your ability to send transfers with Remitly may be restricted." + NL + NL +
-" If you have questions, please reply to this email or call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-" Best regards," + NL + NL + 'The Remitly team',
-ESP: 'Hello Kathy,' + NL + NL +
-" We haven’t received a response to our previous requests for information, so we’re following up again. We may not be able to process your transfers until we receive the details we’ve requested ." + NL + NL +
-" We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe." + NL + NL +
-" Si no recibimos la información solicitada antes de (1st email day + 21days), tu capacidad para enviar transferencias con Remitly puede verse restringida." + NL + NL +
-" If you have questions, please reply to this email or call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-" Best regards," + NL + NL + 'The Remitly team'
-},
-followup_28: {
-ENG: 'Hello {{{Recipient.FirstName}}} —' + NL + NL +
-"We’re following up again since we haven’t received a response to our previous messages. You won’t be able to send transfers until we receive the information we need." + NL + NL +
-"We apologize for any inconvenience. We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our User Agreement. This helps us comply with applicable laws and keep our service safe for everyone." + NL + NL +
-"To continue sending money with Remitly, please follow these instructions." + NL +
-"[Copy and paste required steps from the first email.]" + NL + NL +
-"If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for your assistance. " + NL + NL +
-"Best regards," + NL + 'The Remitly team',
-ESP: 'Hello {{{Recipient.FirstName}}} —' + NL + NL +
-"We’re following up again since we haven’t received a response to our previous messages. You won’t be able to send transfers until we receive the information we need." + NL + NL +
-"We apologize for any inconvenience. We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our User Agreement. This helps us comply with applicable laws and keep our service safe for everyone." + NL + NL +
-"To continue sending money with Remitly, please follow these instructions." + NL +
-"[Copy and paste required steps from the first email.]" + NL + NL +
-"If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for your assistance. " + NL + NL +
-"Best regards," + NL + 'The Remitly team'
-},
-incorrect_submission: {
-ENG: 'Hello {{{Recipient.FirstName}}} —' + NL +
-"Thank you for providing the information we requested. Unfortunately, we’re missing the details we need. " + NL + NL +
-"The issue is [write a short explanation of what was wrong — for example, the document was cropped or the bank statement was missing a page]. " + NL + NL +
-"We still need [list required info, removing any details that have already been correctly provided]." + NL + NL +
-"We apologize for the inconvenience. We may not be able to process any further transfers for you until we’re able to complete this process. To avoid a disruption in your service, please provide the requested information within the next [number of days] days. " + NL + NL +
-"[Copy and paste required steps from the first email.]" + NL + NL +
-"If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-"Best regards," + NL + 'The Remitly team',
-ESP: 'Hello {{{Recipient.FirstName}}} —' + NL +
-"Thank you for providing the information we requested. Unfortunately, we’re missing the details we need. " + NL + NL +
-"The issue is [write a short explanation of what was wrong — for example, the document was cropped or the bank statement was missing a page]. " + NL + NL +
-"We still need [list required info, removing any details that have already been correctly provided]." + NL + NL +
-"We apologize for the inconvenience. We may not be able to process any further transfers for you until we’re able to complete this process. To avoid a disruption in your service, please provide the requested information within the next [number of days] days. " + NL + NL +
-"[Copy and paste required steps from the first email.]" + NL + NL +
-"If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-"Best regards," + NL + 'The Remitly team'
-},
-additional_questions: {
-ENG: 'Hello {{{Recipient.FirstName}}} —' + NL +
-"Thank you for [choose one: uploading the documents OR providing the information] we requested. We need to understand a little bit more about the information provided. " + NL + NL +
-"Please respond to this email with this information:" + NL + NL +
-"[Choose the appropriate questions and delete the rest:]" + NL + NL +
-"Please confirm your relationship with [Recipient Name] " + NL +
-"Please confirm the source of these deposits: " + NL +
-"[date] [source] [amount]" + NL +
-"[date] [source] [amount]" + NL +
-"Please upload an additional document: [invoice OR savings statement OR contract]" + NL +
-"Please respond to this email with the answers to the following question(s): " + NL +
-"[identity verification question]" + NL +
-"[identity verification question]" + NL +
-"We apologize for the inconvenience. If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-"Best regards," + NL + 'The Remitly team',
-ESP: 'Hola {{{Recipient.FirstName}}},' + NL + NL +
-"Gracias por [choose one: uploading the documents (provide Spanish translation here) OR providing the information (provide Spanish translation here) que hemos solicitado. Necesitamos entender un poco más la información proporcionada." + NL + NL +
-"Por favor, responde a este correo electrónico con esta información:" + NL + NL +
-"[Choose the appropriate questions and delete the rest:]" + NL + NL +
-"Por favor, confirma tu relación con [Nombre del destinatario] " + NL +
-"Por favor, confirma el origen de estos depósitos: " + NL +
-"[fecha] [fuente] [monto]" + NL +
-"[fecha] [fuente] [monto]" + NL +
-"Por favor, sube un documento adicional: [factura o declaración de ahorros o contrato]" + NL +
-"Por favor, responde a este correo electrónico con las respuestas a la(s) siguiente(s) pregunta(s): " + NL +
-"[pregunta de verificación de identidad]" + NL +
-"[pregunta de verificación de identidad]" + NL +
-"Nos disculpamos por las molestias. Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly." + NL + NL +
-"Un saludo," + NL + NL + 'El equipo de Remitly'
-},
-security_privacy: {
-ENG: 'Hello {{{Recipient.FirstName}}} —' + NL + NL +
-"We understand your concerns and you’re absolutely right to be cautious with your personal information. We invest heavily in safety and security to ensure that your information is protected. You’ll find more details about how we store and use your info in Remitly’s Privacy Policy." + NL + NL +
-"We know asking for this information can feel invasive, and we’re sorry for any stress this has caused. " + NL + NL +
-"To continue offering our customers a safe and reliable way to send money, we have to make sure everyone using our service is following our User Agreement. We’re also required to collect information about our customers to comply with applicable laws and keep our service secure." + NL + NL +
-"Here’s the information we need: " + NL +
-"[Copy and paste required steps from the first email.]" + NL + NL +
-"If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly." + NL + NL +
-"Best regards," + NL + 'The Remitly team',
-ESP: 'Hola {{{Recipient.FirstName}}},' + NL + NL +
-"Entendemos tu preocupación y tienes toda la razón al ser precavido con tu información personal. Invertimos mucho en seguridad para garantizar que tu información esté protegida. Encontrarás más detalles sobre cómo almacenamos y utilizamos tu información en la Política de Privacidad de Remitly." + NL + NL +
-"Sabemos que pedir esta información puede parecer invasivo, y lamentamos el estrés que esto haya causado. " + NL + NL +
-"Para seguir ofreciendo a nuestros clientes una forma segura y fiable de enviar dinero, tenemos que asegurarnos de que todos los que utilizan nuestro servicio cumplen nuestro Acuerdo de Usuario. También estamos obligados a retirar información sobre nuestros clientes para cumplir con las leyes aplicables y mantener la seguridad de nuestro servicio." + NL + NL +
-"Esta es la información que necesitamos: " + NL + NL +
-"[Copy and paste required steps from the first email.]" + NL + NL +
-"Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly." + NL + NL +
-"Un saludo," + NL + NL + 'El equipo de Remitly'
-},
-suspension: {
-ENG: 'Hello {{{Recipient.FirstName}}},' + NL + NL +
-"We’ve completed our review and we’ve determined that we need to deactivate your Remitly profile." + NL + NL +
-"We apologize for the inconvenience. To continue offering our customers a safe and reliable way to send money, we have to make sure everyone using our service is following our User Agreement. Unfortunately, that can require us to make difficult decisions about customer profiles." + NL + NL +
-"This decision is final and we aren’t able to provide more specific details. We’re unable to reactivate your profile or respond to additional correspondence, and any additional profiles created will also be deactivated." + NL + NL +
-"Thank you for your understanding," + NL + 'The Remitly team',
-ESP: 'Hola {{{Recipient.FirstName}}},' + NL + NL +
-"Hemos completado nuestra revisión y hemos determinado que tenemos que desactivar tu perfil de Remitly." + NL + NL +
-"Te pedimos disculpas por las molestias. Para seguir ofreciendo a nuestros clientes una forma segura y fiable de enviar dinero, tenemos que asegurarnos de que todos los que utilizan nuestro servicio cumplen nuestro Acuerdo de Usuario. Desgraciadamente, eso puede obligarnos a tomar decisiones difíciles sobre los perfiles de los clientes. " + NL + NL +
-"Esta decisión es definitiva y no podemos proporcionar más detalles específicos. No podemos reactivar tu perfil ni responder a la correspondencia adicional, y cualquier otro perfil creado también será desactivado." + NL + NL +
-"Gracias por tu comprensión." + NL + NL +
-"Saludos cordiales," + NL + NL + 'El equipo de Remitly'
-}
-};
+Follow these instructions to send us the required information:
+[Delete the required actions that don’t apply.]
 
-var regionOptions = ['UK','AUS','NZL','CAN','SGP','EU','US'];
-var templateOptions = [
- { value: 'first_contact', label: 'First contact' },
- { value: 'confirmation', label: 'Thank you/ Confirmation' },
- { value: 'followup_7', label: 'Follow-up 7d' },
- { value: 'followup_14', label: 'Follow-up 14d' },
- { value: 'followup_21', label: 'Follow-up 21d' },
- { value: 'followup_28', label: 'Follow-up 28d' },
- { value: 'incorrect_submission', label: 'Incorrect submission' },
- { value: 'additional_questions', label: 'Additional questions' },
- { value: 'security_privacy', label: 'Security privacy' },
- { value: 'suspension', label: 'Suspension' }
-];
+1. Respond to this email with the answers to the following questions:
+What is your reason for sending money to [Recipient’s Name]
+How did you meet your recipient, [Recipient’s Name]?
+Have you met [Recipient’s Name] in person?
+What is your relationship with [Recipient’s Name]?
+What is your job? If you’re self-employed, please give us some details about your business.
+Please tell us where you get the money you use for your Remitly transfers.
+Once you've sent your answers, sign in to your Remitly profile and complete the following steps:
 
-var regionEl=document.getElementById('region');
-var templateTypeEl=document.getElementById('templateType');
-var languageEl=document.getElementById('language');
-var previewEl=document.getElementById('preview');
-var baseDate=document.getElementById('baseDate');
-var plusDate=document.getElementById('plusDate');
+2. Follow the instructions to upload a complete statement for your card or bank account ending in  [last four digits] for [month and year of statement required]. To ensure we can accept your statement, check that:
+The name and residential address on the statement match your Remitly profile.
+The logo or name of the banking institution or company appears on the statement.
+The statement is from the correct month and year.
+The statement is complete and all of the pages are included.
+The statement is not handwritten.
 
-regionOptions.forEach(r=>{
- let o=document.createElement('option'); o.value=r; o.textContent=r; regionEl.appendChild(o);
-});
+3. Follow the instructions to upload any additional requested information.
 
-templateOptions.forEach(t=>{
- let o=document.createElement('option'); o.value=t.value; o.textContent=t.label; templateTypeEl.appendChild(o);
-});
+We may not be able to process your transfers until we complete this process. In order to avoid a disruption in your service, please provide the requested information by {{{Case.STAR_Reminder_Date__c}}}.
 
-function highlight(text){
-  // normalize greeting safely
-  text = text.replace(/Hello[^\n]*/g,'Hello {{{Recipient.FirstName}}},');;
+We apologize for any inconvenience this may cause. If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for your assistance!
 
-  // highlight [] tokens
-  text = text.replace(/\[[^\]]+\]/g,function(match){
-    var lower = match.toLowerCase();
-    if(lower.includes('delete') || lower.includes('copy and paste') || lower.includes('if appropriate') || lower.includes('choose')){
-      return '<span class="remove-token">'+match+'</span>';
+Best regards,
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+¡Gracias por ser cliente de Remitly! Necesitamos información adicional antes de poder completar tu próxima transferencia.
+
+Con frecuencia se nos pide que retiremos información de nuestros clientes para ayudarnos a entender cómo utilizan nuestro servicio y asegurarnos de que siguen nuestro Acuerdo de Usuario. Esto, a su vez, nos ayuda a cumplir las leyes correspondientes, a mantener nuestro servicio seguro y a mantener a nuestros clientes a salvo.
+
+Sigue estas instrucciones para enviarnos la información requerida:
+
+[Delete the required actions that don’t apply.]
+
+1. Responde a este correo electrónico con las respuestas a las siguientes preguntas:
+¿Cuál es tu motivo para enviar dinero a [Recipient's name]?
+¿Cómo conociste a tu destinatario, [Recipient's name]?
+¿Has conocido a [Recipient's name] en persona?
+¿Cuál es tu relación con [Recipient's name]?
+¿Cuál es tu trabajo? Si eres autónomo, danos algunos detalles sobre tu negocio.
+Dinos de dónde sacas el dinero que utilizas para tus transferencias de Remitly.
+
+Una vez que hayas enviado tus respuestas, inicia sesión en tu perfil de Remitly y completa los siguientes pasos:
+
+2. Sigue las instrucciones para enviar un extracto completo de tu tarjeta o cuenta bancaria que termine en [last four digits] para [month and year of statement required]. Para asegurarte de que podemos aceptar tu extracto, comprueba que:
+El nombre y la dirección residencial que aparecen en el extracto coinciden con tu perfil de Remitly.
+El logotipo o el nombre de la entidad bancaria o de la empresa aparece en el extracto.
+El extracto es del mes y año correctos.
+El extracto está completo y se incluyen todas las páginas.
+El extracto no está escrito a mano.
+
+3. Sigue las instrucciones para enviar cualquier información adicional solicitada.
+
+Es posible que no podamos procesar tus transferencias hasta que completemos este proceso. Para evitar una interrupción de tu servicio, proporciona la información solicitada antes de {{{Case.STAR_Reminder_Date__c}}}.
+
+Nos disculpamos por las molestias que esto pueda causar. Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por tu ayuda.
+
+Saludos cordiales,
+El equipo de Remitly`
+    },
+    confirmation: {
+      ENG: `Hello {{{Recipient.FirstName}}} —
+
+Thank you for responding to our request. We’ve reviewed the information you provided and no further action is required at this time.
+
+[If appropriate, include an educational or warning message from this list and delete the rest. Be sure to also delete the header in brackets.]
+
+[Gambling]
+
+During our review, we noticed you might be sending money for gambling purposes. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+[Sending to unknown persons]
+
+During our review, we noticed that you might be sending money to people you haven’t personally met. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+[Shared payment method]
+
+During our review, we noticed that you might be using someone else’s payment method. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+[Duplicate accounts]
+
+During our review, we noticed that you’ve created multiple Remitly profiles. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+[Sending on behalf of other people]
+
+During our review, we noticed that you might be sending money on someone else’s behalf. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+[Sending for charity from locations where charitable transfers are not allowed]
+
+During our review, we noticed that you might be sending money for charitable purposes. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+[Sending for business from locations where business transfers are not allowed]
+
+During our review, we noticed that you might be sending money for business purposes. This isn’t allowed under the terms of our User Agreement. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+[Account ownership]
+
+During our review, we noticed that you have multiple people registered on your profile. This isn’t allowed under the terms of our User Agreement, and each person should have their own profile. You may not have been aware of this policy, so we’re happy to give you another chance. If this activity continues, we may need to suspend your account to help us keep our service safe for everyone. Thank you for your understanding.
+
+We appreciate your help with keeping our service safe for everyone.
+
+Best regards,
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+Gracias por responder a nuestra solicitud. Hemos revisado la información que nos has proporcionado y no se requiere ninguna otra acción en este momento.
+
+[If appropriate, include an educational or warning message from this list and delete the rest. Be sure to also delete the header in brackets.]
+
+[Juegos de azar]
+
+Durante nuestra revisión, nos hemos dado cuenta de que podrías estar enviando dinero con fines de juego. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+[Envío a personas desconocidas]
+
+Durante nuestra revisión, hemos observado que podrías estar enviando dinero a personas que no conoces personalmente. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+[Método de pago compartido]
+
+Durante nuestra revisión, nos hemos dado cuenta de que podrías estar utilizando el método de  pago de otra persona. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+[Cuentas duplicadas]
+
+Durante nuestra revisión, hemos observado que has creado varios perfiles de Remitly. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+[Enviando en nombre de otras personas]
+
+Durante nuestra revisión, nos hemos dado cuenta de que podrías estar enviando dinero en nombre de otra persona. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+[Enviando por caridad desde lugares donde no se permiten las transferencias por caridad]
+
+Durante nuestra revisión, hemos observado que podrías estar enviando dinero con fines benéficos. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+[Enviar por negocios desde lugares en los que no se permiten las transferencias por negocios]
+
+Durante nuestra revisión, nos hemos dado cuenta de que podrías estar enviando dinero con fines comerciales. Esto no está permitido según los términos de nuestro Acuerdo de Usuario. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+[Propiedad de la cuenta]
+
+Durante nuestra revisión, hemos observado que tienes varias personas registradas en tu perfil. Esto no está permitido según los términos de nuestro Acuerdo de Usuario, y cada persona debería tener su propio perfil. Puede que no hayas sido consciente de esta política, así que nos complace darte otra oportunidad. Si esta actividad continúa, puede que tengamos que suspender tu cuenta para ayudarnos a mantener nuestro servicio seguro para todos. Gracias por tu comprensión.
+
+Apreciamos tu ayuda para mantener nuestro servicio seguro para todos.
+
+Saludos cordiales,
+
+El equipo de Remitly`
+    },
+    followup_7: {
+      ENG: `Hello (customers name),
+
+ We’re following up on our previous email request for more information. If we’re not able to collect these details from you by (1st email + 21days), we may not be able to process additional transfers .
+
+ We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe.
+
+ If you have questions, please reply to this email or call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.
+
+ Best regards,
+
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+Estamos dando seguimiento a nuestra solicitud anterior de información adicional. Si no podemos recibir estos datos antes de (1st email + 21days), es posible que no podamos procesar transferencias adicionales.
+
+Estamos obligados a recopilar información de nuestros clientes para ayudarnos a entender cómo utilizan nuestro servicio y para garantizar que cumplen con nuestro Acuerdo de Usuario. Esto nos ayuda a cumplir con las leyes aplicables, mantener nuestro servicio seguro y proteger a nuestros clientes.
+
+Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.
+
+Saludos cordiales,
+
+El equipo de Remitly`
+    },
+    followup_14: {
+      ENG: `Hello Kathy,
+
+ We haven’t received a response to our previous requests for information, so we’re following up again. We won’t be able to process your transfers until we receive the details we’ve requested .
+
+ We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe.
+
+ If you’re not able to provide the information requested by  (1st email day + 21days), you won’t be able to send transfers with Remitly in the future.
+
+ If you have questions, please reply to this email or  call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.
+
+ Best regards,
+
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+No hemos recibido respuesta a nuestras solicitudes anteriores de información, por lo que estamos dando seguimiento nuevamente. No podremos procesar tus transferencias hasta que recibamos los datos que te hemos solicitado.
+
+Estamos obligados a recopilar información de nuestros clientes para ayudarnos a entender cómo utilizan nuestro servicio y para garantizar que cumplen con nuestro Acuerdo de Usuario. Esto nos ayuda a cumplir con las leyes aplicables, mantener nuestro servicio seguro y proteger a nuestros clientes.
+
+Si no puedes proporcionar la información solicitada antes de (1st email day + 21days), no podrás enviar transferencias con Remitly en el futuro.
+
+Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.
+
+Saludos cordiales,
+
+El equipo de Remitly`
+    },
+    followup_21: {
+      ENG: `Hello Kathy,
+
+ We haven’t received a response to our previous requests for information, so we’re following up again. We may not be able to process your transfers until we receive the details we’ve requested .
+
+ We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our  User Agreement . This helps us comply with applicable laws, keep our service secure, and keep our customers safe.
+
+ If we don’t receive the requested information by  (1st email day + 21days), your ability to send transfers with Remitly may be restricted.
+
+ If you have questions, please reply to this email or call us . We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.
+
+ Best regards,
+
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+No hemos recibido respuesta a nuestras solicitudes anteriores de información, por lo que estamos dando seguimiento nuevamente. Es posible que no podamos procesar tus transferencias hasta que recibamos los datos que te hemos solicitado.
+
+Estamos obligados a recopilar información de nuestros clientes para ayudarnos a entender cómo utilizan nuestro servicio y para garantizar que cumplen con nuestro Acuerdo de Usuario. Esto nos ayuda a cumplir con las leyes aplicables, mantener nuestro servicio seguro y proteger a nuestros clientes.
+
+Si no recibimos la información solicitada antes de (1st email day + 21days), tu capacidad para enviar transferencias con Remitly puede verse restringida.
+
+Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.
+
+Saludos cordiales,
+
+El equipo de Remitly`
+    },
+    followup_28: {
+      ENG: `Hello {{{Recipient.FirstName}}} —
+
+We’re following up again since we haven’t received a response to our previous messages. You won’t be able to send transfers until we receive the information we need.
+
+We apologize for any inconvenience. We’re required to collect information from our customers to help us understand how they use our service and ensure they’re following our User Agreement. This helps us comply with applicable laws and keep our service safe for everyone.
+
+To continue sending money with Remitly, please follow these instructions.
+[Copy and paste required steps from the first email.]
+
+If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for your assistance. 
+
+Best regards,
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+Estamos dando seguimiento nuevamente porque no hemos recibido respuesta a nuestros mensajes anteriores. No podrás enviar transferencias hasta que recibamos la información que necesitamos.
+
+Lamentamos cualquier inconveniente. Estamos obligados a recopilar información de nuestros clientes para ayudarnos a entender cómo utilizan nuestro servicio y para garantizar que cumplen con nuestro Acuerdo de Usuario. Esto nos ayuda a cumplir con las leyes aplicables y a mantener nuestro servicio seguro para todos.
+
+Para continuar enviando dinero con Remitly, sigue estas instrucciones.
+[Copy and paste required steps from the first email.]
+
+Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por tu ayuda.
+
+Saludos cordiales,
+El equipo de Remitly`
+    },
+    incorrect_submission: {
+      ENG: `Hello {{{Recipient.FirstName}}} —
+Thank you for providing the information we requested. Unfortunately, we’re missing the details we need. 
+
+The issue is [write a short explanation of what was wrong — for example, the document was cropped or the bank statement was missing a page]. 
+
+We still need [list required info, removing any details that have already been correctly provided].
+
+We apologize for the inconvenience. We may not be able to process any further transfers for you until we’re able to complete this process. To avoid a disruption in your service, please provide the requested information within the next [number of days] days. 
+
+[Copy and paste required steps from the first email.]
+
+If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.
+
+Best regards,
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+Gracias por proporcionar la información que te solicitamos. Lamentablemente, aún nos faltan los datos que necesitamos.
+
+El problema es [write a short explanation of what was wrong — for example, the document was cropped or the bank statement was missing a page].
+
+Todavía necesitamos [list required info, removing any details that have already been correctly provided].
+
+Lamentamos los inconvenientes. Es posible que no podamos procesar más transferencias para ti hasta que podamos completar este proceso. Para evitar una interrupción en tu servicio, proporciona la información solicitada dentro de los próximos [number of days] días.
+
+[Copy and paste required steps from the first email.]
+
+Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.
+
+Saludos cordiales,
+El equipo de Remitly`
+    },
+    additional_questions: {
+      ENG: `Hello {{{Recipient.FirstName}}} —
+Thank you for [choose one: uploading the documents OR providing the information] we requested. We need to understand a little bit more about the information provided. 
+
+Please respond to this email with this information:
+
+[Choose the appropriate questions and delete the rest:]
+
+Please confirm your relationship with [Recipient Name] 
+Please confirm the source of these deposits: 
+[date] [source] [amount]
+[date] [source] [amount]
+Please upload an additional document: [invoice OR savings statement OR contract]
+Please respond to this email with the answers to the following question(s): 
+[identity verification question]
+[identity verification question]
+We apologize for the inconvenience. If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.
+
+Best regards,
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+Gracias por [choose one: uploading the documents (provide Spanish translation here) OR providing the information (provide Spanish translation here) que hemos solicitado. Necesitamos entender un poco más la información proporcionada.
+
+Por favor, responde a este correo electrónico con esta información:
+
+[Choose the appropriate questions and delete the rest:]
+
+Por favor, confirma tu relación con [Nombre del destinatario] 
+Por favor, confirma el origen de estos depósitos: 
+[fecha] [fuente] [monto]
+[fecha] [fuente] [monto]
+Por favor, sube un documento adicional: [factura o declaración de ahorros o contrato]
+Por favor, responde a este correo electrónico con las respuestas a la(s) siguiente(s) pregunta(s): 
+[pregunta de verificación de identidad]
+[pregunta de verificación de identidad]
+Nos disculpamos por las molestias. Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.
+
+Un saludo,
+
+El equipo de Remitly`
+    },
+    security_privacy: {
+      ENG: `Hello {{{Recipient.FirstName}}} —
+
+We understand your concerns and you’re absolutely right to be cautious with your personal information. We invest heavily in safety and security to ensure that your information is protected. You’ll find more details about how we store and use your info in Remitly’s Privacy Policy.
+
+We know asking for this information can feel invasive, and we’re sorry for any stress this has caused. 
+
+To continue offering our customers a safe and reliable way to send money, we have to make sure everyone using our service is following our User Agreement. We’re also required to collect information about our customers to comply with applicable laws and keep our service secure.
+
+Here’s the information we need: 
+[Copy and paste required steps from the first email.]
+
+If you have questions, please reply to this email or call us. We’re available to help 24 hours a day, 7 days a week. Thank you for choosing Remitly.
+
+Best regards,
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+Entendemos tu preocupación y tienes toda la razón al ser precavido con tu información personal. Invertimos mucho en seguridad para garantizar que tu información esté protegida. Encontrarás más detalles sobre cómo almacenamos y utilizamos tu información en la Política de Privacidad de Remitly.
+
+Sabemos que pedir esta información puede parecer invasivo, y lamentamos el estrés que esto haya causado. 
+
+Para seguir ofreciendo a nuestros clientes una forma segura y fiable de enviar dinero, tenemos que asegurarnos de que todos los que utilizan nuestro servicio cumplen nuestro Acuerdo de Usuario. También estamos obligados a retirar información sobre nuestros clientes para cumplir con las leyes aplicables y mantener la seguridad de nuestro servicio.
+
+Esta es la información que necesitamos: 
+
+[Copy and paste required steps from the first email.]
+
+Si tienes preguntas, responde a este correo electrónico o llámanos. Estamos disponibles para ayudarte las 24 horas del día, los 7 días de la semana. Gracias por elegir Remitly.
+
+Un saludo,
+
+El equipo de Remitly`
+    },
+    suspension: {
+      ENG: `Hello {{{Recipient.FirstName}}},
+
+We’ve completed our review and we’ve determined that we need to deactivate your Remitly profile.
+
+We apologize for the inconvenience. To continue offering our customers a safe and reliable way to send money, we have to make sure everyone using our service is following our User Agreement. Unfortunately, that can require us to make difficult decisions about customer profiles.
+
+This decision is final and we aren’t able to provide more specific details. We’re unable to reactivate your profile or respond to additional correspondence, and any additional profiles created will also be deactivated.
+
+Thank you for your understanding,
+The Remitly team`,
+      ESP: `Hola {{{Recipient.FirstName}}},
+
+Hemos completado nuestra revisión y hemos determinado que tenemos que desactivar tu perfil de Remitly.
+
+Te pedimos disculpas por las molestias. Para seguir ofreciendo a nuestros clientes una forma segura y fiable de enviar dinero, tenemos que asegurarnos de que todos los que utilizan nuestro servicio cumplen nuestro Acuerdo de Usuario. Desgraciadamente, eso puede obligarnos a tomar decisiones difíciles sobre los perfiles de los clientes. 
+
+Esta decisión es definitiva y no podemos proporcionar más detalles específicos. No podemos reactivar tu perfil ni responder a la correspondencia adicional, y cualquier otro perfil creado también será desactivado.
+
+Gracias por tu comprensión.
+
+Saludos cordiales,
+
+El equipo de Remitly`
     }
-    return '<span class="edit-token">'+match+'</span>';
+  };
+
+  var regionOptions = [
+    { value: 'UK', label: '🇬🇧 UK' },
+    { value: 'AUS', label: '🇦🇺 AUS' },
+    { value: 'NZL', label: '🇳🇿 NZL' },
+    { value: 'CAN', label: '🇨🇦 CAN' },
+    { value: 'SGP', label: '🇸🇬 SGP' },
+    { value: 'EU', label: '🇪🇺 EU' },
+    { value: 'US', label: '🇺🇸 US' }
+  ];
+
+  var templateOptions = [
+    { value: 'first_contact', label: 'First contact' },
+    { value: 'confirmation', label: 'Thank you/ Confirmation' },
+    { value: 'followup_7', label: 'Follow-up 7d' },
+    { value: 'followup_14', label: 'Follow-up 14d' },
+    { value: 'followup_21', label: 'Follow-up 21d' },
+    { value: 'followup_28', label: 'Follow-up 28d' },
+    { value: 'incorrect_submission', label: 'Incorrect submission' },
+    { value: 'additional_questions', label: 'Additional questions' },
+    { value: 'security_privacy', label: 'Security privacy' },
+    { value: 'suspension', label: 'Suspension' }
+  ];
+
+  var regionEl = document.getElementById('region');
+  var templateTypeEl = document.getElementById('templateType');
+  var previewBodyEl = document.getElementById('previewBody');
+  var previewFooterEl = document.getElementById('previewFooter');
+  var baseDateEl = document.getElementById('baseDate');
+  var plusDateEl = document.getElementById('plusDate');
+  var subjectBoxEl = document.getElementById('subjectBox');
+  var templateLabelEl = document.getElementById('templateLabel');
+  var toastEl = document.getElementById('toast');
+  var introModalEl = document.getElementById('introModal');
+  var introBtnEl = document.getElementById('introBtn');
+  var hideIntroEl = document.getElementById('hideIntro');
+  var copyBtnEl = document.getElementById('copyBtn');
+  var resetBtnEl = document.getElementById('resetBtn');
+  var translateBtnEl = document.getElementById('translateBtn');
+  var backToEnglishBtnEl = document.getElementById('backToEnglishBtn');
+  var viewStatusEl = document.getElementById('viewStatus');
+
+  var currentView = 'ENG';
+  var englishDraftHtml = '';
+  var spanishDraftHtml = '';
+  var tokenValuesByTemplate = {};
+  var translatorPromise = null;
+  var translationInProgress = false;
+
+  regionOptions.forEach(function(item){
+    var option = document.createElement('option');
+    option.value = item.value;
+    option.textContent = item.label;
+    regionEl.appendChild(option);
   });
 
-  // highlight {{{ }}}
-  text = text.replace(/\{\{\{[^}]+\}\}\}/g,function(m){
-    return '<span class="edit-token">'+m+'</span>';
+  templateOptions.forEach(function(item){
+    var option = document.createElement('option');
+    option.value = item.value;
+    option.textContent = item.label;
+    templateTypeEl.appendChild(option);
   });
 
-  // highlight (customers name)
-  text = text.replace(/\(customers name\)/gi,'<span class="edit-token">(customers name)</span>');
+  function escapeHtml(text){
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 
-  // highlight date placeholder (ALL variants)
-text = text.replace(/\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi, function(m){
-  return '<span class="edit-token">' + m + '</span>';
-});
+  function showToast(message){
+    toastEl.textContent = message;
+    toastEl.classList.add('show');
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(function(){ toastEl.classList.remove('show'); }, 1800);
+  }
 
-  return text.split("\n").join("<br>");
-}
+  function fallbackCopy(content){
+    var textarea = document.createElement('textarea');
+    textarea.value = content;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try { document.execCommand('copy'); } catch (err) {}
+    document.body.removeChild(textarea);
+  }
 
-function render(){
- var body = templates[templateTypeEl.value][languageEl.value];
- var footer = footers[regionEl.value];
- previewEl.innerHTML = highlight(body) + "<br><br><span class='footer'>" + footer + "</span>";
+  function copyToClipboard(content, successMessage){
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(content).then(function(){
+        showToast(successMessage);
+      }).catch(function(){
+        fallbackCopy(content);
+        showToast(successMessage);
+      });
+    } else {
+      fallbackCopy(content);
+      showToast(successMessage);
+    }
+  }
 
- // add click-to-clear behavior for tokens
- setTimeout(function(){
-   previewEl.querySelectorAll('.edit-token, .remove-token').forEach(function(el){
-     el.addEventListener('click', function(e){
-       e.stopPropagation();
-       if(!el.dataset.cleared){
-         el.textContent = '';
-         el.dataset.cleared = 'true';
-       }
-       // place caret inside token for typing
-       const range = document.createRange();
-       const sel = window.getSelection();
-       range.selectNodeContents(el);
-       range.collapse(false);
-       sel.removeAllRanges();
-       sel.addRange(range);
-       el.focus();
-     });
-   });
- },0);
-}
+  function formatSelectedDate(value){
+    if(!value) return '';
+    var date = new Date(value + 'T00:00:00');
+    date.setDate(date.getDate() + 30);
+    return date.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  }
 
-baseDate.addEventListener('change',function(){
- if(!baseDate.value) return;
- let d=new Date(baseDate.value);
- d.setDate(d.getDate()+30);
+  function getCurrentTemplateId(){
+    return templateTypeEl.value;
+  }
 
- // format: Month Day, Year
- const options = { year: 'numeric', month: 'long', day: 'numeric' };
- plusDate.value = d.toLocaleDateString('en-US', options);
-});
+  function getTokenMap(templateId){
+    if(!tokenValuesByTemplate[templateId]){
+      tokenValuesByTemplate[templateId] = {};
+    }
+    return tokenValuesByTemplate[templateId];
+  }
 
-document.getElementById('copyBtn').onclick=function(){
- // validation: check if tokens still exist
- const hasUnedited = previewEl.querySelectorAll('.edit-token:not([data-cleared]), .remove-token:not([data-cleared])').length > 0;
+  function normalizeGreeting(text){
+    return text.replace(/^(Hello|Hola)[^\n]*/m, 'Hello {{{Recipient.FirstName}}},');
+  }
 
- if(hasUnedited){
-   alert('Warning: Some required sections are still not edited. Please review all highlighted areas before copying.');
-   return;
- }
+  function tokenizeBody(text, templateId){
+    var tokenMap = getTokenMap(templateId);
+    var tokenRegex = /\[[^\]]+\]|\{\{[^}]+\}\}|\(customers name\)|\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi;
+    var html = '';
+    var lastIndex = 0;
+    var index = 0;
+    var match;
 
- navigator.clipboard.writeText(previewEl.innerText);
-};
+    while((match = tokenRegex.exec(text)) !== null){
+      var raw = match[0];
+      var lower = raw.toLowerCase();
+      var isRemove = raw.charAt(0) === '[' && (
+        lower.indexOf('delete') !== -1 ||
+        lower.indexOf('copy and paste') !== -1 ||
+        lower.indexOf('if appropriate') !== -1 ||
+        lower.indexOf('choose one') !== -1 ||
+        lower.indexOf('choose the appropriate') !== -1 ||
+        lower.indexOf('choose') !== -1
+      );
 
-// subject click-to-copy
-document.getElementById('subjectBox').onclick=function(){
- navigator.clipboard.writeText(this.textContent.trim());
-};
+      html += escapeHtml(text.slice(lastIndex, match.index));
 
-regionEl.onchange=render;
-templateTypeEl.onchange=render;
-languageEl.onchange=render;
+      if(Object.prototype.hasOwnProperty.call(tokenMap, index)){
+        html += escapeHtml(tokenMap[index]);
+      } else {
+        html += '<span class="' + (isRemove ? 'remove-token' : 'edit-token') + '" contenteditable="true" data-token-index="' + index + '" data-original="' + escapeHtml(raw) + '">' + escapeHtml(raw) + '</span>';
+      }
 
-regionEl.value='US';
-templateTypeEl.value='first_contact';
-languageEl.value='ENG';
+      lastIndex = tokenRegex.lastIndex;
+      index += 1;
+    }
 
-render();
+    html += escapeHtml(text.slice(lastIndex));
+    return html.split(NL).join('<br>');
+  }
 
-// block Ctrl+A inside preview
-previewEl.addEventListener('keydown', function(e){
- if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a'){
-   e.preventDefault();
- }
-});
+  function buildEnglishTemplateBody(templateId){
+    var templateSet = templates[templateId] || {};
+    var rawBody = templateSet.ENG || '';
+    rawBody = normalizeGreeting(rawBody);
+    if(plusDateEl.value.trim()){
+      rawBody = rawBody.replace(datePlaceholderRegex, plusDateEl.value.trim());
+    }
+    return tokenizeBody(rawBody, templateId);
+  }
 
+  function updateTemplateLabel(){
+    var templateMeta = templateOptions.filter(function(item){ return item.value === getCurrentTemplateId(); })[0];
+    var regionMeta = regionOptions.filter(function(item){ return item.value === regionEl.value; })[0];
+    templateLabelEl.textContent = (regionMeta ? regionMeta.label : regionEl.value) + ' - ' + (templateMeta ? templateMeta.label : getCurrentTemplateId()) + ' - ' + (currentView === 'ENG' ? 'ENG' : 'ESP');
+  }
 
+  function updateViewUi(){
+    viewStatusEl.textContent = currentView === 'ENG' ? 'Current view: English draft' : 'Current view: Spanish translation';
+    translateBtnEl.disabled = translationInProgress || currentView === 'ESP';
+    backToEnglishBtnEl.classList.toggle('hidden', currentView !== 'ESP');
+    updateTemplateLabel();
+  }
 
+  function saveCurrentDraft(){
+    if(currentView === 'ENG'){
+      englishDraftHtml = previewBodyEl.innerHTML;
+    } else {
+      spanishDraftHtml = previewBodyEl.innerHTML;
+    }
+  }
 
+  function bindBodyTracking(){
+    previewBodyEl.oninput = function(){
+      saveCurrentDraft();
+    };
+  }
 
-// reset button logic
-document.getElementById('resetBtn').onclick = function(){
+  function placeCaretAtEnd(el){
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function bindTokenBehavior(){
+    previewBodyEl.querySelectorAll('.edit-token, .remove-token').forEach(function(el){
+      var index = parseInt(el.getAttribute('data-token-index'), 10);
+      var original = el.getAttribute('data-original') || '';
+      function saveTokenValue(){
+        var currentText = el.innerText;
+        getTokenMap(getCurrentTemplateId())[index] = currentText;
+        if(currentText !== original){
+          el.dataset.cleared = '1';
+        } else {
+          delete el.dataset.cleared;
+        }
+        saveCurrentDraft();
+      }
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        if(!el.dataset.cleared){
+          el.textContent = '';
+          el.dataset.cleared = '1';
+          getTokenMap(getCurrentTemplateId())[index] = '';
+          saveCurrentDraft();
+        }
+        el.focus();
+        placeCaretAtEnd(el);
+      });
+      el.addEventListener('input', saveTokenValue);
+      el.addEventListener('blur', saveTokenValue);
+    });
+  }
+
+  function renderEnglish(forceFresh){
+    currentView = 'ENG';
+    if(forceFresh || !englishDraftHtml){
+      englishDraftHtml = buildEnglishTemplateBody(getCurrentTemplateId());
+    }
+    previewBodyEl.innerHTML = englishDraftHtml;
+    previewFooterEl.textContent = footers[regionEl.value] || '';
+    bindTokenBehavior();
+    bindBodyTracking();
+    updateViewUi();
+  }
+
+  function renderSpanish(){
+    currentView = 'ESP';
+    previewBodyEl.innerHTML = spanishDraftHtml || '';
+    previewFooterEl.textContent = footers[regionEl.value] || '';
+    bindBodyTracking();
+    updateViewUi();
+  }
+
+  function getUneditedTokens(){
+    return previewBodyEl.querySelectorAll('.edit-token:not([data-cleared]), .remove-token:not([data-cleared])');
+  }
+
+  function openIntroIfNeeded(){
+    if(!localStorage.getItem('star_email_tool_hide_intro')){
+      introModalEl.style.display = 'flex';
+    }
+  }
+
+  function closeIntro(){
+    if(hideIntroEl.checked){
+      localStorage.setItem('star_email_tool_hide_intro', '1');
+    }
+    introModalEl.style.display = 'none';
+  }
+
+  function resetTemplateDraftState(){
+    englishDraftHtml = '';
+    spanishDraftHtml = '';
+    tokenValuesByTemplate[getCurrentTemplateId()] = {};
+  }
+
+  function htmlToText(html){
+    var temp = document.createElement('div');
+    temp.innerHTML = html;
+    return temp.innerText || temp.textContent || '';
+  }
+
+  function protectSpecialTokens(text){
+    var tokens = [];
+    var masked = text.replace(/\{\{\{[^}]+\}\}\}|\{\{[^}]+\}\}|https?:\/\/\S+/g, function(match){
+      var key = '__STAR_TOKEN_' + tokens.length + '__';
+      tokens.push({ key: key, value: match });
+      return key;
+    });
+    return { masked: masked, tokens: tokens };
+  }
+
+  function buildSpanishClone(html){
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    wrapper.querySelectorAll('.edit-token, .remove-token').forEach(function(el){
+      el.classList.remove('edit-token');
+      el.classList.remove('remove-token');
+      el.removeAttribute('data-token-index');
+      el.removeAttribute('data-original');
+      el.removeAttribute('data-cleared');
+      el.removeAttribute('contenteditable');
+    });
+    return wrapper;
+  }
+
+  function restoreSpecialTokens(text, tokens){
+    var restored = text;
+    tokens.forEach(function(item){
+      restored = restored.split(item.key).join(item.value);
+    });
+    return restored;
+  }
+
+  function getTranslator(){
+    if(!translatorPromise){
+      translatorPromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2').then(function(mod){
+        if(mod.env){
+          mod.env.allowLocalModels = false;
+          mod.env.useBrowserCache = true;
+        }
+        return mod.pipeline('translation', 'Xenova/opus-mt-en-es');
+      });
+    }
+    return translatorPromise;
+  }
+
+  function getTranslatedText(output){
+    if(Array.isArray(output) && output.length){
+      return output[0].translation_text || output[0].generated_text || output[0].text || '';
+    }
+    if(typeof output === 'string') return output;
+    if(output && typeof output === 'object'){
+      return output.translation_text || output.generated_text || output.text || '';
+    }
+    return '';
+  }
+
+  async function translateSegments(segments){
+    var translator = await getTranslator();
+    var translated = [];
+    for(var i = 0; i < segments.length; i += 1){
+      var segment = segments[i];
+      if(!segment.trim()){
+        translated.push(segment);
+        continue;
+      }
+      var protectedText = protectSpecialTokens(segment);
+      var output = await translator(protectedText.masked);
+      var result = getTranslatedText(output);
+      translated.push(restoreSpecialTokens(result, protectedText.tokens));
+    }
+    return translated;
+  }
+
+  function collectTextNodes(root){
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var nodes = [];
+    while(walker.nextNode()){
+      var node = walker.currentNode;
+      if(node.nodeValue && node.nodeValue.trim()){
+        nodes.push(node);
+      }
+    }
+    return nodes;
+  }
+
+  async function translateCurrentEnglishDraft(){
+    if(currentView !== 'ENG') return;
+    if(getUneditedTokens().length > 0){
+      alert('Warning: Some required sections are still not edited. Please review all highlighted areas before translating.');
+      return;
+    }
+    translationInProgress = true;
+    updateViewUi();
+    showToast('Preparing Spanish translation...');
+    saveCurrentDraft();
+    previewBodyEl.style.opacity = '0.7';
+    try {
+      var clone = buildSpanishClone(englishDraftHtml);
+      var textNodes = collectTextNodes(clone);
+      var originals = textNodes.map(function(node){ return node.nodeValue; });
+      var translated = await translateSegments(originals);
+      for(var i = 0; i < textNodes.length; i += 1){
+        textNodes[i].nodeValue = translated[i];
+      }
+      spanishDraftHtml = clone.innerHTML;
+      renderSpanish();
+      showToast('Translated to Spanish');
+    } catch (err) {
+      console.error(err);
+      alert('Translation failed. Please check your internet connection and try again.');
+    } finally {
+      previewBodyEl.style.opacity = '1';
+      translationInProgress = false;
+      updateViewUi();
+    }
+  }
+
+  introBtnEl.addEventListener('click', closeIntro);
+
+  document.addEventListener('paste', function(e){
+    if(e.target && (e.target.id === 'previewBody' || e.target.closest('#previewBody'))){
+      e.preventDefault();
+      var text = (e.clipboardData || window.clipboardData).getData('text');
+      if(document.queryCommandSupported('insertText')){
+        document.execCommand('insertText', false, text);
+      } else {
+        var selection = window.getSelection();
+        if(!selection.rangeCount) return;
+        selection.deleteFromDocument();
+        selection.getRangeAt(0).insertNode(document.createTextNode(text));
+      }
+    }
+  });
+
+  baseDateEl.addEventListener('change', function(){
+    plusDateEl.value = formatSelectedDate(baseDateEl.value);
+    englishDraftHtml = '';
+    spanishDraftHtml = '';
+    renderEnglish(true);
+  });
+
+  regionEl.addEventListener('change', function(){
+    previewFooterEl.textContent = footers[regionEl.value] || '';
+    updateTemplateLabel();
+  });
+
+  templateTypeEl.addEventListener('change', function(){
+    resetTemplateDraftState();
+    renderEnglish(true);
+  });
+
+  translateBtnEl.addEventListener('click', function(){
+    translateCurrentEnglishDraft();
+  });
+
+  backToEnglishBtnEl.addEventListener('click', function(){
+    saveCurrentDraft();
+    renderEnglish(false);
+  });
+
+  copyBtnEl.addEventListener('click', function(){
+    if(currentView === 'ENG' && getUneditedTokens().length > 0){
+      alert('Warning: Some required sections are still not edited. Please review all highlighted areas before copying.');
+      return;
+    }
+    copyToClipboard(previewBodyEl.innerText + "\n\n" + previewFooterEl.innerText, 'Email copied');
+  });
+
+  subjectBoxEl.addEventListener('click', function(){
+    copyToClipboard(subjectBoxEl.textContent.trim(), 'Subject copied');
+  });
+
+  resetBtnEl.addEventListener('click', function(){
+    regionEl.value = 'US';
+    templateTypeEl.value = 'first_contact';
+    baseDateEl.value = '';
+    plusDateEl.value = '';
+    englishDraftHtml = '';
+    spanishDraftHtml = '';
+    tokenValuesByTemplate = {};
+    renderEnglish(true);
+  });
+
   regionEl.value = 'US';
   templateTypeEl.value = 'first_contact';
-  languageEl.value = 'ENG';
-  baseDate.value = '';
-  plusDate.value = '';
-  render();
-};
+  renderEnglish(true);
+  openIntroIfNeeded();
 
+  function warmTranslator(){
+    getTranslator().catch(function(){ /* ignore warmup errors */ });
+  }
+  if('requestIdleCallback' in window){
+    requestIdleCallback(warmTranslator, { timeout: 3000 });
+  } else {
+    setTimeout(warmTranslator, 1200);
+  }
 })();
 </script>
 </body>
