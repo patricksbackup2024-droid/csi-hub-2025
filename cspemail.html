@@ -71,7 +71,7 @@ button:disabled{opacity:.65;cursor:not-allowed}
     <p>2. Choose the correct Template, then edit the email in English.</p>
     <p>3. Update all yellow and red highlighted fields before translating.</p>
     <p>4. Pick the first email date for follow-up templates. The tool will auto-fill the +30 day date inside the email.</p>
-    <p>5. Click Translate to Spanish when the English email is ready. The footer always stays in English.</p>
+    <p>5. Click Generate Spanish Draft when the English email is ready. The tool uses the approved Spanish template, carries over your edits, and only translates custom English lines. The footer always stays in English.</p>
     <p>6. Paste is plain text only, so outside formatting will not carry over.</p>
     <p>7. Use Copy email only after the final email is ready.</p>
     <div class="intro-actions">
@@ -83,7 +83,7 @@ button:disabled{opacity:.65;cursor:not-allowed}
 
 <div class="wrap">
   <h1>📧 STAR Email Template Picker</h1>
-  <div class="sub">Edit in English first, then translate your final email body to Spanish. Layout is preserved and the footer remains in English.</div>
+  <div class="sub">Edit in English first, then generate a fast hybrid Spanish draft. The approved Spanish template is used as the base, your edits are carried over, and only custom English lines are translated.</div>
 
   <div class="grid">
     <div class="card">
@@ -103,10 +103,10 @@ button:disabled{opacity:.65;cursor:not-allowed}
         <label>Language / translation</label>
         <div class="translate-panel">
           <div class="translate-status" id="viewStatus">Current view: English draft</div>
-          <button id="translateBtn" type="button">Translate to Spanish</button>
+          <button id="translateBtn" type="button">Generate Spanish Draft</button>
           <button id="backToEnglishBtn" type="button" class="ghost hidden">Back to English draft</button>
         </div>
-        <div class="inline-help">Translate uses your edited English body, keeps the email layout, and leaves the footer in English. First use may be slower while the browser loads the translator.</div>
+        <div class="inline-help">Hybrid mode uses the approved Spanish template as the base. It carries over edited values, removes sections you deleted in English, and only translates custom added English lines. Footer stays in English.</div>
       </div>
 
       <div class="field">
@@ -741,7 +741,7 @@ El equipo de Remitly`
 
   function tokenizeBody(text, templateId){
     var tokenMap = getTokenMap(templateId);
-    var tokenRegex = /\[[^\]]+\]|\{\{[^}]+\}\}|\(customers name\)|\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi;
+    var tokenRegex = /\[[^\]]+\]|\{\{\{[^}]+\}\}\}|\{\{[^}]+\}\}|\(customers name\)|\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi;
     var html = '';
     var lastIndex = 0;
     var index = 0;
@@ -792,7 +792,7 @@ El equipo de Remitly`
   }
 
   function updateViewUi(){
-    viewStatusEl.textContent = currentView === 'ENG' ? 'Current view: English draft' : 'Current view: Spanish translation';
+    viewStatusEl.textContent = currentView === 'ENG' ? 'Current view: English draft' : 'Current view: Spanish hybrid draft';
     translateBtnEl.disabled = translationInProgress || currentView === 'ESP';
     backToEnglishBtnEl.classList.toggle('hidden', currentView !== 'ESP');
     updateTemplateLabel();
@@ -821,6 +821,18 @@ El equipo de Remitly`
     sel.addRange(range);
   }
 
+  function cleanupAdjacentBraceArtifacts(el){
+    var prev = el.previousSibling;
+    var next = el.nextSibling;
+
+    if(prev && prev.nodeType === 3){
+      prev.nodeValue = prev.nodeValue.replace(/\{+$/g, '');
+    }
+    if(next && next.nodeType === 3){
+      next.nodeValue = next.nodeValue.replace(/^\}+/g, '');
+    }
+  }
+
   function bindTokenBehavior(){
     previewBodyEl.querySelectorAll('.edit-token, .remove-token').forEach(function(el){
       var index = parseInt(el.getAttribute('data-token-index'), 10);
@@ -839,6 +851,7 @@ El equipo de Remitly`
         e.stopPropagation();
         if(!el.dataset.cleared){
           el.textContent = '';
+          cleanupAdjacentBraceArtifacts(el);
           el.dataset.cleared = '1';
           getTokenMap(getCurrentTemplateId())[index] = '';
           saveCurrentDraft();
@@ -897,7 +910,38 @@ El equipo de Remitly`
   function htmlToText(html){
     var temp = document.createElement('div');
     temp.innerHTML = html;
-    return temp.innerText || temp.textContent || '';
+
+    function walk(node){
+      if(node.nodeType === Node.TEXT_NODE){
+        return node.nodeValue || '';
+      }
+      if(node.nodeType !== Node.ELEMENT_NODE){
+        return '';
+      }
+      var tag = node.tagName.toLowerCase();
+      if(tag === 'br'){
+        return '\n';
+      }
+      var result = '';
+      for(var i = 0; i < node.childNodes.length; i += 1){
+        result += walk(node.childNodes[i]);
+      }
+      if(/^(div|p|li|ul|ol|blockquote)$/i.test(tag)){
+        if(result && !/\n$/.test(result)){
+          result += '\n';
+        }
+      }
+      return result;
+    }
+
+    var output = '';
+    for(var i = 0; i < temp.childNodes.length; i += 1){
+      output += walk(temp.childNodes[i]);
+    }
+    output = output.replace(/\u00A0/g, ' ');
+    output = output.replace(/\n{3,}/g, '\n\n');
+    output = output.replace(/[ \t]+\n/g, '\n');
+    return output.trim();
   }
 
   function protectSpecialTokens(text){
@@ -910,18 +954,91 @@ El equipo de Remitly`
     return { masked: masked, tokens: tokens };
   }
 
-  function buildSpanishClone(html){
-    var wrapper = document.createElement('div');
-    wrapper.innerHTML = html;
-    wrapper.querySelectorAll('.edit-token, .remove-token').forEach(function(el){
-      el.classList.remove('edit-token');
-      el.classList.remove('remove-token');
-      el.removeAttribute('data-token-index');
-      el.removeAttribute('data-original');
-      el.removeAttribute('data-cleared');
-      el.removeAttribute('contenteditable');
+
+  function buildPlainTemplateText(templateId, language){
+    var templateSet = templates[templateId] || {};
+    var rawBody = templateSet[language] || templateSet.ENG || '';
+    if(language === 'ENG'){
+      rawBody = normalizeGreeting(rawBody);
+    }
+    if(plusDateEl.value.trim()){
+      rawBody = replaceDatePlaceholders(rawBody, plusDateEl.value.trim());
+    }
+    var tokenMap = getTokenMap(templateId);
+    var tokenRegex = /\[[^\]]+\]|\{\{\{[^}]+\}\}\}|\{\{[^}]+\}\}|\(customers name\)|\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi;
+    var index = 0;
+    return rawBody.replace(tokenRegex, function(match){
+      var value = Object.prototype.hasOwnProperty.call(tokenMap, index) ? tokenMap[index] : match;
+      index += 1;
+      return value;
     });
-    return wrapper;
+  }
+
+  function normalizeLineForDiff(line){
+    return String(line || '')
+      .replace(/\u00A0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .replace(/{{{Recipient\.FirstName}}}/ig, '__NAME__')
+      .replace(/{{{Case\.STAR_Reminder_Date__c}}}/ig, '__DATE__')
+      .trim();
+  }
+
+  function computeLineDiff(originalLines, editedLines){
+    var a = originalLines.map(normalizeLineForDiff);
+    var b = editedLines.map(normalizeLineForDiff);
+    var m = a.length;
+    var n = b.length;
+    var dp = [];
+    for(var i = 0; i <= m; i += 1){
+      dp[i] = [];
+      for(var j = 0; j <= n; j += 1){
+        dp[i][j] = 0;
+      }
+    }
+    for(var i2 = m - 1; i2 >= 0; i2 -= 1){
+      for(var j2 = n - 1; j2 >= 0; j2 -= 1){
+        if(a[i2] === b[j2]){
+          dp[i2][j2] = dp[i2 + 1][j2 + 1] + 1;
+        } else {
+          dp[i2][j2] = Math.max(dp[i2 + 1][j2], dp[i2][j2 + 1]);
+        }
+      }
+    }
+    var ops = [];
+    var i3 = 0;
+    var j3 = 0;
+    while(i3 < m && j3 < n){
+      if(a[i3] === b[j3]){
+        ops.push({ type:'equal', originalIndex:i3, editedIndex:j3 });
+        i3 += 1;
+        j3 += 1;
+      } else if(dp[i3 + 1][j3] >= dp[i3][j3 + 1]){
+        ops.push({ type:'delete', originalIndex:i3 });
+        i3 += 1;
+      } else {
+        ops.push({ type:'insert', editedIndex:j3 });
+        j3 += 1;
+      }
+    }
+    while(i3 < m){
+      ops.push({ type:'delete', originalIndex:i3 });
+      i3 += 1;
+    }
+    while(j3 < n){
+      ops.push({ type:'insert', editedIndex:j3 });
+      j3 += 1;
+    }
+    return ops;
+  }
+
+  function protectSpecialTokens(text){
+    var tokens = [];
+    var masked = text.replace(/\{\{\{[^}]+\}\}\}|\{\{[^}]+\}\}|https?:\/\/\S+/g, function(match){
+      var key = '__STAR_TOKEN_' + tokens.length + '__';
+      tokens.push({ key:key, value:match });
+      return key;
+    });
+    return { masked: masked, tokens: tokens };
   }
 
   function restoreSpecialTokens(text, tokens){
@@ -932,84 +1049,172 @@ El equipo de Remitly`
     return restored;
   }
 
-  function getTranslator(){
-    if(!translatorPromise){
-      translatorPromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2').then(function(mod){
-        if(mod.env){
-          mod.env.allowLocalModels = false;
-          mod.env.useBrowserCache = true;
+  var translationCache = {};
+
+  function chunkByWords(text, maxLen){
+    var words = text.split(/\s+/).filter(Boolean);
+    if(!words.length) return [''];
+    var chunks = [];
+    var current = '';
+    words.forEach(function(word){
+      var next = current ? current + ' ' + word : word;
+      if(next.length <= maxLen){
+        current = next;
+      } else {
+        if(current){ chunks.push(current); }
+        if(word.length <= maxLen){
+          current = word;
+        } else {
+          for(var i = 0; i < word.length; i += maxLen){
+            chunks.push(word.slice(i, i + maxLen));
+          }
+          current = '';
         }
-        return mod.pipeline('translation', 'Xenova/opus-mt-en-es');
-      });
-    }
-    return translatorPromise;
+      }
+    });
+    if(current){ chunks.push(current); }
+    return chunks;
   }
 
-  function getTranslatedText(output){
-    if(Array.isArray(output) && output.length){
-      return output[0].translation_text || output[0].generated_text || output[0].text || '';
+  function splitSegmentForTranslation(text, maxLen){
+    if(text.length <= maxLen) return [text];
+    var sentenceParts = text.match(/[^.!?;]+[.!?;]?|.+$/g) || [text];
+    var chunks = [];
+    var current = '';
+    sentenceParts.forEach(function(part){
+      var piece = part.trim();
+      if(!piece) return;
+      var next = current ? current + ' ' + piece : piece;
+      if(next.length <= maxLen){
+        current = next;
+        return;
+      }
+      if(current){
+        chunks.push(current);
+        current = '';
+      }
+      if(piece.length <= maxLen){
+        current = piece;
+      } else {
+        chunkByWords(piece, maxLen).forEach(function(wordChunk){
+          chunks.push(wordChunk);
+        });
+      }
+    });
+    if(current){ chunks.push(current); }
+    return chunks.length ? chunks : [text];
+  }
+
+  async function translateChunk(chunk){
+    if(translationCache[chunk]) return translationCache[chunk];
+    var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(chunk) + '&langpair=en|es';
+    var response = await fetch(url);
+    if(!response.ok){
+      throw new Error('Translation request failed');
     }
-    if(typeof output === 'string') return output;
-    if(output && typeof output === 'object'){
-      return output.translation_text || output.generated_text || output.text || '';
+    var data = await response.json();
+    var result = chunk;
+    if(data && data.responseData && data.responseData.translatedText){
+      result = data.responseData.translatedText;
     }
-    return '';
+    translationCache[chunk] = result;
+    return result;
+  }
+
+  async function translateOneSegment(segment){
+    if(!segment || !segment.trim()) return segment;
+
+    var lines = segment.split('\n');
+    var translatedLines = [];
+
+    for(var li = 0; li < lines.length; li += 1){
+      var line = lines[li];
+      if(!line.trim()){
+        translatedLines.push(line);
+        continue;
+      }
+      var leading = (line.match(/^\s*/) || [''])[0];
+      var trailing = (line.match(/\s*$/) || [''])[0];
+      var protectedText = protectSpecialTokens(line.trim());
+      var chunks = splitSegmentForTranslation(protectedText.masked, 450);
+      var translatedChunks = [];
+      for(var i = 0; i < chunks.length; i += 1){
+        translatedChunks.push(await translateChunk(chunks[i]));
+      }
+      var joined = translatedChunks.join(' ');
+      translatedLines.push(leading + restoreSpecialTokens(joined, protectedText.tokens) + trailing);
+    }
+
+    return translatedLines.join('\n');
   }
 
   async function translateSegments(segments){
-    var translator = await getTranslator();
-    var translated = [];
-    for(var i = 0; i < segments.length; i += 1){
-      var segment = segments[i];
-      if(!segment.trim()){
-        translated.push(segment);
-        continue;
-      }
-      var protectedText = protectSpecialTokens(segment);
-      var output = await translator(protectedText.masked);
-      var result = getTranslatedText(output);
-      translated.push(restoreSpecialTokens(result, protectedText.tokens));
-    }
-    return translated;
+    return Promise.all(segments.map(function(segment){
+      return translateOneSegment(segment);
+    }));
   }
 
-  function collectTextNodes(root){
-    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-    var nodes = [];
-    while(walker.nextNode()){
-      var node = walker.currentNode;
-      if(node.nodeValue && node.nodeValue.trim()){
-        nodes.push(node);
+  function buildHtmlFromPlainText(text){
+    return escapeHtml(text).split(NL).join('<br>');
+  }
+
+  async function buildHybridSpanishPlainText(){
+    var templateId = getCurrentTemplateId();
+    var originalEnglish = buildPlainTemplateText(templateId, 'ENG').replace(/\r\n/g, '\n');
+    var originalSpanish = buildPlainTemplateText(templateId, 'ESP').replace(/\r\n/g, '\n');
+    var editedEnglish = htmlToText(englishDraftHtml).replace(/\r\n/g, '\n');
+
+    var originalEnglishLines = originalEnglish.split('\n');
+    var originalSpanishLines = originalSpanish.split('\n');
+    var editedEnglishLines = editedEnglish.split('\n');
+    var ops = computeLineDiff(originalEnglishLines, editedEnglishLines);
+
+    var linesToTranslate = [];
+    var insertLookup = {};
+    ops.forEach(function(op){
+      if(op.type === 'insert'){
+        insertLookup[op.editedIndex] = linesToTranslate.length;
+        linesToTranslate.push(editedEnglishLines[op.editedIndex]);
       }
+    });
+
+    var translatedInsertedLines = [];
+    if(linesToTranslate.length){
+      translatedInsertedLines = await translateSegments(linesToTranslate);
     }
-    return nodes;
+
+    var outputLines = [];
+    ops.forEach(function(op){
+      if(op.type === 'equal'){
+        outputLines.push(typeof originalSpanishLines[op.originalIndex] === 'string' ? originalSpanishLines[op.originalIndex] : '');
+      } else if(op.type === 'insert'){
+        var translatedLine = translatedInsertedLines[insertLookup[op.editedIndex]];
+        outputLines.push(typeof translatedLine === 'string' ? translatedLine : editedEnglishLines[op.editedIndex]);
+      }
+    });
+
+    return outputLines.join('\n');
   }
 
   async function translateCurrentEnglishDraft(){
     if(currentView !== 'ENG') return;
     if(getUneditedTokens().length > 0){
-      alert('Warning: Some required sections are still not edited. Please review all highlighted areas before translating.');
+      alert('Warning: Some required sections are still not edited. Please review all highlighted areas before generating the Spanish draft.');
       return;
     }
     translationInProgress = true;
     updateViewUi();
-    showToast('Preparing Spanish translation...');
+    showToast('Generating Spanish draft...');
     saveCurrentDraft();
     previewBodyEl.style.opacity = '0.7';
     try {
-      var clone = buildSpanishClone(englishDraftHtml);
-      var textNodes = collectTextNodes(clone);
-      var originals = textNodes.map(function(node){ return node.nodeValue; });
-      var translated = await translateSegments(originals);
-      for(var i = 0; i < textNodes.length; i += 1){
-        textNodes[i].nodeValue = translated[i];
-      }
-      spanishDraftHtml = clone.innerHTML;
+      var spanishPlainText = await buildHybridSpanishPlainText();
+      spanishDraftHtml = buildHtmlFromPlainText(spanishPlainText);
       renderSpanish();
-      showToast('Translated to Spanish');
+      showToast('Spanish draft ready');
     } catch (err) {
       console.error(err);
-      alert('Translation failed. Please check your internet connection and try again.');
+      alert('Spanish draft generation failed. Please check your internet connection and try again.');
     } finally {
       previewBodyEl.style.opacity = '1';
       translationInProgress = false;
@@ -1109,14 +1314,6 @@ El equipo de Remitly`
   renderEnglish(true);
   openIntroIfNeeded();
 
-  function warmTranslator(){
-    getTranslator().catch(function(){ /* ignore warmup errors */ });
-  }
-  if('requestIdleCallback' in window){
-    requestIdleCallback(warmTranslator, { timeout: 3000 });
-  } else {
-    setTimeout(warmTranslator, 1200);
-  }
 })();
 </script>
 </body>
