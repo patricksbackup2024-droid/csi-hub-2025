@@ -60,6 +60,31 @@ button:disabled{opacity:.65;cursor:not-allowed}
 .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#374151}
 .checkbox-row input{width:auto;padding:0;border:none}
 .hidden{display:none !important}
+
+.module-switch{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 22px 0}
+.module-btn{width:auto;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#334155;font-weight:700}
+.module-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.section-title{margin:0 0 6px 0;font-size:22px}
+.section-sub{margin:0 0 16px 0;color:var(--muted);font-size:13px;line-height:1.45}
+.template-list{display:flex;flex-direction:column;gap:8px;max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fafafa}
+.template-item{width:100%;text-align:left;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#1f2937;font-weight:600;margin:0}
+.template-item small{display:block;font-weight:400;color:#64748b;margin-top:4px}
+.template-item.active{border-color:var(--accent);background:#eff6ff;color:#1d4ed8}
+.template-item:hover{background:#f8fafc}
+.template-actions{display:flex;gap:10px;flex-wrap:wrap}
+.template-actions button{flex:1 1 150px}
+button.danger{background:#dc2626}
+.general-editor{width:100%;min-height:760px;resize:vertical;line-height:1.55;background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;font:inherit;color:var(--text)}
+.general-editor:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.category-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px;font-weight:700}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:9997;padding:20px}
+.modal-card{background:#fff;border:1px solid var(--line);border-radius:16px;max-width:760px;width:100%;padding:20px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.modal-card h3{margin:0 0 12px 0}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-grid .full{grid-column:1 / -1}
+.helper-box{padding:12px 14px;border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc;color:#475569;font-size:12px;line-height:1.45}
+@media (max-width:1000px){.modal-grid{grid-template-columns:1fr}}
+
 @media (max-width:1000px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -67,13 +92,14 @@ button:disabled{opacity:.65;cursor:not-allowed}
 <div id="introModal">
   <div id="introCard">
     <h2>How to use this tool</h2>
-    <p>1. Select Region first before editing anything.</p>
+    <p>1. Pick the module you need: Email Helper or General Templates.</p>
     <p>2. Choose the correct Template, then edit the email in English.</p>
     <p>3. Update all yellow and red highlighted fields before translating.</p>
     <p>4. Pick the first email date for follow-up templates. The tool will auto-fill the +30 day date inside the email.</p>
     <p>5. Click Generate Spanish Draft when the English email is ready. The tool uses the approved Spanish template, carries over your edits, and only translates custom English lines. The footer always stays in English.</p>
     <p>6. Paste is plain text only, so outside formatting will not carry over.</p>
     <p>7. Use Copy email only after the final email is ready.</p>
+    <p>8. In General Templates, you can also add your own templates and keep them saved on this laptop.</p>
     <div class="intro-actions">
       <label class="checkbox-row"><input type="checkbox" id="hideIntro"> Don’t show again</label>
       <button type="button" id="introBtn">Got it</button>
@@ -82,9 +108,15 @@ button:disabled{opacity:.65;cursor:not-allowed}
 </div>
 
 <div class="wrap">
-  <h1>📧 STAR Email Template Picker</h1>
-  <div class="sub">Edit in English first, then generate a fast hybrid Spanish draft. The approved Spanish template is used as the base, your edits are carried over, and only custom English lines are translated.</div>
+  <h1>🧰 STAR Template Hub</h1>
+  <div class="sub">A simple one-stop shop for Email Helper and other daily templates. Email Helper stays separate from General Templates so the workflow stays clean and easy to use.</div>
 
+  <div class="module-switch">
+    <button type="button" id="emailHelperTabBtn" class="module-btn active">Email Helper</button>
+    <button type="button" id="generalTemplatesTabBtn" class="module-btn">General Templates</button>
+  </div>
+
+  <section id="emailHelperSection">
   <div class="grid">
     <div class="card">
       <div class="subject-box" id="subjectBox" title="Click to copy subject">Action required to continue using Remitly</div>
@@ -138,6 +170,79 @@ button:disabled{opacity:.65;cursor:not-allowed}
         <div id="previewBody" class="preview-body" contenteditable="true" spellcheck="false"></div>
         <div id="previewFooter" class="preview-footer"></div>
       </div>
+    </div>
+  </div>
+  </section>
+
+  <section id="generalTemplatesSection" class="hidden">
+    <div class="grid">
+      <div class="card">
+        <h2 class="section-title">General Templates</h2>
+        <p class="section-sub">Pick a template, edit it as needed, and copy it. You can also save your own templates on this laptop.</p>
+
+        <div class="field">
+          <label for="generalCategoryFilter">Category</label>
+          <select id="generalCategoryFilter"></select>
+        </div>
+
+        <div class="field">
+          <label for="generalSearchInput">Search template</label>
+          <input id="generalSearchInput" type="text" placeholder="Search by title or text">
+        </div>
+
+        <div class="field">
+          <div class="header-row" style="margin-bottom:8px;">
+            <label style="margin:0;">Templates</label>
+            <button type="button" id="openCustomTemplateModalBtn" class="ghost" style="width:auto;margin:0;">Add my template</button>
+          </div>
+          <div id="generalTemplateList" class="template-list"></div>
+        </div>
+
+        <div class="helper-box">
+          Built-in templates are read-only templates that you can edit in the editor and copy. If you need your own reusable note, add a custom template and it will be saved on this laptop.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview-head">
+          <div>
+            <h2 style="margin:0;">Template Editor</h2>
+            <div class="inline-help" id="generalTemplateMeta">Select a template to start.</div>
+          </div>
+          <span class="category-chip" id="generalTemplateCategoryChip">Template</span>
+        </div>
+        <textarea id="generalEditor" class="general-editor" spellcheck="false"></textarea>
+        <div class="template-actions">
+          <button type="button" id="generalCopyBtn">Copy template</button>
+          <button type="button" id="generalResetBtn" class="secondary">Reset text</button>
+          <button type="button" id="generalSaveCustomBtn" class="ghost hidden">Save changes</button>
+          <button type="button" id="generalDeleteCustomBtn" class="danger hidden">Delete template</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="customTemplateModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3>Add my template</h3>
+    <div class="modal-grid">
+      <div>
+        <label for="customTemplateTitle">Template name</label>
+        <input id="customTemplateTitle" type="text" placeholder="Example: SOB follow-up note">
+      </div>
+      <div>
+        <label for="customTemplateCategory">Category</label>
+        <input id="customTemplateCategory" type="text" placeholder="Example: Case notes">
+      </div>
+      <div class="full">
+        <label for="customTemplateText">Template text</label>
+        <textarea id="customTemplateText" class="general-editor" style="min-height:320px;"></textarea>
+      </div>
+    </div>
+    <div class="template-actions" style="margin-top:14px;">
+      <button type="button" id="saveCustomTemplateBtn">Save template</button>
+      <button type="button" id="closeCustomTemplateModalBtn" class="secondary">Cancel</button>
     </div>
   </div>
 </div>
@@ -210,7 +315,10 @@ button:disabled{opacity:.65;cursor:not-allowed}
       'Remitly Europe Limited, trading as Remitly, is regulated by the Central Bank of Ireland. Remitly Europe Limited is a limited liability company registered in Ireland (company registration number 629909). Registered Office: 7th Floor, Penrose Two, Penrose Dock, Cork, T23 YY09. Directors: T. Woods, A. Khindria and J. McKenzie. Any email sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy or use it; please notify the sender immediately and delete it and any copies from your systems.',
     US: 'Remitly, Inc.' + NL +
       '1111 3rd Ave, Suite 2100 | Seattle, WA 98101' + NL + ' ' + NL +
-      'Remitly, Inc. is Licensed as a Money Transmitter by the New York State Department of Financial Services, as a Foreign Transmittal Agency by the Massachusetts Division of Banks, and LICENSED BY THE GEORGIA DEPARTMENT OF BANKING AND FINANCE. NMLS No. 1028236.'
+      'Remitly, Inc. is Licensed as a Money Transmitter by the New York State Department of Financial Services, as a Foreign Transmittal Agency by the Massachusetts Division of Banks, and LICENSED BY THE GEORGIA DEPARTMENT OF BANKING AND FINANCE. NMLS No. 1028236.',
+    UAE: 'Remitly (DIFC) Limited, incorporated in Dubai International Financial Centre (DIFC), United Arab Emirates, company number 5851 (DIFC companies registrar), registered office at Office C502B, Burj Daman, Al Mustaqbal Street 312, DIFC, Dubai, UAE. Remitly (DIFC) Limited is authorized and regulated by the Dubai Financial Services Authority (DFSA), Firm Reference Number F006633, for Providing Money Services.',
+    JAPAN: 'Remitly Japan, K.K. (“Remitly”), registered office at Otemachi Bldg 4F Otemachi 1-6-1, Chiyoda, Tokyo, 100-0004, Japan, is registered in Japan with the Financial Services Agency as a Fund Transfer Service Provider under Type II with Registration No. 00077 issued by the Director-General of the Kanto Local Finance Bureau. Any e-mail sent from the company may contain information which is confidential and/or privileged. Unless you are the intended recipient, you may not disclose, copy, or use it; please notify the sender immediately and delete it and any copies from your systems.',
+    ISRAEL: 'Rewire (O.S.G) Research and Development Ltd., registered office at 2 Walter Moses St., Tel Aviv, Israel. Rewire holds an extended license for the provision of financial asset services (license no. 56718) and a license for the provision of credit services (license no. 63687), both issued by the Israeli Capital Market, Insurance and Savings Authority.' + NL + 'Any email sent from the company may contain confidential and/or privileged information. If you are not the intended recipient, you must not disclose, copy, or use its contents. Please notify the sender immediately and delete this email and any copies from your systems.'
   };
 
   var templates = {
@@ -622,7 +730,10 @@ El equipo de Remitly`
     { value: 'CAN', label: '🇨🇦 CAN' },
     { value: 'SGP', label: '🇸🇬 SGP' },
     { value: 'EU', label: '🇪🇺 EU' },
-    { value: 'US', label: '🇺🇸 US' }
+    { value: 'US', label: '🇺🇸 US' },
+    { value: 'UAE', label: '🇦🇪 UAE' },
+    { value: 'JAPAN', label: '🇯🇵 JAPAN' },
+    { value: 'ISRAEL', label: '🇮🇱 ISRAEL' }
   ];
 
   var templateOptions = [
@@ -1309,9 +1420,337 @@ El equipo de Remitly`
     renderEnglish(true);
   });
 
+
+  var emailHelperSectionEl = document.getElementById('emailHelperSection');
+  var generalTemplatesSectionEl = document.getElementById('generalTemplatesSection');
+  var emailHelperTabBtnEl = document.getElementById('emailHelperTabBtn');
+  var generalTemplatesTabBtnEl = document.getElementById('generalTemplatesTabBtn');
+  var generalCategoryFilterEl = document.getElementById('generalCategoryFilter');
+  var generalSearchInputEl = document.getElementById('generalSearchInput');
+  var generalTemplateListEl = document.getElementById('generalTemplateList');
+  var generalEditorEl = document.getElementById('generalEditor');
+  var generalCopyBtnEl = document.getElementById('generalCopyBtn');
+  var generalResetBtnEl = document.getElementById('generalResetBtn');
+  var generalSaveCustomBtnEl = document.getElementById('generalSaveCustomBtn');
+  var generalDeleteCustomBtnEl = document.getElementById('generalDeleteCustomBtn');
+  var generalTemplateMetaEl = document.getElementById('generalTemplateMeta');
+  var generalTemplateCategoryChipEl = document.getElementById('generalTemplateCategoryChip');
+  var customTemplateModalEl = document.getElementById('customTemplateModal');
+  var openCustomTemplateModalBtnEl = document.getElementById('openCustomTemplateModalBtn');
+  var closeCustomTemplateModalBtnEl = document.getElementById('closeCustomTemplateModalBtn');
+  var saveCustomTemplateBtnEl = document.getElementById('saveCustomTemplateBtn');
+  var customTemplateTitleEl = document.getElementById('customTemplateTitle');
+  var customTemplateCategoryEl = document.getElementById('customTemplateCategory');
+  var customTemplateTextEl = document.getElementById('customTemplateText');
+
+  var GENERAL_TEMPLATE_STORAGE_KEY = 'star_template_hub_custom_templates_v1';
+  var selectedGeneralTemplateId = '';
+  var selectedGeneralTemplateOriginalText = '';
+
+  var builtInGeneralTemplates = [
+    {
+      id: 'ekyc_pending',
+      category: 'EKYC / CSI',
+      title: 'EKYC PENDING',
+      text: 'THIS CUSTOMER IS UNDER STAR REVIEW\nPLEASE DO NOT MOVE ACCOUNT TO KYC PASS\n>> As a licensed money transmitter, we are obligated to comply with regulations that require us to understand how our customers use our service and the source of the funds we are sending on their behalf. Collecting this information helps us comply with these regulations.\n************************************************\nWhat we need from the customer:\n1. EDD (clarify if needed)\n2. Please ask the following CQ (Do not accept vague answers; Be specific and detailed)\n3. SOF\n- review and ask customer source of any transfers and non-payroll deposits\n- Request any additional documents to support non-payroll deposits (ex. savings account statement, etc.)\n\n\n(DO NOT APPROVE any pending transaction or move the account back to Kyc Pass until the Compliance Team has completed their review for this account.” )\n\n\n>>OK to approve any pending transaction as long as customer provides all the requested information and no other red flags found.\n\n\n\nOnce completed, follow the steps outlined in the When do I transfer the customer to another team? article.\n\nVia CSP:\nSelect the “STAR” option from the dropdown.\nInclude the requesting agent’s name in the email subject line.\nUse the appropriate email template based on the transaction status.'
+    },
+    {
+      id: 'csi_review_completed',
+      category: 'EKYC / CSI',
+      title: 'CSI review completed',
+      text: 'CSI review completed. Moving the acc back to KYC PASS'
+    },
+    {
+      id: 'incomplete_info_no_response',
+      category: 'EKYC / CSI',
+      title: 'Incomplete info / no response',
+      text: 'Incomplete info/No response received from the cx for CSI req on (Date). Moving acc to EKYC-F'
+    },
+    {
+      id: 'under_further_review',
+      category: 'EKYC / CSI',
+      title: 'Under further review',
+      text: 'The account is under further review. Please allow additional time for the final resolution, thank you for understanding.'
+    },
+    {
+      id: 'bkyc_suspected_business',
+      category: 'BKYC',
+      title: 'Suspected Business annotation',
+      text: 'Suspected Business annotation\n> If customer confirms sending for business purposes follow current BKYC process with the customer on call - advising the customer they can only use the current account for personal sending (if customer agrees remove policy watch) and direct them through the correct process to set up their business account\n> If customer is not sending for business purposes, remove the policy watch from the customers account, approve any pending transactions'
+    },
+    {
+      id: 'bkyc_confirmed_business',
+      category: 'BKYC',
+      title: 'Confirmed Business annotation',
+      text: 'Confirmed Business annotation\nMoving to Ekyc failed; A business account can be created once the customer confirms the current account will be for personal use only'
+    },
+    {
+      id: 'pp_mismatch_concern',
+      category: 'PP mismatch',
+      title: 'PP mismatch concern',
+      text: 'PP mismatch concern (Only PP on file or top PP reg to non cx)\nPlease add PP ownership.\n\nWhat is your relationship to ?\nWhat is the reason for using the PI under someone else´s name?\nHave you sent on behalf of somebody else? If yes, warn cx about policy violation.'
+    },
+    {
+      id: 'mode_is_down',
+      category: 'MODE',
+      title: 'MODE IS DOWN',
+      text: 'MODE IS DOWN\n\n[Action] -----------\n[IP] -----------\n[Linked Accounts] -----------\n[PI] -----------\n[Recipients] -----------\n[NN] -----------\n[Sending Pattern] -----------\n[SOF] -----------\n[EDD] -----------\n[External Research] -----------\n[Other] -----------'
+    },
+    {
+      id: 'monitor_combined',
+      category: 'Monitor',
+      title: 'Monitor',
+      text: `Added PW
+CSI: PW added to add dup acc
+
+Added HR
+CSI: Educate the customer to only use our service inline with our user agreement`
+    },
+    {
+      id: 'allowlist_combined',
+      category: 'Allowlist',
+      title: 'Allowlist',
+      text: `The account has been reinstated and the decline has been updated.
+
+The decline will remain and no reinstatement will be approved from our end.
+
+The account has been reinstated; however, the recipient will remain on the exceptions list.
+
+The account has been reinstated and the decline has been updated. Please educate the customer regarding commercial sending.
+
+The account has been reinstated; however, the recipient information will remain on the exceptions list.  This is the customer's final warning. Please educate the customer to only send to recipients he or she knows.
+
+The decline will remain and recipient's information will continue in the same state on the exceptions list.
+
+This is not a Compliance related decline, please follow the allowlist process: https://remitly.lightning.force.com/lightning/r/Knowledge__kav/ka0Hn000001MM86IAG/view
+
+The suspension appeal request for this account is currently under compliance review. Please allow 24 to 48 hours for processing.
+
+The account has been moved back to KYC Pass. Thank you
+
+Please allow us to further review the account for the next 24-48hrs.
+
+The account has been reinstated; however, the recipient information will remain on the exceptions list.  This is the customer's final warning. Educate the customer to only use our service inline with our user agreement.
+
+The decline has been updated.`
+    },
+    {
+      id: 'nzptr_qa_to_check',
+      category: 'NZPTR',
+      title: 'QA to check',
+      text: 'QA to check\n\nfind:\ntrue\nprimary signatory\nElectronically held funds\nforeign currency\nHome address\ntotal amount of txn should be equal\nFrom My Client - Account\nRemitly NZ Ltd\nElectronic transaction - Wire transfer\n53727'
+    }
+  ];
+
+  function loadCustomGeneralTemplates(){
+    try {
+      var raw = localStorage.getItem(GENERAL_TEMPLATE_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function saveCustomGeneralTemplates(items){
+    localStorage.setItem(GENERAL_TEMPLATE_STORAGE_KEY, JSON.stringify(items));
+  }
+
+  function getAllGeneralTemplates(){
+    return builtInGeneralTemplates.concat(loadCustomGeneralTemplates());
+  }
+
+  function findGeneralTemplateById(id){
+    return getAllGeneralTemplates().filter(function(item){ return item.id === id; })[0] || null;
+  }
+
+  function refreshGeneralCategoryOptions(){
+    var allTemplates = getAllGeneralTemplates();
+    var categories = ['All'];
+    allTemplates.forEach(function(item){
+      if(categories.indexOf(item.category) === -1){
+        categories.push(item.category);
+      }
+    });
+    var current = generalCategoryFilterEl.value || 'All';
+    generalCategoryFilterEl.innerHTML = '';
+    categories.forEach(function(category){
+      var option = document.createElement('option');
+      option.value = category;
+      option.textContent = category;
+      generalCategoryFilterEl.appendChild(option);
+    });
+    generalCategoryFilterEl.value = categories.indexOf(current) !== -1 ? current : 'All';
+  }
+
+  function renderGeneralTemplateList(){
+    refreshGeneralCategoryOptions();
+    var allTemplates = getAllGeneralTemplates();
+    var category = generalCategoryFilterEl.value || 'All';
+    var search = (generalSearchInputEl.value || '').toLowerCase().trim();
+    var filtered = allTemplates.filter(function(item){
+      var inCategory = category === 'All' || item.category === category;
+      var searchable = (item.title + "\n" + item.text + "\n" + item.category).toLowerCase();
+      var inSearch = !search || searchable.indexOf(search) !== -1;
+      return inCategory && inSearch;
+    });
+
+    generalTemplateListEl.innerHTML = '';
+    if(!filtered.length){
+      selectedGeneralTemplateId = '';
+      selectedGeneralTemplateOriginalText = '';
+      generalEditorEl.value = '';
+      generalTemplateMetaEl.textContent = 'No templates found.';
+      generalTemplateCategoryChipEl.textContent = 'Template';
+      updateGeneralTemplateActions(null);
+      generalTemplateListEl.innerHTML = '<div class="inline-help">No templates found.</div>';
+      return;
+    }
+
+    var selectedStillVisible = filtered.some(function(item){ return item.id === selectedGeneralTemplateId; });
+
+    if(filtered.length === 1){
+      if(selectedGeneralTemplateId !== filtered[0].id){
+        selectGeneralTemplate(filtered[0].id);
+        return;
+      }
+    } else if(!selectedStillVisible && filtered.length){
+      selectGeneralTemplate(filtered[0].id);
+      return;
+    }
+
+    filtered.forEach(function(item){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'template-item' + (item.id === selectedGeneralTemplateId ? ' active' : '');
+      btn.innerHTML = escapeHtml(item.title) + '<small>' + escapeHtml(item.category + (item.custom ? ' · My template' : '')) + '</small>';
+      btn.addEventListener('click', function(){
+        selectGeneralTemplate(item.id);
+      });
+      generalTemplateListEl.appendChild(btn);
+    });
+  }
+
+  function updateGeneralTemplateActions(template){
+    var isCustom = !!(template && template.custom);
+    generalSaveCustomBtnEl.classList.toggle('hidden', !isCustom);
+    generalDeleteCustomBtnEl.classList.toggle('hidden', !isCustom);
+  }
+
+  function selectGeneralTemplate(id){
+    var template = findGeneralTemplateById(id);
+    if(!template) return;
+    selectedGeneralTemplateId = template.id;
+    selectedGeneralTemplateOriginalText = template.text;
+    generalEditorEl.value = template.text;
+    generalTemplateMetaEl.textContent = template.custom ? 'My template · saved on this laptop' : 'Built-in template';
+    generalTemplateCategoryChipEl.textContent = template.category;
+    updateGeneralTemplateActions(template);
+    renderGeneralTemplateList();
+  }
+
+  function openCustomTemplateModal(){
+    customTemplateTitleEl.value = '';
+    customTemplateCategoryEl.value = '';
+    customTemplateTextEl.value = '';
+    customTemplateModalEl.style.display = 'flex';
+    setTimeout(function(){ customTemplateTitleEl.focus(); }, 0);
+  }
+
+  function closeCustomTemplateModal(){
+    customTemplateModalEl.style.display = 'none';
+  }
+
+  function saveNewCustomTemplate(){
+    var title = customTemplateTitleEl.value.trim();
+    var category = customTemplateCategoryEl.value.trim() || 'My templates';
+    var text = customTemplateTextEl.value;
+    if(!title){
+      alert('Please add a template name.');
+      return;
+    }
+    var items = loadCustomGeneralTemplates();
+    var newItem = {
+      id: 'custom_' + Date.now(),
+      category: category,
+      title: title,
+      text: text,
+      custom: true
+    };
+    items.push(newItem);
+    saveCustomGeneralTemplates(items);
+    closeCustomTemplateModal();
+    refreshGeneralCategoryOptions();
+    renderGeneralTemplateList();
+    selectGeneralTemplate(newItem.id);
+    showToast('Template saved');
+  }
+
+  function saveSelectedCustomTemplateChanges(){
+    var template = findGeneralTemplateById(selectedGeneralTemplateId);
+    if(!template || !template.custom) return;
+    var items = loadCustomGeneralTemplates();
+    items = items.map(function(item){
+      if(item.id === selectedGeneralTemplateId){
+        item.text = generalEditorEl.value;
+      }
+      return item;
+    });
+    saveCustomGeneralTemplates(items);
+    selectedGeneralTemplateOriginalText = generalEditorEl.value;
+    showToast('Template changes saved');
+  }
+
+  function deleteSelectedCustomTemplate(){
+    var template = findGeneralTemplateById(selectedGeneralTemplateId);
+    if(!template || !template.custom) return;
+    if(!confirm('Delete this custom template?')) return;
+    var items = loadCustomGeneralTemplates().filter(function(item){ return item.id !== selectedGeneralTemplateId; });
+    saveCustomGeneralTemplates(items);
+    selectedGeneralTemplateId = '';
+    selectedGeneralTemplateOriginalText = '';
+    generalEditorEl.value = '';
+    generalTemplateMetaEl.textContent = 'Select a template to start.';
+    generalTemplateCategoryChipEl.textContent = 'Template';
+    updateGeneralTemplateActions(null);
+    renderGeneralTemplateList();
+    showToast('Template deleted');
+  }
+
+  function showSection(section){
+    var emailActive = section === 'email';
+    emailHelperSectionEl.classList.toggle('hidden', !emailActive);
+    generalTemplatesSectionEl.classList.toggle('hidden', emailActive);
+    emailHelperTabBtnEl.classList.toggle('active', emailActive);
+    generalTemplatesTabBtnEl.classList.toggle('active', !emailActive);
+  }
+
+  emailHelperTabBtnEl.addEventListener('click', function(){ showSection('email'); });
+  generalTemplatesTabBtnEl.addEventListener('click', function(){ showSection('general'); });
+  generalCategoryFilterEl.addEventListener('change', renderGeneralTemplateList);
+  generalSearchInputEl.addEventListener('input', renderGeneralTemplateList);
+  openCustomTemplateModalBtnEl.addEventListener('click', openCustomTemplateModal);
+  closeCustomTemplateModalBtnEl.addEventListener('click', closeCustomTemplateModal);
+  saveCustomTemplateBtnEl.addEventListener('click', saveNewCustomTemplate);
+  customTemplateModalEl.addEventListener('click', function(e){
+    if(e.target === customTemplateModalEl){ closeCustomTemplateModal(); }
+  });
+  generalCopyBtnEl.addEventListener('click', function(){
+    copyToClipboard(generalEditorEl.value, 'Template copied');
+  });
+  generalResetBtnEl.addEventListener('click', function(){
+    generalEditorEl.value = selectedGeneralTemplateOriginalText || '';
+  });
+  generalSaveCustomBtnEl.addEventListener('click', saveSelectedCustomTemplateChanges);
+  generalDeleteCustomBtnEl.addEventListener('click', deleteSelectedCustomTemplate);
+
+
   regionEl.value = 'US';
   templateTypeEl.value = 'first_contact';
   renderEnglish(true);
+  refreshGeneralCategoryOptions();
+  renderGeneralTemplateList();
+  selectGeneralTemplate('ekyc_pending');
+  showSection('email');
   openIntroIfNeeded();
 
 })();
