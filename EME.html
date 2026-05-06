@@ -724,10 +724,129 @@
 
     body.colored-mode .onetime-box { border-top:4px solid #1976d2; }
     body.colored-mode .security-box { border-top:4px solid #d32f2f; }
+    
+    .migration-lock {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: #f4f6f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #212529;
+  }
+
+  .migration-card {
+    width: min(720px, 100%);
+    background: #ffffff;
+    border: 1px solid #cfd8dc;
+    border-top: 6px solid #2e7d32;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    padding: 28px;
+    text-align: center;
+  }
+
+  .migration-title {
+    margin: 0 0 12px 0;
+    font-size: 1.8rem;
+    color: #1b5e20;
+  }
+
+  .migration-text {
+    margin: 0 0 14px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #37474f;
+  }
+
+  .migration-url-box {
+    margin: 18px 0;
+    padding: 12px;
+    background: #eef6ff;
+    border: 1px solid #bbdefb;
+    border-radius: 8px;
+    word-break: break-all;
+    font-size: 0.92rem;
+    color: #0d47a1;
+  }
+
+  .migration-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+
+  .migration-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .migration-btn-primary {
+    background: #2e7d32;
+    color: #ffffff;
+  }
+
+  .migration-btn-secondary {
+    background: #eceff1;
+    color: #263238;
+    border: 1px solid #b0bec5;
+  }
+
+  .migration-note {
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: #607d8b;
+  }
+
+  .app-shell {
+    display: none !important;
+  }
 
 </style>
 </head>
 <body>
+  <div class="migration-lock">
+  <div class="migration-card">
+    <h1 class="migration-title">This old tool is now disabled</h1>
+
+    <p class="migration-text">
+      Please use the new EME + Linked Acct Analyzer URL moving forward.
+    </p>
+
+    <p class="migration-text">
+      You may bookmark the new link now. This old HTML file is kept only as backup.
+    </p>
+
+    <div class="migration-url-box" id="new-tool-url">
+      https://script.google.com/a/macros/remitly.com/s/AKfycbwjImhRrB6mOk3DCM0M8fi5s5i-6u4DX6l3n1O-cgJ-wNVTQnFh7FZCgBgGCc8e0zU_pg/exec
+    </div>
+
+    <div class="migration-actions">
+      <a class="migration-btn migration-btn-primary" href="https://script.google.com/a/macros/remitly.com/s/AKfycbwjImhRrB6mOk3DCM0M8fi5s5i-6u4DX6l3n1O-cgJ-wNVTQnFh7FZCgBgGCc8e0zU_pg/exec" target="_blank" rel="noopener noreferrer">
+        Open New Tool
+      </a>
+      <button class="migration-btn migration-btn-secondary" type="button" onclick="copyNewToolUrl()">
+        Copy New URL
+      </button>
+    </div>
+
+    <div class="migration-note">
+      Bookmark the new URL. Do not use this old HTML file anymore.
+    </div>
+  </div>
+</div>
+
   <div class="app-shell">
     <div class="topbar">
       <div class="title-wrap">
@@ -832,6 +951,16 @@
   <div id="toast">Copied!</div>
 
   <script>
+    const NEW_TOOL_URL = 'https://script.google.com/a/macros/remitly.com/s/AKfycbwjImhRrB6mOk3DCM0M8fi5s5i-6u4DX6l3n1O-cgJ-wNVTQnFh7FZCgBgGCc8e0zU_pg/exec';
+
+  function copyNewToolUrl() {
+    navigator.clipboard.writeText(NEW_TOOL_URL).then(function() {
+      alert('New URL copied. Please bookmark and use the new tool moving forward.');
+    }).catch(function() {
+      window.prompt('Copy this new URL:', NEW_TOOL_URL);
+    });
+  }
+  
     if (typeof ChartDataLabels !== 'undefined') { Chart.register(ChartDataLabels); }
 
     const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
