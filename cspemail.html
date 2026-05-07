@@ -86,9 +86,119 @@ button.danger{background:#dc2626}
 @media (max-width:1000px){.modal-grid{grid-template-columns:1fr}}
 
 @media (max-width:1000px){.grid{grid-template-columns:1fr}}
+
+  <style>
+  .migration-card {
+    width: min(720px, 100%);
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-top: 6px solid #2563eb;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.14);
+    padding: 28px;
+    text-align: center;
+  }
+
+  .migration-title {
+    margin: 0 0 12px 0;
+    font-size: 1.8rem;
+    color: #1e3a8a;
+  }
+
+  .migration-text {
+    margin: 0 0 14px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #374151;
+  }
+
+  .migration-url-box {
+    margin: 18px 0;
+    padding: 12px;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    word-break: break-all;
+    font-size: 0.92rem;
+    color: #1e3a8a;
+  }
+
+  .migration-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+
+  .migration-btn {
+    width: auto;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .migration-btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .migration-btn-secondary {
+    background: #ffffff;
+    color: #2563eb;
+    border: 1px solid #2563eb;
+  }
+
+  .migration-note {
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: #6b7280;
+  }
+
+  .wrap,
+  #introModal,
+  #customTemplateModal {
+    display: none !important;
+  }
+
 </style>
 </head>
 <body spellcheck="true" autocorrect="on" autocapitalize="sentences">
+  <div class="migration-lock">
+  <div class="migration-card">
+    <h1 class="migration-title">This old STAR Template Hub is now disabled</h1>
+
+    <p class="migration-text">
+      Please use the new STAR Template Hub URL moving forward.
+    </p>
+
+    <p class="migration-text">
+      You may bookmark the new link now.
+    </p>
+
+    <div class="migration-url-box" id="new-star-url">
+      https://script.google.com/a/macros/remitly.com/s/AKfycbxJz9vroOHsE9blakzPt4-9GJktGYu1MnRx5NPOw4f5eLtiKwFA6of148jTZrCzkggZ/exec
+    </div>
+
+    <div class="migration-actions">
+      <a class="migration-btn migration-btn-primary" href="https://script.google.com/a/macros/remitly.com/s/AKfycbxJz9vroOHsE9blakzPt4-9GJktGYu1MnRx5NPOw4f5eLtiKwFA6of148jTZrCzkggZ/exec" target="_blank" rel="noopener noreferrer">
+        Open New Tool
+      </a>
+      <button class="migration-btn migration-btn-secondary" type="button" onclick="copyNewStarUrl()">
+        Copy New URL
+      </button>
+    </div>
+
+    <div class="migration-note">
+      Bookmark the new URL. Do not use this old HTML file anymore.
+    </div>
+  </div>
+</div>
 <div id="introModal">
   <div id="introCard">
     <h2>How to use this tool</h2>
@@ -250,6 +360,16 @@ button.danger{background:#dc2626}
 <div id="toast">Copied</div>
 
 <script>
+  const NEW_STAR_URL = 'https://script.google.com/a/macros/remitly.com/s/AKfycbxJz9vroOHsE9blakzPt4-9GJktGYu1MnRx5NPOw4f5eLtiKwFA6of148jTZrCzkggZ/exec';
+
+  function copyNewStarUrl() {
+    navigator.clipboard.writeText(NEW_STAR_URL).then(function() {
+      alert('New URL copied. Please bookmark and use the new STAR Template Hub moving forward.');
+    }).catch(function() {
+      window.prompt('Copy this new URL:', NEW_STAR_URL);
+    });
+  }
+
 (function(){
   var NL = "\n";
   var datePlaceholderRegex = /\(\s*1st email(?:\s*day)?\s*\+\s*21\s*days?\s*\)/gi;
