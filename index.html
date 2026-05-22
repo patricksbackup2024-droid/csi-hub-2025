@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSI HUB 2025</title>
@@ -323,20 +324,62 @@
 
         /* RELOCATED SCRATCHPAD STYLE */
         .side-notepad {
-            width: 100%;
-            flex-grow: 1;
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            padding: 10px;
-            font-family: inherit;
-            font-size: 0.9em;
-            resize: none;
-            box-sizing: border-box;
-            outline: none;
-        }
-        .side-notepad:focus { border-color: var(--accent-color); }
+    width: 100%;
+    flex-grow: 1;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 0.9em;
+    box-sizing: border-box;
+    outline: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    min-height: 520px;
+}
+
+.side-notepad:focus {
+    border-color: var(--accent-color);
+}
+
+.scratchpad-editor:empty:before {
+    content: attr(placeholder);
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.scratchpad-highlight-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+#scratch-highlight-color {
+    width: 42px;
+    height: 32px;
+    padding: 2px;
+    margin: 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.scratchpad-highlight-btn {
+    width: auto;
+    padding: 7px 10px;
+    margin: 0;
+    font-size: 0.8em;
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+}
+
+.scratchpad-highlight-btn:hover {
+    background-color: var(--accent-color);
+    color: var(--bg-dark);
+}
 
         .floating-widget {
             position: absolute; bottom: 20px; right: 20px; width: 45px; height: 45px;
@@ -450,6 +493,402 @@
 #suggestion-box::-webkit-scrollbar { width: 6px; }
 #suggestion-box::-webkit-scrollbar-track { background: var(--bg-dark); }
 #suggestion-box::-webkit-scrollbar-thumb { background: var(--button-secondary); border-radius: 3px; }
+
+.notepad-action-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.notepad-action-btn {
+    width: auto;
+    padding: 7px 12px;
+    margin-bottom: 0;
+    font-size: 0.85em;
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+}
+
+.notepad-action-btn:hover {
+    background-color: var(--accent-color);
+    color: var(--bg-dark);
+}
+
+.notepad-action-btn.clear-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.notepad-action-btn.mode-btn {
+    background-color: #a6e22e;
+    color: #121820;
+}
+
+.notepad-action-btn.mode-btn:hover {
+    background-color: #baf75a;
+    color: #121820;
+}
+
+.star-alert-box {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.star-alert-box.collapsed {
+    display: none;
+}
+
+.star-alert-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 5px 10px;
+}
+
+.star-alert-box label {
+    font-size: 0.85em;
+    color: var(--text-primary);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.star-alert-box input[type="checkbox"] {
+    width: auto;
+    margin-right: 5px;
+    margin-bottom: 0;
+}
+
+#insert-star-alerts-btn {
+    margin-top: 8px;
+    padding: 7px;
+    font-size: 0.85em;
+}
+
+#phone-format-mode.phone-mode-with0 {
+    border: 2px solid #2ecc71;
+    background-color: rgba(46, 204, 113, 0.15);
+    color: var(--text-primary);
+}
+
+#phone-format-mode.phone-mode-no0 {
+    border: 2px solid #3498db;
+    background-color: rgba(52, 152, 219, 0.15);
+    color: var(--text-primary);
+}
+
+.note-section-title {
+    display: block;
+    background-color: rgba(247, 183, 51, 0.18);
+    border-left: 5px solid var(--accent-color);
+    padding: 6px 8px;
+    margin: 12px 0 6px 0;
+    font-weight: bold;
+    color: var(--text-primary);
+    border-radius: 4px;
+}
+
+.note-section-title.action-section {
+    background-color: rgba(231, 76, 60, 0.18);
+    border-left-color: #e74c3c;
+}
+
+.note-section-title.risk-section {
+    background-color: rgba(52, 152, 219, 0.18);
+    border-left-color: #3498db;
+}
+
+.note-section-title.sof-section {
+    background-color: rgba(46, 204, 113, 0.18);
+    border-left-color: #2ecc71;
+}
+
+.note-section-title.other-section {
+    background-color: rgba(155, 89, 182, 0.18);
+    border-left-color: #9b59b6;
+}
+
+.custom-words-box {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.custom-words-box.collapsed {
+    display: none;
+}
+
+#custom-word-input {
+    width: calc(100% - 22px);
+    margin-bottom: 8px;
+}
+
+#custom-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.custom-word-chip {
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 5px 9px;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+
+.custom-word-chip:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.tracker-box {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.tracker-box.collapsed {
+    display: none;
+}
+
+.tracker-box h3 {
+    margin: 0 0 8px 0;
+    font-size: 1em;
+    color: var(--text-primary);
+    border-left: 3px solid #a6e22e;
+    padding-left: 8px;
+}
+
+.notepad-action-btn.tracker-btn {
+    background-color: #a6e22e;
+    color: #121820;
+}
+
+.tracker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 8px;
+}
+
+.tracker-grid label {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+}
+
+.tracker-grid select,
+.tracker-box input[type="text"] {
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+.tracker-rules-box {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.tracker-rules-box p {
+    margin: 0 0 6px 0;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+.tracker-rules-box label {
+    display: block;
+    font-size: 0.82em;
+    margin-bottom: 5px;
+}
+
+.tracker-rules-box input[type="checkbox"] {
+    width: auto;
+    margin-right: 6px;
+    margin-bottom: 0;
+}
+
+.tracker-submit-btn {
+    margin-top: 8px;
+    background-color: #a6e22e;
+    color: #121820;
+}
+
+#tracker-status {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+}
+
+.main-content.tracker-expanded #notepad {
+    display: none;
+}
+
+.main-content.tracker-expanded .tracker-box {
+    max-height: none;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 0;
+}
+
+.main-content.tracker-expanded .star-alert-box,
+.main-content.tracker-expanded .custom-words-box {
+    display: none;
+}
+
+.notepad-action-btn.narrative-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.notepad-action-btn.narrative-btn:hover {
+    background-color: #5dade2;
+    color: #121820;
+}
+
+.narrative-box {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.narrative-box.collapsed {
+    display: none;
+}
+
+.narrative-box h3 {
+    margin: 0 0 8px 0;
+    font-size: 1em;
+    color: var(--text-primary);
+    border-left: 3px solid #3498db;
+    padding-left: 8px;
+}
+
+.narrative-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 8px;
+}
+
+.narrative-grid label {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+}
+
+.narrative-grid input,
+.narrative-grid select {
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+.narrative-checks {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 8px;
+    max-height: 115px;
+    overflow-y: auto;
+}
+
+.narrative-checks p {
+    margin: 0 0 6px 0;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+.narrative-checks label {
+    display: block;
+    font-size: 0.82em;
+    margin-bottom: 5px;
+}
+
+.narrative-checks input[type="checkbox"] {
+    width: auto;
+    margin-right: 6px;
+    margin-bottom: 0;
+}
+
+#nb-extra,
+#nb-output {
+    width: calc(100% - 22px);
+    min-height: 70px;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9em;
+    resize: vertical;
+}
+
+#nb-output {
+    min-height: 130px;
+}
+
+.narrative-main-btn,
+.narrative-insert-btn,
+.narrative-clear-btn {
+    width: auto;
+    padding: 8px 12px;
+    margin-top: 8px;
+    margin-right: 6px;
+    font-size: 0.85em;
+}
+
+.narrative-main-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.narrative-insert-btn {
+    background-color: #a6e22e;
+    color: #121820;
+}
+
+.narrative-clear-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.main-content.narrative-expanded #notepad {
+    display: none;
+}
+
+.main-content.narrative-expanded .narrative-box {
+    max-height: none;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 0;
+}
+
+.main-content.narrative-expanded .tracker-box,
+.main-content.narrative-expanded .star-alert-box,
+.main-content.narrative-expanded .custom-words-box {
+    display: none;
+}
+
     </style>
 </head>
 <body>
@@ -503,12 +942,23 @@
                         
                         <span id="csvFileName" style="color: var(--text-secondary); font-size: 0.9em; display: block; margin-bottom: 10px; text-align: center; word-break: break-all;">No file selected.</span>
                         
-                        <select id="phone-format-mode" style="margin-bottom: 10px;">
-  <option value="with0">Search WITH 0 (Local)</option>
-  <option value="no0">Search WITHOUT 0 (NSN only)</option>
+                        <select id="phone-format-mode" class="phone-mode-with0" style="margin-bottom: 10px;">
+  <option value="with0">🟢 Search WITH 0 (Local)</option>
+  <option value="no0">🔵 Search WITHOUT 0 (NSN only)</option>
 </select>
 
 <button id="processCsvBtn" style="width: 100%;">Process & Search Phones</button>
+<button id="oaaPhoneRecentBtn" style="width: 100%; background-color: #9b59b6; color: white;">OAA Phone Check - Recent</button>
+<button id="oaaPhoneTenuredBtn" style="width: 100%; background-color: #8e44ad; color: white;">OAA Phone Check - Tenured</button>
+
+<select id="oaa-evidence-level" style="margin-top: 8px;">
+  <option value="None found">OAA Evidence: None found</option>
+  <option value="Weak signal">OAA Evidence: Weak signal</option>
+  <option value="Possible match">OAA Evidence: Possible match</option>
+  <option value="Strong match">OAA Evidence: Strong match</option>
+</select>
+
+<button id="insert-oaa-evidence-btn" style="width: 100%; background-color: var(--bg-light); color: var(--text-primary);">Insert OAA Evidence Note</button>
                     </div>
                 </div>
 
@@ -546,6 +996,307 @@
                 </div>
 
             </div>
+            <div class="notepad-action-row">
+    <button class="notepad-action-btn mode-btn" onclick="openModePreNotes()">MODE</button>
+    <button class="notepad-action-btn" id="copy-notepad-btn">Copy</button>
+    <button class="notepad-action-btn clear-btn" id="clear-notepad-btn">Clear</button>
+    <button class="notepad-action-btn" id="toggle-star-alerts-btn">STAR Alerts</button>
+    <button class="notepad-action-btn" id="format-notes-btn">Format Notes</button>
+    <button class="notepad-action-btn" id="toggle-custom-words-btn">Custom Words</button>
+    <button class="notepad-action-btn tracker-btn" id="toggle-tracker-btn">Tracker</button>
+    <button class="notepad-action-btn narrative-btn" id="toggle-narrative-btn">Narrative</button>
+</div>
+
+<div class="custom-words-box collapsed" id="custom-words-box">
+    <input type="text" id="custom-word-input" placeholder="Add custom word or phrase...">
+    <button class="notepad-action-btn" id="add-custom-word-btn">Add Word</button>
+    <button class="notepad-action-btn clear-btn" id="clear-custom-words-btn">Clear Custom Words</button>
+    <div id="custom-words-list"></div>
+</div>
+
+<div class="tracker-box collapsed" id="tracker-box">
+    <h3>Case Tracker</h3>
+
+    <input type="text" id="tracker-case-id" placeholder="Case ID / Hummingbird ID / CRM link">
+
+    <div class="tracker-grid">
+        <label>
+            Site
+            <select id="tracker-site">
+                <option value="MNL">MNL</option>
+                <option value="MGA">MGA</option>
+            </select>
+        </label>
+
+        <label>
+            Shift
+            <select id="tracker-shift">
+                <option value="Regular shift">Regular shift</option>
+                <option value="OT">OT</option>
+            </select>
+        </label>
+
+        <label>
+            2026 CSI productivity
+            <select id="tracker-work-type">
+               <option value="Transaction Monitoring" selected>Transaction Monitoring</option>
+               <option value="Gmail Endorsement (EKYCP Endorsement/Follow-up)">Gmail Endorsement</option>
+               <option value="CA to CSI Referral">CA to CSI Referral</option>
+               <option value="CSP Cases">CSP Cases</option>
+               <option value="Allowlist (CSP/Gmail)">Allowlist</option>
+               <option value="AUS CB">AUS CB</option>
+               <option value="CAN CB">CAN CB</option>
+               <option value="EU CB">EU CB</option>
+               <option value="US CB">US CB</option>
+               <option value="SEBPLAC">SEBPLAC</option>
+               <option value="LER">LER</option>
+               <option value="CAN CB QA (use public ID)">CAN CB QA</option>
+               <option value="US CB QA (use public ID)">US CB QA</option>
+              <option value="EDD EU/UAE">EDD EU/UAE</option>
+            </select>
+        </label>
+
+        <label>
+            Productivity Calculator
+            <select id="tracker-mandatory-category">
+              <option value="TM" selected>TM</option>
+              <option value="Allowlist">Allowlist</option>
+              <option value="CA-CSI referral">CA-CSI referral</option>
+              <option value="VN/TA (NLE)/SF/TF">VN/TA (NLE)/SF/TF</option>
+              <option value="">Do not track</option>
+            </select>
+        </label>
+
+        <label>
+            Daves Tracker
+            <select id="tracker-personal-category">
+    <option value="ID" selected>ID</option>
+    <option value="SFE">SFE</option>
+    <option value="CSP">CSP</option>
+    <option value="allowlist">allowlist</option>
+    <option value="TA/VA">TA/VA</option>
+    <option value="CA REF">CA REF</option>
+    <option value="">Do not track</option>
+</select>
+        </label>
+
+        <label>
+            Action Taken
+            <select id="tracker-action-taken">
+    <option value="Pass" selected>Pass</option>
+    <option value="Escalate">Escalate</option>
+    <option value="Suspend">Suspend</option>
+    <option value="Pass with PW or HRF">Pass with PW or HRF</option>
+    <option value="N/A">N/A</option>
+    <option value="EKYC-Pend">EKYC-Pend</option>
+    <option value="EKYC-Failed: OOSLA">EKYC-Failed: OOSLA</option>
+    <option value="EKYC-Failed: KYB process">EKYC-Failed: KYB process</option>
+    <option value="Allowlist: Suspend">Allowlist: Suspend</option>
+    <option value="Allowlist: Reinstated, Keep decline">Allowlist: Reinstated, Keep decline</option>
+    <option value="Allowlist: Reinstated, Removed from decline">Allowlist: Reinstated, Removed from decline</option>
+    <option value="Allowlist: Removed from decline">Allowlist: Removed from decline</option>
+    <option value="Allowlist: Keep decline">Allowlist: Keep decline</option>
+    <option value="Allowlist: Escalated to CA">Allowlist: Escalated to CA</option>
+    <option value="LER: Backlog Completed">LER: Backlog Completed</option>
+    <option value="LER: Backlog Not Found">LER: Backlog Not Found</option>
+    <option value="LER: New, Received and Logged (Gmail)">LER: New, Received and Logged (Gmail)</option>
+    <option value="LER: New, Received and Logged (SF)">LER: New, Received and Logged (SF)</option>
+    <option value="LER: New, Duplicate (Gmail)">LER: New, Duplicate (Gmail)</option>
+    <option value="LER: New, Duplicate (SF)">LER: New, Duplicate (SF)</option>
+</select>
+        </label>
+    </div>
+
+    <div class="tracker-rules-box">
+        <p>Rules Triggered</p>
+
+        <label><input type="checkbox" class="tracker-rule" value="STAR: Money mule"> STAR: Money mule</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: High Transaction Velocity - Last 30d"> STAR: High Transaction Velocity - Last 30d</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: OAA Multi Corridor"> STAR: OAA Multi Corridor</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: Prepaid Cards"> STAR: Prepaid Cards</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: Elder Abuse"> STAR: Elder Abuse</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: OAA TO PHL (USA)"> STAR: OAA TO PHL (USA)</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: OAA TO PHL (CAN)"> STAR: OAA TO PHL (CAN)</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: OAA TO PHL (AUS)"> STAR: OAA TO PHL (AUS)</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: OAA TO PHL (SGP)"> STAR: OAA TO PHL (SGP)</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: OAA TO PHL (Other)"> STAR: OAA TO PHL (Other)</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: OAA TO THA"> STAR: OAA TO THA</label>
+<label><input type="checkbox" class="tracker-rule" value="STAR: Chargeback (For those working on US/CAN/AUS/EU CB filing)"> STAR: Chargeback</label>
+<label><input type="checkbox" class="tracker-rule" value="Internal Escalation (for CSI EDD Outreach)"> Internal Escalation (for CSI EDD Outreach)</label>
+<label><input type="checkbox" class="tracker-rule" value="Follow up, still in pending"> Follow up, still in pending</label>
+<label><input type="checkbox" class="tracker-rule" value="Follow up, still in EKYC failed."> Follow up, still in EKYC failed</label>
+<label><input type="checkbox" class="tracker-rule" value="N/A"> N/A</label>
+    </div>
+
+    <button id="submit-all-trackers-btn" class="tracker-submit-btn">Submit All Trackers</button>
+    <p id="tracker-status"></p>
+</div>
+
+<div class="narrative-box collapsed" id="narrative-box">
+    <h3>Narrative Builder</h3>
+
+    <div class="narrative-grid">
+        <label>
+            Action
+            <select id="nb-action">
+                <option value="Pass">Pass</option>
+                <option value="Pass with HRF">Pass with HRF</option>
+                <option value="Pass with PW">Pass with PW</option>
+                <option value="Pending">Pending</option>
+                <option value="Escalate to STAR">Escalate to STAR</option>
+                <option value="Suspend for platform protection">Suspend for platform protection</option>
+                <option value="EKYC Failed / Escalate to STAR">EKYC Failed / Escalate to STAR</option>
+            </select>
+        </label>
+
+        <label>
+            Main Risk
+            <select id="nb-risk">
+                <option value="No major risk">No major risk</option>
+                <option value="MM">MM</option>
+                <option value="OAA">OAA</option>
+                <option value="SOB / USOF">SOB / USOF</option>
+                <option value="Elder Abuse">Elder Abuse</option>
+                <option value="Prepaid Card">Prepaid Card</option>
+            </select>
+        </label>
+
+        <label>
+            Cx age
+            <input type="text" id="nb-age" placeholder="ex. 54">
+        </label>
+
+        <label>
+            Tenure
+            <input type="text" id="nb-tenure" placeholder="ex. active since Dec 2025">
+        </label>
+
+        <label>
+            6M AVG
+            <input type="text" id="nb-avg" placeholder="ex. 716 USD">
+        </label>
+
+        <label>
+            Latest activity
+            <input type="text" id="nb-latest" placeholder="ex. recent spike in Mar 2026">
+        </label>
+
+        <label>
+            Spike / Pattern
+            <select id="nb-pattern">
+                <option value="stable">Stable / no sustained spike</option>
+                <option value="one-time spike">One-time spike</option>
+                <option value="sustained spike">Sustained spike</option>
+                <option value="high velocity">High velocity</option>
+                <option value="small frequent txns">Small frequent txns</option>
+            </select>
+        </label>
+
+        <label>
+            Rec Pattern
+            <select id="nb-rec-pattern">
+                <option value="family/personal">Family / personal support</option>
+                <option value="own acct">Own acct / self-transfer</option>
+                <option value="limited recs">Limited recs</option>
+                <option value="high rec count">High rec count</option>
+                <option value="mixed recs">Mixed recs</option>
+                <option value="mostly female recs">Mostly female recs</option>
+                <option value="many unrelated recs">Many unrelated recs</option>
+                <option value="shared recs">Shared recs</option>
+                <option value="commercial rec">Commercial rec</option>
+                <option value="unclear">Unclear rec relationship</option>
+            </select>
+        </label>
+
+        <label>
+            SOF / Capacity
+            <select id="nb-sof">
+                <option value="not reviewed">Not reviewed / none on file</option>
+                <option value="supports activity">SOF supports activity</option>
+                <option value="limited support">SOF has limited support</option>
+                <option value="unsupported">SOF not supported</option>
+                <option value="third-party deposits">Third-party deposits seen</option>
+            </select>
+        </label>
+
+        <label>
+            EDD
+            <select id="nb-edd">
+                <option value="none">No EDD on file</option>
+                <option value="supports activity">EDD supports activity</option>
+                <option value="incomplete">EDD incomplete</option>
+                <option value="inconsistent">EDD inconsistent</option>
+            </select>
+        </label>
+    </div>
+
+    <div class="narrative-checks">
+        <p>Signals / concerns</p>
+
+        <label><input type="checkbox" class="nb-signal" value="High rec count noted."> High rec count</label>
+        <label><input type="checkbox" class="nb-signal" value="Multi-corridor activity noted."> Multi-corridor</label>
+        <label><input type="checkbox" class="nb-signal" value="High-frequency activity noted."> High frequency</label>
+        <label><input type="checkbox" class="nb-signal" value="Small frequent txns noted."> Small frequent txns</label>
+        <label><input type="checkbox" class="nb-signal" value="Same-day repeated txns noted."> Same-day repeated txns</label>
+        <label><input type="checkbox" class="nb-signal" value="Late-night txns noted."> Late-night txns</label>
+        <label><input type="checkbox" class="nb-signal" value="Possible SOB/USOF concern remains."> Possible SOB / USOF</label>
+        <label><input type="checkbox" class="nb-signal" value="Possible OAA signal found from reviewed rec details."> Possible OAA signal</label>
+        <label><input type="checkbox" class="nb-signal" value="Linked acct risk noted."> Linked acct risk</label>
+        <label><input type="checkbox" class="nb-signal" value="PP mismatch noted."> PP mismatch</label>
+    </div>
+
+    <div class="narrative-checks">
+        <p>Mitigations</p>
+
+        <label><input type="checkbox" class="nb-mitigation" value="Possible family ties noted."> Family ties</label>
+        <label><input type="checkbox" class="nb-mitigation" value="Own acct/self-transfer indicators noted."> Own acct</label>
+        <label><input type="checkbox" class="nb-mitigation" value="PP/PI info appears consistent."> PP/PI consistent</label>
+        <label><input type="checkbox" class="nb-mitigation" value="Sign-ins match registered sender country."> IP matches sender country</label>
+        <label><input type="checkbox" class="nb-mitigation" value="No dup acct found."> No dup acct</label>
+        <label><input type="checkbox" class="nb-mitigation" value="No links to suspended accts found."> No suspended linked acct</label>
+        <label><input type="checkbox" class="nb-mitigation" value="No negative news found."> No NN found</label>
+        <label><input type="checkbox" class="nb-mitigation" value="No minors involved."> No minors involved</label>
+        <label><input type="checkbox" class="nb-mitigation" value="Valid ID on file."> Valid ID</label>
+    </div>
+
+    <div class="narrative-grid">
+        <label>
+            HRF reason
+            <input type="text" id="nb-hrf-reason" placeholder="ex. high rec count / possible commercial rec">
+        </label>
+
+        <label>
+            PW reason
+            <input type="text" id="nb-pw-reason" placeholder="ex. PP mismatch / policy education">
+        </label>
+    </div>
+
+    <textarea id="nb-extra" placeholder="Extra case details to include if needed..."></textarea>
+
+    <button id="generate-narrative-btn" class="narrative-main-btn">Generate Draft</button>
+    <button id="insert-narrative-btn" class="narrative-insert-btn">Insert to Notepad</button>
+    <button id="clear-narrative-btn" class="narrative-clear-btn">Clear Builder</button>
+
+    <textarea id="nb-output" placeholder="Generated narrative will show here..." readonly></textarea>
+</div>
+
+<div class="star-alert-box collapsed" id="star-alert-box">
+    <div class="star-alert-list">
+        <label><input type="checkbox" class="star-alert" value="STAR: Money mule"> Money mule</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: High Transaction Velocity - Last 30d"> High Txn Velocity - Last 30d</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: Prepaid Cards"> Prepaid Cards</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: Elder Abuse"> Elder Abuse</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: OAA Multi Corridor"> OAA Multi Corridor</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: OAA TO PHL (AUS)"> OAA TO PHL (AUS)</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: OAA TO PHL (CAN)"> OAA TO PHL (CAN)</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: OAA TO PHL (Other)"> OAA TO PHL (Other)</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: OAA TO PHL (SGP)"> OAA TO PHL (SGP)</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: OAA TO PHL (USA)"> OAA TO PHL (USA)</label>
+        <label><input type="checkbox" class="star-alert" value="STAR: OAA TO THA"> OAA TO THA</label>
+    </div>
+
+    <button id="insert-star-alerts-btn">Insert Selected</button>
+</div>
             <div id="notepad" contenteditable="true" placeholder="Start your notes here..."></div>
             
             <div class="floating-widget" id="floating-widget"><span>📄</span></div>
@@ -572,10 +1323,19 @@
             </div>
 
             <div id="scratchpad-panel" class="tab-panel">
-                <h3>Quick Scratchpad</h3>
-                <textarea id="side-scratchpad" class="side-notepad" placeholder="Type quick case notes here..."></textarea>
-                <p style="color: var(--text-secondary); font-size: 0.8em; margin-top: 10px;">Autosaves to your local storage.</p>
-            </div>
+    <h3>Quick Scratchpad</h3>
+
+    <div class="scratchpad-highlight-row">
+        <input type="color" id="scratch-highlight-color" value="#f7b733" title="Pick highlight color">
+        <button class="scratchpad-highlight-btn" id="apply-scratch-highlight-btn">Highlight</button>
+        <button class="scratchpad-highlight-btn" id="clear-scratch-highlight-btn">Clear HL</button>
+    </div>
+
+    <div id="side-scratchpad" class="side-notepad scratchpad-editor" contenteditable="true" placeholder="Type quick case notes here..."></div>
+
+    <p style="color: var(--text-secondary); font-size: 0.8em; margin-top: 10px;">Autosaves to your local storage.</p>
+</div>
+
         </aside>
     </div>
 
@@ -594,1051 +1354,1895 @@
         </div>
     </div>
 
-    <script>
-    // --- RIGHT SIDEBAR TAB LOGIC ---
-    function switchRightTab(tabId) {
-        // Toggle Buttons
-        document.querySelectorAll('.right-tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.innerText.toLowerCase() === tabId) btn.classList.add('active');
-        });
-        // Toggle Panels
-        document.querySelectorAll('.tab-panel').forEach(panel => {
-            panel.classList.remove('active');
-        });
-        document.getElementById(tabId + '-panel').classList.add('active');
+   <script>
+function switchRightTab(tabId) {
+    var buttons = document.querySelectorAll('.right-tab-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+        if (buttons[i].innerText.toLowerCase() === tabId) buttons[i].classList.add('active');
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // --- THEME LOGIC ---
-        const themeSelector = document.getElementById('theme-selector');
-        
-        // 1. Load saved theme
-        const savedTheme = localStorage.getItem('csiHubTheme') || 'default';
-        applyTheme(savedTheme);
-        themeSelector.value = savedTheme;
+    var panels = document.querySelectorAll('.tab-panel');
+    for (var j = 0; j < panels.length; j++) panels[j].classList.remove('active');
 
-        // 2. Listen for changes
-        themeSelector.addEventListener('change', (e) => {
-            const selectedTheme = e.target.value;
-            applyTheme(selectedTheme);
-        });
+    var targetPanel = document.getElementById(tabId + '-panel');
+    if (targetPanel) targetPanel.classList.add('active');
+}
 
-        function applyTheme(themeName) {
-            // Remove old theme classes
-            document.body.classList.remove('theme-light', 'theme-terminal');
-            
-            // Apply new class if not default
-            if (themeName === 'light') {
-                document.body.classList.add('theme-light');
-            } else if (themeName === 'terminal') {
-                document.body.classList.add('theme-terminal');
-            }
-            
-            // Save to storage
-            localStorage.setItem('csiHubTheme', themeName);
-        }
-        
-        
-        // --- Globals ---
-        let templates = JSON.parse(localStorage.getItem('csiHubTemplates')) || [];
-        let editingTemplateIndex = null, currentFontSize = 16, timerInterval, totalSeconds = 0, alertTimeInSeconds = 0, alertTriggered = false;
-        
-        let notepadTabs = [];
-        let activeTabId = null;
-        let savedNotepadRange = null; 
-        
-        // --- Element Selectors ---
-        const appContainer = document.getElementById('app-container');
-        const leftSidebar = document.getElementById('left-sidebar');
-        const rightSidebar = document.getElementById('right-sidebar'); 
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const mobileRightSidebarToggle = document.getElementById('mobile-right-sidebar-toggle'); 
-        
-        const modal = document.getElementById('templates-modal'), listView = document.getElementById('template-list-view'), editView = document.getElementById('template-edit-view'), templateListContainer = document.getElementById('template-list-container');
-        const searchInput = document.getElementById('template-search-input'), editModalTitle = document.getElementById('edit-modal-title'), titleInput = document.getElementById('template-title-input'), contentTextarea = document.getElementById('template-content-textarea');
-        
-        const notepad = document.getElementById('notepad'), personNameInput = document.getElementById('personName'), timerDisplay = document.getElementById('timer-display'), alertTimeInput = document.getElementById('alert-time-input');
-        
-        const notepadTabBar = document.getElementById('notepad-tab-bar');
-        const addNotepadTabBtn = document.getElementById('add-notepad-tab');
+document.addEventListener('DOMContentLoaded', function () {
+    var themeSelector = document.getElementById('theme-selector');
+    var savedTheme = localStorage.getItem('csiHubTheme') || 'default';
+    applyTheme(savedTheme);
+    themeSelector.value = savedTheme;
 
-        // --- Persistent Scratchpad (Relocated to Right Sidebar) ---
-        const sideScratchpad = document.getElementById('side-scratchpad');
-        sideScratchpad.value = localStorage.getItem('csiHubSideNotes') || '';
-        sideScratchpad.addEventListener('input', () => {
-            localStorage.setItem('csiHubSideNotes', sideScratchpad.value);
-        });
+    themeSelector.addEventListener('change', function (e) {
+        applyTheme(e.target.value);
+    });
 
-        // --- Notepad Tab Logic ---
-        function loadNotepadState() {
-            notepadTabs = JSON.parse(localStorage.getItem('csiHubNotepadTabs'));
-            activeTabId = JSON.parse(localStorage.getItem('csiHubActiveTabId'));
-            const oldNotes = localStorage.getItem('csiHubNotepadContent'); 
-
-            if (!notepadTabs && oldNotes) {
-                notepadTabs = [{ id: Date.now(), name: "Note 1", content: oldNotes }];
-                activeTabId = notepadTabs[0].id;
-                localStorage.removeItem('csiHubNotepadContent'); 
-                saveNotepadState(false); 
-            } else if (!notepadTabs || notepadTabs.length === 0) {
-                notepadTabs = [{ id: Date.now(), name: "Note 1", content: "" }];
-                activeTabId = notepadTabs[0].id;
-            }
-
-            if (!activeTabId || !notepadTabs.find(t => t.id === activeTabId)) {
-                activeTabId = notepadTabs[0].id; 
-            }
-            
-            renderTabs();
-            loadTabContent(activeTabId);
-        }
-
-        function saveNotepadState(saveCurrentContent = true) {
-            if (saveCurrentContent) {
-                const activeTab = notepadTabs.find(t => t.id === activeTabId);
-                if (activeTab) {
-                    activeTab.content = notepad.innerHTML;
-                }
-            }
-            localStorage.setItem('csiHubNotepadTabs', JSON.stringify(notepadTabs));
-            localStorage.setItem('csiHubActiveTabId', JSON.stringify(activeTabId));
-        }
-
-        function renderTabs() {
-            while (notepadTabBar.firstChild && notepadTabBar.firstChild !== addNotepadTabBtn) {
-                notepadTabBar.removeChild(notepadTabBar.firstChild);
-            }
-
-            notepadTabs.forEach(tab => {
-                const tabEl = document.createElement('div');
-                tabEl.className = 'notepad-tab';
-                tabEl.dataset.tabId = tab.id;
-                if (tab.id === activeTabId) {
-                    tabEl.classList.add('active');
-                }
-
-                const tabName = document.createElement('span');
-                tabName.className = 'notepad-tab-name';
-                tabName.textContent = tab.name;
-                tabName.contentEditable = false; 
-                tabName.spellcheck = false;
-
-                tabName.addEventListener('dblclick', (e) => {
-                    e.stopPropagation(); 
-                    tabName.contentEditable = true;
-                    tabName.focus();
-                    const range = document.createRange();
-                    range.selectNodeContents(tabName);
-                    const sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                });
-
-                tabName.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault(); 
-                        tabName.blur(); 
-                    }
-                });
-                
-                tabName.addEventListener('blur', () => {
-                    tabName.contentEditable = false; 
-                    const newName = tabName.textContent.trim();
-                    if (newName) {
-                        tab.name = newName;
-                        saveNotepadState(false);
-                    } else {
-                        tabName.textContent = tab.name; 
-                    }
-                });
-
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'notepad-tab-close';
-                closeBtn.innerHTML = '&times;';
-                closeBtn.title = 'Close Tab';
-                closeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
-                    closeTab(tab.id);
-                });
-
-                tabEl.appendChild(tabName);
-                tabEl.appendChild(closeBtn);
-
-                tabEl.addEventListener('click', () => {
-                    if (tabName.contentEditable === true || tabName.contentEditable === "true") return; 
-                    switchTab(tab.id);
-                });
-                
-                notepadTabBar.insertBefore(tabEl, addNotepadTabBtn);
-            });
-        }
-
-        function switchTab(tabId) {
-            if (tabId === activeTabId) return; 
-            saveNotepadState(true);
-            activeTabId = tabId;
-            localStorage.setItem('csiHubActiveTabId', JSON.stringify(activeTabId));
-            loadTabContent(tabId);
-            document.querySelectorAll('.notepad-tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.tabId == tabId);
-            });
-        }
-
-        function loadTabContent(tabId) {
-            const tab = notepadTabs.find(t => t.id === tabId);
-            if (tab) {
-                notepad.innerHTML = tab.content;
-            }
-        }
-
-        function addNewTab() {
-            saveNotepadState(true);
-            const newTab = {
-                id: Date.now(),
-                name: `Note ${notepadTabs.length + 1}`,
-                content: ""
-            };
-            notepadTabs.push(newTab);
-            activeTabId = newTab.id; 
-            saveNotepadState(false); 
-            renderTabs();
-            loadTabContent(activeTabId);
-            notepad.focus();
-        }
-        addNotepadTabBtn.addEventListener('click', addNewTab);
-
-        function closeTab(tabId) {
-            if (notepadTabs.length <= 1) {
-                alert("You cannot close the last note.");
-                return;
-            }
-            if (!confirm("Are you sure you want to close this tab?")) return;
-            notepadTabs = notepadTabs.filter(t => t.id !== tabId);
-            if (activeTabId === tabId) {
-                activeTabId = notepadTabs[0].id;
-            }
-            saveNotepadState(false);
-            renderTabs();
-            loadTabContent(activeTabId);
-        }
-        
-        function saveSelection() {
-            if (window.getSelection().rangeCount > 0) {
-                savedNotepadRange = window.getSelection().getRangeAt(0);
-            }
-        }
-        
-        function restoreSelection() {
-            notepad.focus();
-            if (savedNotepadRange) {
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(savedNotepadRange);
-            }
-        }
-        
-        notepad.addEventListener('blur', saveSelection);
-        notepad.addEventListener('keyup', saveSelection);
-        notepad.addEventListener('mouseup', saveSelection);
-        notepad.addEventListener('input', () => saveNotepadState(true));
-        
-        notepad.addEventListener('copy', (event) => {
-            event.preventDefault();
-            const selection = window.getSelection();
-            const plainText = selection.toString();
-            if (event.clipboardData && event.clipboardData.setData) {
-                event.clipboardData.setData('text/plain', plainText);
-            }
-        });
-
-        notepad.addEventListener('paste', (event) => {
-            event.preventDefault();
-            const text = (event.clipboardData || window.clipboardData).getData('text/plain');
-            restoreSelection(); 
-            document.execCommand('insertText', false, text);
-            notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-        });
-        
-        const startDateInput = document.getElementById('startDate');
-        const floatingWidget = document.getElementById('floating-widget');
-        
-        sidebarToggle.addEventListener('click', (e) => { 
-            e.stopPropagation(); 
-            appContainer.classList.toggle('sidebar-open'); 
-        });
-        
-        mobileRightSidebarToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            appContainer.classList.toggle('right-sidebar-open-mobile');
-        });
-
-        document.addEventListener('click', function(event) {
-            if (!leftSidebar.contains(event.target) && appContainer.classList.contains('sidebar-open') && !sidebarToggle.contains(event.target)) {
-                appContainer.classList.remove('sidebar-open');
-            }
-            if (window.innerWidth <= 1200 && 
-                appContainer.classList.contains('right-sidebar-open-mobile') &&
-                !rightSidebar.contains(event.target) &&
-                !mobileRightSidebarToggle.contains(event.target)) {
-                appContainer.classList.remove('right-sidebar-open-mobile');
-            }
-        });
-
-        floatingWidget.addEventListener('click', () => toggleModal());
-
-        // --- Calculator Logic ---
-        const numberButtons = document.querySelectorAll('[data-number]'), operationButtons = document.querySelectorAll('[data-operation]'), equalsButton = document.querySelector('[data-equals]');
-        const deleteButton = document.querySelector('[data-delete]'), clearButton = document.querySelector('[data-clear]'), display = document.getElementById('calculator-display');
-        let currentOperand = '0', previousOperand = '', operation = undefined;
-        function updateDisplay() {
-            if (operation != null) {
-                // If there is an operator (like +), show the first number, the operator, and the new number
-                display.innerText = `${previousOperand} ${operation} ${currentOperand}`;
-            } else {
-                // If no operator is chosen yet, just show the current number
-                display.innerText = currentOperand;
-            }
-        }
-
-        // --- CALCULATOR PASTE SUPPORT ---
-        const calcDisplay = document.getElementById('calculator-display');
-        
-        calcDisplay.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const text = (e.clipboardData || window.clipboardData).getData('text');
-            
-            // 1. Sanitize: Remove everything that isn't a number or a dot
-            // This handles inputs like "$50,000.00" -> "50000.00"
-            let cleanNum = text.replace(/[^0-9.]/g, '');
-
-            // 2. Validate: simple check to ensure it's not empty and is a valid number
-            if (cleanNum && !isNaN(parseFloat(cleanNum))) {
-                currentOperand = cleanNum;
-                updateDisplay();
-                
-                // Visual feedback flash
-                const originalColor = calcDisplay.style.color;
-                calcDisplay.style.color = 'var(--text-primary)';
-                setTimeout(() => calcDisplay.style.color = originalColor, 150);
-            }
-        });
-        
-        
-        function clear() { currentOperand = '0'; previousOperand = ''; operation = undefined; updateDisplay(); }
-        function deleteDigit() { currentOperand = currentOperand.length <= 1 ? '0' : currentOperand.toString().slice(0, -1); updateDisplay(); }
-        function appendNumber(num) {
-            if (num === '.' && currentOperand.includes('.')) return;
-            
-            // If the display is "0", replace it. Otherwise, add the number to the end.
-            if (currentOperand === '0' && num !== '.') {
-                currentOperand = num.toString();
-            } else {
-                currentOperand = currentOperand.toString() + num.toString();
-            }
-            
-            updateDisplay(); // This ensures the screen updates every time you press a key
-        }
-        
-        
-        function chooseOperation(op) {
-            if (currentOperand === '' && previousOperand === '') return;
-            
-            // If you already have a math problem showing and click a new operator, 
-            // it calculates the first part before moving on.
-            if (previousOperand !== '' && currentOperand !== '0') {
-                compute();
-            }
-            
-            operation = op;
-            previousOperand = currentOperand;
-            currentOperand = '0';
-            
-            // This updates the display to show "100 +" instead of just clearing it
-            display.innerText = `${previousOperand} ${operation}`;
-        }
-        
-        
-        function compute() {
-            let comp;
-            const prev = parseFloat(previousOperand);
-            const curr = parseFloat(currentOperand);
-
-            // If you haven't entered two numbers, don't do anything
-            if (isNaN(prev) || isNaN(curr)) return;
-
-            switch (operation) {
-                case '+': comp = prev + curr; break;
-                case '-': comp = prev - curr; break;
-                case '×': comp = prev * curr; break;
-                case '÷': 
-                    if (curr === 0) {
-                        alert("Cannot divide by zero");
-                        clear();
-                        return;
-                    }
-                    comp = prev / curr; 
-                    break;
-                case '%': comp = prev % curr; break;
-                default: return;
-            }
-
-            // 1. Set the current number to the result
-            currentOperand = comp.toString();
-            // 2. Clear the memory of the previous number and symbol
-            operation = undefined;
-            previousOperand = '';
-            
-            // 3. Update the display to show ONLY the result
-            updateDisplay();
-        }
-        
-        numberButtons.forEach(btn => btn.addEventListener('click', () => appendNumber(btn.innerText)));
-        operationButtons.forEach(btn => btn.addEventListener('click', () => chooseOperation(btn.innerText)));
-        equalsButton.addEventListener('click', compute); clearButton.addEventListener('click', clear); deleteButton.addEventListener('click', deleteDigit);
-        
-        
-        document.addEventListener('keydown', (e) => {
-            
-            // NEW CHECK STARTS HERE
-            const isTyping = e.target.tagName === 'INPUT' || 
-                            e.target.tagName === 'TEXTAREA' || 
-                            e.target.isContentEditable;
-
-            if (isTyping) return; // If typing in a box, stop and don't run the calculator code
-            // NEW CHECK ENDS HERE
-            
-            let key = e.key;
-            let buttonToClick;
-
-            if (key >= '0' && key <= '9') {
-                appendNumber(key);
-                // This looks for the button that has the number you just typed
-                buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === key);
-            }
-            
-            if (key === '.') {
-                appendNumber('.');
-                buttonToClick = Array.from(numberButtons).find(btn => btn.innerText === '.');
-            }
-
-            if (key === '+' || key === '-' || key === '*' || key === '/') {
-                let op = key === '*' ? '×' : key === '/' ? '÷' : key;
-                chooseOperation(op);
-                buttonToClick = Array.from(operationButtons).find(btn => btn.innerText === op);
-            }
-
-            if (key === '=' || key === 'Enter') {
-                e.preventDefault();
-                compute();
-                buttonToClick = equalsButton;
-            }
-
-            if (key === 'Backspace') {
-                deleteDigit();
-                buttonToClick = deleteButton;
-            }
-
-            if (key === 'Escape') {
-                clear();
-                buttonToClick = clearButton;
-            }
-
-            // This part makes the button "glow" for a split second
-            if (buttonToClick) {
-                buttonToClick.style.backgroundColor = 'var(--text-secondary)';
-                setTimeout(() => {
-                    buttonToClick.style.backgroundColor = ''; // Resets it back to normal
-                }, 100);
-            }
-        });
-
-        const researchQueryInput = document.getElementById('research-query'), researchSearchBtn = document.getElementById('research-search-btn');
-        researchSearchBtn.addEventListener('click', () => { const q = researchQueryInput.value; if (q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'); });
-        researchQueryInput.addEventListener('keyup', e => { if (e.key === 'Enter') researchSearchBtn.click(); });
-        
-        // --- Template Modal Logic ---
-        window.toggleModal = () => { modal.style.display === 'flex' ? modal.style.display = 'none' : (switchToListView(), modal.style.display = 'flex'); };
-        function switchToListView() { listView.style.display = 'block'; editView.style.display = 'none'; searchInput.value = ''; renderTemplateList(); }
-        function switchToEditView(idx = null) {
-            listView.style.display = 'none'; editView.style.display = 'block'; editingTemplateIndex = idx;
-            if (idx !== null) { editModalTitle.textContent = 'Edit Template'; const t = templates[idx]; titleInput.value = t.title; contentTextarea.value = t.content; } 
-            else { editModalTitle.textContent = 'Add New Template'; titleInput.value = ''; contentTextarea.value = ''; }
-        }
-        function renderTemplateList(term = '') {
-            templateListContainer.innerHTML = ''; const filtered = templates.filter(t => t.title.toLowerCase().includes(term.toLowerCase()));
-            if (filtered.length === 0 && term === '') templateListContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary);">No templates. Click "+ Add New".</p>`;
-            filtered.forEach(t => {
-                const idx = templates.indexOf(t); const item = document.createElement('div'); item.className = 'template-item';
-                const title = document.createElement('span'); title.className = 'template-item-title'; title.textContent = t.title;
-                
-                title.addEventListener('click', () => {
-                    const content = t.content;
-                    restoreSelection(); 
-                    document.execCommand('insertText', false, content); 
-                    const sel = window.getSelection();
-                    if (sel.rangeCount > 0) {
-                        const range = sel.getRangeAt(0);
-                        const marker = document.createElement("span");
-                        range.insertNode(marker);
-                        marker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        marker.remove();
-                    }
-                    saveSelection(); 
-                    toggleModal();
-                    notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-                });
-                
-                const btn = document.createElement('button'); btn.className = 'template-item-edit-btn'; btn.textContent = 'Edit';
-                btn.addEventListener('click', e => { e.stopPropagation(); switchToEditView(idx); });
-                item.appendChild(title); item.appendChild(btn); templateListContainer.appendChild(item);
-            });
-        }
-        searchInput.addEventListener('input', () => renderTemplateList(searchInput.value));
-        document.getElementById('modal-add-new-btn').addEventListener('click', () => switchToEditView());
-        document.getElementById('cancel-edit-btn').addEventListener('click', switchToListView);
-        modal.addEventListener('click', e => { if (e.target === modal) toggleModal(); });
-        document.getElementById('modal-close-btn-1').addEventListener('click', toggleModal);
-        document.getElementById('modal-close-btn-2').addEventListener('click', toggleModal);
-        document.getElementById('save-template-btn').addEventListener('click', () => {
-            const title = titleInput.value.trim(), content = contentTextarea.value.trim(); if (!title || !content) return alert('Title and content are required.');
-            editingTemplateIndex !== null ? templates[editingTemplateIndex] = { title, content } : templates.push({ title, content });
-            localStorage.setItem('csiHubTemplates', JSON.stringify(templates)); alert('Template saved!'); switchToListView();
-        });
-        
-        let csvFileContent = null; 
-        let currentCsvFileName = null; 
-
-        // ============================
-        // UPDATED: Phone search logic (ALL countries)
-        // ============================
-
-        // Normalizes phone for ALL countries:
-        // - Prefer E.164 when there's a + (keep + and digits)
-        // - Convert leading 00 -> +
-        // - If no +, keep digits only (local/national format)
-        // Convert +<countrycode><national_number> into local format: 0<national_number>
-// Example: +233531116140 -> 0531116140
-// Phone search mode:
-// - with0: return "0" + national number (PH stays 0xxxxxxxxxx)
-// - no0: return national number only, EXCEPT PH remains 0xxxxxxxxxx
-function normalizePhoneForSearch(raw, mode = "with0") {
-    if (!raw) return "";
-
-    let s = String(raw).trim();
-
-    // Remove spaces/dashes/parentheses, keep + if present
-    s = s.replace(/[()\s-]/g, "");
-
-    // Convert leading 00 prefix to +
-    if (s.startsWith("00")) s = "+" + s.slice(2);
-
-    // If starts with +, detect calling code and extract national number
-    if (s.startsWith("+")) {
-        const digits = s.slice(1).replace(/\D/g, "");
-        if (!digits) return "";
-
-        const cc = getCallingCode(digits);
-        if (!cc) {
-            // fallback: no calling code detected -> digits only
-            return digits;
-        }
-
-        const national = digits.slice(cc.length);
-        if (!national) return "";
-
-        // PH exception: always return 0 + national (e.g. +63935... -> 0935...)
-        if (cc === "63") {
-            return national.startsWith("0") ? national : ("0" + national);
-        }
-
-        if (mode === "no0") {
-            // No 0, just national number
-            return national.startsWith("0") ? national.slice(1) : national;
-        }
-
-        // Default: with0
-        return national.startsWith("0") ? national : ("0" + national);
+    function applyTheme(themeName) {
+        document.body.classList.remove('theme-light', 'theme-terminal');
+        if (themeName === 'light') document.body.classList.add('theme-light');
+        if (themeName === 'terminal') document.body.classList.add('theme-terminal');
+        localStorage.setItem('csiHubTheme', themeName);
     }
 
-    // If no +: just digits only
-    return s.replace(/\D/g, "");
-}
+    var templates = JSON.parse(localStorage.getItem('csiHubTemplates')) || [];
+    var editingTemplateIndex = null;
+    var currentFontSize = 16;
+    var timerInterval = null;
+    var totalSeconds = 0;
+    var alertTimeInSeconds = 0;
+    var alertTriggered = false;
+    var notepadTabs = [];
+    var activeTabId = null;
+    var savedNotepadRange = null;
+    var csvFileContent = null;
+    var currentCsvFileName = null;
 
-// Detect country calling code (longest match wins)
-function getCallingCode(digits) {
-    const codes = new Set([
-        "1","7",
-        "20","27","30","31","32","33","34","36","39",
-        "40","41","43","44","45","46","47","48","49",
-        "51","52","53","54","55","56","57","58",
-        "60","61","62","63","64","65","66",
-        "81","82","84","86","90","91","92","93","94","95","98",
-        "212","213","216","218","220","221","222","223","224","225","226","227","228","229",
-        "230","231","232","233","234","235","236","237","238","239",
-        "240","241","242","243","244","245","246","248","249",
-        "250","251","252","253","254","255","256","257","258","260","261","262","263","264","265","266","267","268","269",
-        "290","291","297","298","299",
-        "350","351","352","353","354","355","356","357","358","359",
-        "370","371","372","373","374","375","376","377","378","380","381","382","383","385","386","387","389",
-        "420","421","423",
-        "500","501","502","503","504","505","506","507","508","509",
-        "590","591","592","593","594","595","596","597","598","599",
-        "670","672","673","674","675","676","677","678","679","680","681","682","683","685","686","687","688","689",
-        "690","691","692","850","852","853","855","856","880","886",
-        "960","961","962","963","964","965","966","967","968","970","971","972","973","974","975","976","977","978","979",
-        "992","993","994","995","996","998"
-    ]);
-
-    const c3 = digits.slice(0, 3);
-    if (codes.has(c3)) return c3;
-
-    const c2 = digits.slice(0, 2);
-    if (codes.has(c2)) return c2;
-
-    const c1 = digits.slice(0, 1);
-    if (codes.has(c1)) return c1;
-
-    return null;
-}
-
-        window.performPhoneSearch = (phone) => {
-            const q = (phone || "").toString().trim();
-            if (!q) return;
-            const url = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
-            window.open(url, '_blank');
-        };
-
-        function parseCsvDate(dateStr) {
-            try {
-                const parts = dateStr.split(' '); 
-                const dateParts = parts[0].split('/'); 
-                const month = parseInt(dateParts[0]) - 1; 
-                const day = parseInt(dateParts[1]);
-                const year = parseInt("20" + dateParts[2]); 
-                const timeMatch = parts[1].match(/(\d+):(\d+)(AM|PM)/i);
-                if (!timeMatch) return new Date("invalid"); 
-                let hour = parseInt(timeMatch[1]);
-                const minute = parseInt(timeMatch[2]);
-                const ampm = timeMatch[3].toUpperCase();
-                if (ampm === "PM" && hour < 12) hour += 12; 
-                else if (ampm === "AM" && hour === 12) hour = 0; 
-                return new Date(year, month, day, hour, minute);
-            } catch (e) {
-                console.error("Could not parse date:", dateStr, e);
-                return new Date("invalid"); 
-            }
-        }
-        
-        function processCSV(content, fileName) {
-            if (content.charCodeAt(0) === 0xFEFF) content = content.substring(1);
-            const lines = content.replace(/\r/g, "").split('\n'); 
-            if (lines.length < 2) { alert('CSV is empty or has no data rows.'); return; }
-            const phoneColName = 'Receiver Phone'; 
-            const dateColName = 'Submitted On';   
-            const delimiterRegex = /[;,](?=(?:(?:[^"]*"){2})*[^"]*$)/; 
-            const headerLine = lines.shift();
-            const header = headerLine.split(delimiterRegex).map(h => h.trim().replace(/"/g, ''));
-            const phoneColIndex = header.findIndex(h => h.toLowerCase() === phoneColName.toLowerCase());
-            const dateColIndex = header.findIndex(h => h.toLowerCase() === dateColName.toLowerCase());
-
-            if (phoneColIndex === -1 || dateColIndex === -1) {
-                alert(`Error: Could not find required headers.`);
-                return;
-            }
-
-            const dateMatch = fileName.match(/(\d{4}-\d{2}-\d{2})/);
-            let currentDateForFilter = dateMatch ? new Date(dateMatch[1] + 'T23:59:59') : new Date();
-            const sixMonthsAgo = new Date(currentDateForFilter);
-            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-            
-            let uniquePhones = new Set(); 
-
-            lines.forEach(line => {
-                if (!line.trim()) return; 
-                const cells = line.split(delimiterRegex);
-                if (cells.length > Math.max(phoneColIndex, dateColIndex)) {
-                    const dateStr = cells[dateColIndex] ? cells[dateColIndex].trim().replace(/"/g, '') : '';
-                    let phone = cells[phoneColIndex] ? cells[phoneColIndex].trim().replace(/"/g, '') : '';
-                    const entryDate = parseCsvDate(dateStr);
-
-                    if (!isNaN(entryDate.getTime()) && entryDate >= sixMonthsAgo && entryDate <= currentDateForFilter) {
-                        // UPDATED: apply same normalization for ALL countries
-                        const mode = (document.getElementById('phone-format-mode')?.value || 'with0');
-                        phone = normalizePhoneForSearch(phone, mode);
-                        if (phone) uniquePhones.add(phone);
-                    }
-                }
-            });
-
-            uniquePhones.forEach(phone => performPhoneSearch(phone));
-
-            if (uniquePhones.size === 0) alert('No unique phones found within last 6 months.');
-        }
-        
-        window.performAllSearches = () => {
-            const n = personNameInput.value; 
-            if (!n) { alert("Please enter a name or phone number first."); return; }
-            performNegativeNewsSearch(); performOffenderSearch(); performSocialMediaSearch(); performBusinessSearch();
-        };
-
-        window.performNegativeNewsSearch = () => { const n = personNameInput.value; if (n) window.open(`https://www.google.com/search?q="${encodeURIComponent(n)}" AND (bribery OR fraud OR "money laundering" OR crime OR terrorism OR corruption OR "sex offender" OR "child exploitation")`, "_blank"); };
-        window.performOffenderSearch = () => { const n = personNameInput.value; if (!n) return; const p = n.split(' '), f = p[0], l = p.length > 1 ? p[p.length - 1] : ''; window.open(`https://www.nsopw.gov/en/search/results?firstName=${encodeURIComponent(f)}&lastName=${encodeURIComponent(l)}`, "_blank"); };
-        
-        window.performSocialMediaSearch = () => { 
-    const n = personNameInput.value; 
-    if (!n) return; 
-    const en = encodeURIComponent(n); 
+    var appContainer = document.getElementById('app-container');
+    var leftSidebar = document.getElementById('left-sidebar');
+    var rightSidebar = document.getElementById('right-sidebar');
+    var sidebarToggle = document.getElementById('sidebar-toggle');
+    var mobileRightSidebarToggle = document.getElementById('mobile-right-sidebar-toggle');
+    var modal = document.getElementById('templates-modal');
+    var listView = document.getElementById('template-list-view');
+    var editView = document.getElementById('template-edit-view');
+    var templateListContainer = document.getElementById('template-list-container');
+    var searchInput = document.getElementById('template-search-input');
+    var editModalTitle = document.getElementById('edit-modal-title');
+    var titleInput = document.getElementById('template-title-input');
+    var contentTextarea = document.getElementById('template-content-textarea');
+    var notepad = document.getElementById('notepad');
+    var personNameInput = document.getElementById('personName');
+    var timerDisplay = document.getElementById('timer-display');
+    var alertTimeInput = document.getElementById('alert-time-input');
+    var notepadTabBar = document.getElementById('notepad-tab-bar');
+    var addNotepadTabBtn = document.getElementById('add-notepad-tab');
+    var sideScratchpad = document.getElementById('side-scratchpad');
+    var startDateInput = document.getElementById('startDate');
+    var floatingWidget = document.getElementById('floating-widget');
+    var suggestionBox = document.getElementById('suggestion-box');
     
-    const urls = [
-        `https://www.facebook.com/search/top/?q=${en}`, 
-        `https://www.linkedin.com/search/results/all/?keywords=${en}`, 
-        `https://twitter.com/search?q=${en}`, 
-        `https://www.instagram.com/explore/search/keyword/?q=${en}`,
-        `https://www.youtube.com/results?search_query=${en}`,
-        `https://www.tiktok.com/search?q=${en}` // ✅ TikTok added
-    ];
+    var copyNotepadBtn = document.getElementById('copy-notepad-btn');
+var clearNotepadBtn = document.getElementById('clear-notepad-btn');
+var toggleStarAlertsBtn = document.getElementById('toggle-star-alerts-btn');
+var starAlertBox = document.getElementById('star-alert-box');
+var insertStarAlertsBtn = document.getElementById('insert-star-alerts-btn');
 
-    urls.forEach(u => window.open(u, "_blank")); 
-};
-        
-       window.performBusinessSearch = () => { 
-    const n = personNameInput.value; 
-    if (!n) return; 
-    const en = encodeURIComponent(n);
+var formatNotesBtn = document.getElementById('format-notes-btn');
+var phoneFormatMode = document.getElementById('phone-format-mode');
 
-    const region = (document.getElementById('business-region')?.value || 'all').toLowerCase();
+var toggleCustomWordsBtn = document.getElementById('toggle-custom-words-btn');
+var customWordsBox = document.getElementById('custom-words-box');
+var customWordInput = document.getElementById('custom-word-input');
+var addCustomWordBtn = document.getElementById('add-custom-word-btn');
+var clearCustomWordsBtn = document.getElementById('clear-custom-words-btn');
+var customWordsList = document.getElementById('custom-words-list');
+var customWords = JSON.parse(localStorage.getItem('csiHubCustomWords')) || [];
 
-    const urlsByRegion = {
-        // --- GLOBAL / US ---
-        us: [
-            `https://opencorporates.com/officers?q=${en}`,
-            `https://www.sec.gov/edgar/search/#/q=${en}`,
-            `https://littlesis.org/search?q=${en}`
-        ],
+var toggleTrackerBtn = document.getElementById('toggle-tracker-btn');
+var trackerBox = document.getElementById('tracker-box');
+var submitAllTrackersBtn = document.getElementById('submit-all-trackers-btn');
+var trackerStatus = document.getElementById('tracker-status');
 
-        // --- CANADA ---
-        can: [
-            `https://ised-isde.canada.ca/cbr-rec/en/search/results?search=${en}`,
-            `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpSrch.html`
-        ],
+var toggleNarrativeBtn = document.getElementById('toggle-narrative-btn');
+var narrativeBox = document.getElementById('narrative-box');
+var generateNarrativeBtn = document.getElementById('generate-narrative-btn');
+var insertNarrativeBtn = document.getElementById('insert-narrative-btn');
+var clearNarrativeBtn = document.getElementById('clear-narrative-btn');
+var nbOutput = document.getElementById('nb-output');
 
-        // --- AUSTRALIA ---
-        aus: [
-            `https://abr.business.gov.au/Search/Results?SearchText=${en}`,
-            `https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx?searchText=${en}&searchType=OrgAndBusNames`,
-            `https://opencorporates.com/companies/au?q=${en}`
-        ],
+var trackerAllowed = false;
 
-        // --- UK ---
-        uk: [
-            `https://find-and-update.company-information.service.gov.uk/search?q=${en}`
-        ],
+function lockTrackerForUser(message) {
+    trackerAllowed = false;
 
-        // --- EU / EUROPE (general) ---
-        eu: [
-            `https://www.northdata.com/${en}`
-        ]
-    };
-
-    // Build the final list based on region selection
-    let urls = [];
-
-    if (region === 'all') {
-        // Combine all regions (dedupe)
-        const combined = [
-            ...urlsByRegion.us,
-            ...urlsByRegion.can,
-            ...urlsByRegion.aus,
-            ...urlsByRegion.uk,
-            ...urlsByRegion.eu
-        ];
-        urls = Array.from(new Set(combined));
-    } else {
-        urls = urlsByRegion[region] || [];
+    if (toggleTrackerBtn) {
+        toggleTrackerBtn.disabled = true;
+        toggleTrackerBtn.textContent = 'Tracker Locked';
+        toggleTrackerBtn.title = message || 'Tracker is disabled for this user.';
+        toggleTrackerBtn.style.opacity = '0.5';
+        toggleTrackerBtn.style.cursor = 'not-allowed';
     }
 
-    if (urls.length === 0) {
-        alert("No URLs configured for that region.");
+    if (trackerBox) {
+        trackerBox.classList.add('collapsed');
+    }
+}
+
+function unlockTrackerForUser() {
+    trackerAllowed = true;
+
+    if (toggleTrackerBtn) {
+        toggleTrackerBtn.disabled = false;
+        toggleTrackerBtn.textContent = 'Tracker';
+        toggleTrackerBtn.title = 'Open tracker';
+        toggleTrackerBtn.style.opacity = '1';
+        toggleTrackerBtn.style.cursor = 'pointer';
+    }
+}
+
+if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+        .withSuccessHandler(function (access) {
+            if (access && access.allowed) {
+                unlockTrackerForUser();
+            } else {
+                lockTrackerForUser('Tracker is only enabled for Dave.');
+            }
+        })
+        .withFailureHandler(function () {
+            lockTrackerForUser('Tracker access check failed.');
+        })
+        .getTrackerAccess();
+} else {
+    lockTrackerForUser('Tracker only works inside Google Apps Script.');
+}
+
+function saveCustomWords() {
+    localStorage.setItem('csiHubCustomWords', JSON.stringify(customWords));
+}
+
+function updateDictionaryWithCustomWords() {
+    customWords.forEach(function (word) {
+        if (dictionary.indexOf(word) === -1) {
+            dictionary.push(word);
+        }
+    });
+}
+
+function renderCustomWords() {
+    customWordsList.innerHTML = '';
+
+    if (customWords.length === 0) {
+        customWordsList.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.85em;">No custom words yet.</span>';
         return;
     }
 
-    urls.forEach(u => window.open(u, "_blank")); 
-};
-        
-        window.calculateMonthlyIncome = () => {
-            const i = document.getElementById('annualIncome').value, r = document.getElementById('monthlyIncomeResult'); if (!i.trim()) return r.innerText = '';
-            let ci = i.toLowerCase().replace(/,/g, "").replace(/per annum|per year|\/yr|\/year/g, "");
-            const cm = ci.match(/(us\$|usd|\$|£|€)/), cs = cm ? cm[0].toUpperCase().replace("USD", "$") : "";
-            if (cs) ci = ci.replace(cs.toLowerCase(), ""); const nm = ci.match(/\d+(\.\d+)?(k|m)?/g) || []; if (nm.length === 0) return r.innerText = "Invalid format.";
-            const av = nm.map(n => { let v = parseFloat(n); if (n.endsWith('k')) v *= 1000; if (n.endsWith('m')) v *= 1000000; return v; });
-            const tm = v => (v / 12).toLocaleString('en-US', { style: 'decimal', maximumFractionDigits: 0 });
-            r.innerText = av.length === 1 ? `~ ${cs}${tm(av[0])}/month` : `~ ${cs}${tm(av[0])} - ${cs}${tm(av[1])}/month`;
-        };
-        
-        function calculateFutureDate() {
-            const dateVal = startDateInput.value;
-            if (dateVal) { const d = new Date(dateVal); d.setDate(d.getDate() + 30); document.getElementById('futureDateResult').innerText = `End Date: ${d.toLocaleDateString()}`; } 
-            else { document.getElementById('futureDateResult').innerText = 'Result will show here...'; }
-        };
-        startDateInput.addEventListener('change', calculateFutureDate);
-        
-        window.adjustFontSize = amount => { currentFontSize += amount; if (currentFontSize < 10) currentFontSize = 10; if (currentFontSize > 32) currentFontSize = 32; notepad.style.fontSize = `${currentFontSize}px`; };
-
-        window.applyHighlight = (color) => {
-            restoreSelection(); 
-            const colorToApply = (color === 'clear') ? 'transparent' : color;
-            document.execCommand('hiliteColor', false, colorToApply);
-            notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-            saveSelection(); 
-        };
-
-        window.startTimer = () => {
-            if (timerInterval) return; const am = parseInt(alertTimeInput.value, 10);
-            alertTimeInSeconds = am > 0 ? am * 60 : 0; alertTriggered = false;
-            timerInterval = setInterval(() => {
-                totalSeconds++; let h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0'), m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0'), s = (totalSeconds % 60).toString().padStart(2, '0');
-                timerDisplay.innerHTML = `${h}:${m}:${s}`;
-                if (!alertTriggered && alertTimeInSeconds > 0 && totalSeconds >= alertTimeInSeconds) { alert(`Alert: ${am} minutes have passed!`); alertTriggered = true; }
-            }, 1000);
-        };
-        window.pauseTimer = () => { clearInterval(timerInterval); timerInterval = null; };
-        window.resetTimer = () => { clearInterval(timerInterval); timerInterval = null; totalSeconds = 0; timerDisplay.innerHTML = "00:00:00"; alertTimeInSeconds = 0; alertTriggered = false; };
-        
-        const csvFileInput = document.getElementById('csvFileInput');
-        const csvFileNameSpan = document.getElementById('csvFileName');
-        const processCsvBtn = document.getElementById('processCsvBtn');
-
-        csvFileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    csvFileContent = e.target.result;
-                    currentCsvFileName = file.name; 
-                    csvFileNameSpan.textContent = file.name;
-                    csvFileNameSpan.style.color = 'var(--text-primary)';
-                };
-                reader.onerror = () => {
-                    alert('Error reading file.');
-                    csvFileContent = null;
-                    currentCsvFileName = null;
-                    csvFileNameSpan.textContent = 'Error reading file.';
-                    csvFileNameSpan.style.color = '#e74c3c'; 
-                };
-                reader.readAsText(file);
-            } else {
-                csvFileContent = null;
-                currentCsvFileName = null;
-                csvFileNameSpan.textContent = 'No file selected.';
-                csvFileNameSpan.style.color = 'var(--text-secondary)';
-            }
+    customWords.forEach(function (word, index) {
+        var chip = document.createElement('span');
+        chip.className = 'custom-word-chip';
+        chip.textContent = word;
+        chip.title = 'Click to remove';
+        chip.addEventListener('click', function () {
+            customWords.splice(index, 1);
+            saveCustomWords();
+            rebuildDictionary();
+            renderCustomWords();
         });
 
-        processCsvBtn.addEventListener('click', () => {
-            if (!csvFileContent) { alert('Please upload a CSV file.'); return; }
-            try { processCSV(csvFileContent, currentCsvFileName); } 
-            catch (error) { alert('Error processing CSV: ' + error.message); console.error(error); }
-        });
-        
-       // --- WRITE HELPER (AUTOCOMPLETE) LOGIC ---
-    
-    // 1. CONFIGURATION (Your Updated Dictionary)
-    const dictionary = [
-        // core review terms
-        "suspension", "txn", "txns", "rec", "recs","customer",
-        "susp", "suspended acct", "linked accts", "dup acct",
-        "OAA", "MM", "HRF", "policy watch", "platform misuse", "not sustained", "Facebook", "LinkedIn", "Instagram", "social media",
-        "mismatch", "PP name mismatch", "top recipient", "mixed male and female", "Could not locate the customer or the recipient(s) on social media or a general internet search that could help mitigate or collaborate with the investigation.", "not sustained", 
-        "Unlikely", "familial sending","no links to any suspended acct", "unlikely", "Young cx", "Young adult cx", "Adult cx", "Elderly cx",
-        "[Action]", "[Action] Pass - ", "[Action] Pending - ", "[Action] Escalate to STAR - ", "[Action] EKYC FAILED - ",
-        
-        // behavior & pattern
-        "spike", "one-time spike", "sustained activity",
-        "small frequent txns", "save and send",
-        "sending pattern", "time pattern", "late-night txns",
-        "early-morning txns", "high rec count", "recipient spread",
-        
-        // volume & capacity
-        "m/avg", "6M avg", "low avg sending",
-        "capacity", "sustainable sending", "one corridor",
-        "multi-corridor", "OTT", "high frequency", "velocity", 
-        
-        // risk indicators
-        "OAA signals", "network risk", "shared rec",
-        "heavily shared rec", "historical OAA links",
-        "commercial rec", "personal use",
-        "possible SOB", "sending for others",
-        "elder abuse", "romance scam", "manipulation risk",
-        
-        // account & access
-        "PI", "PP", "consistent PP info",
-        "IP", "sign-ins", "sender country match",
-        "no rec country logins", "hosting IP", "cellular IP",
-        
-        // controls & review flow
-        "SOF", "EDD", "CQ", "BS",
-        "EKYC", "KYB", "HRF tag",
-        "escalate to STAR", "final assessment",
-        "platform protection", "policy decision",
-        
-        // outcomes & notes
-        "pass", "suspend", "escalate",
-        "no NN found", "no risky links",
-        "mitigating factors", "risk outweighs mitigation",
-        "educate cx", "commercial disclaimer",
-        "remove recs", "monitoring only",
-        
-        // common narrative phrases
-        "none on file",
-        "none found"
+        customWordsList.appendChild(chip);
+    });
+}
+
+function rebuildDictionary() {
+    dictionary = baseDictionary.slice();
+
+    customWords.forEach(function (word) {
+        if (dictionary.indexOf(word) === -1) {
+            dictionary.push(word);
+        }
+    });
+}
+
+toggleCustomWordsBtn.addEventListener('click', function () {
+    customWordsBox.classList.toggle('collapsed');
+    renderCustomWords();
+});
+
+addCustomWordBtn.addEventListener('click', function () {
+    var word = customWordInput.value.trim();
+
+    if (!word) return;
+
+    if (customWords.indexOf(word) === -1) {
+        customWords.push(word);
+        saveCustomWords();
+        rebuildDictionary();
+        renderCustomWords();
+    }
+
+    customWordInput.value = '';
+    customWordInput.focus();
+});
+
+customWordInput.addEventListener('keyup', function (e) {
+    if (e.key === 'Enter') {
+        addCustomWordBtn.click();
+    }
+});
+
+clearCustomWordsBtn.addEventListener('click', function () {
+    if (customWords.length === 0) return;
+    if (!confirm('Clear all custom words?')) return;
+
+    customWords = [];
+    saveCustomWords();
+    rebuildDictionary();
+    renderCustomWords();
+});
+
+if (toggleTrackerBtn && trackerBox) {
+    toggleTrackerBtn.addEventListener('click', function () {
+        if (!trackerAllowed) {
+            alert('Tracker is disabled for this user.');
+            return;
+        }
+
+        var mainContent = document.querySelector('.main-content');
+
+        trackerBox.classList.toggle('collapsed');
+
+        if (!trackerBox.classList.contains('collapsed')) {
+    mainContent.classList.add('tracker-expanded');
+    mainContent.classList.remove('narrative-expanded');
+
+    if (narrativeBox) narrativeBox.classList.add('collapsed');
+    if (toggleNarrativeBtn) toggleNarrativeBtn.textContent = 'Narrative';
+
+    toggleTrackerBtn.textContent = 'Close Tracker';
+        } else {
+            mainContent.classList.remove('tracker-expanded');
+            toggleTrackerBtn.textContent = 'Tracker';
+        }
+    });
+}
+
+if (toggleNarrativeBtn && narrativeBox) {
+    toggleNarrativeBtn.addEventListener('click', function () {
+        var mainContent = document.querySelector('.main-content');
+
+        narrativeBox.classList.toggle('collapsed');
+
+        if (!narrativeBox.classList.contains('collapsed')) {
+            mainContent.classList.add('narrative-expanded');
+            mainContent.classList.remove('tracker-expanded');
+
+            if (trackerBox) trackerBox.classList.add('collapsed');
+            if (toggleTrackerBtn) toggleTrackerBtn.textContent = 'Tracker';
+
+            toggleNarrativeBtn.textContent = 'Close Narrative';
+        } else {
+            mainContent.classList.remove('narrative-expanded');
+            toggleNarrativeBtn.textContent = 'Narrative';
+        }
+    });
+}
+
+if (generateNarrativeBtn) {
+    generateNarrativeBtn.addEventListener('click', function () {
+        nbOutput.value = buildNarrativeDraft();
+    });
+}
+
+if (insertNarrativeBtn) {
+    insertNarrativeBtn.addEventListener('click', function () {
+        var text = nbOutput.value.trim();
+
+        if (!text) {
+            alert('Generate a narrative first.');
+            return;
+        }
+
+        insertNarrativeToNotepad(text);
+    });
+}
+
+if (clearNarrativeBtn) {
+    clearNarrativeBtn.addEventListener('click', function () {
+        clearNarrativeBuilder();
+    });
+}
+
+function nbVal(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+}
+
+function nbChecked(className) {
+    var values = [];
+    var boxes = document.querySelectorAll('.' + className + ':checked');
+
+    boxes.forEach(function (box) {
+        values.push(box.value);
+    });
+
+    return values;
+}
+
+function buildNarrativeDraft() {
+    var action = nbVal('nb-action') || 'Pass';
+    var risk = nbVal('nb-risk') || 'No major risk';
+    var age = nbVal('nb-age');
+    var tenure = nbVal('nb-tenure');
+    var avg = nbVal('nb-avg');
+    var latest = nbVal('nb-latest');
+    var pattern = nbVal('nb-pattern');
+    var recPattern = nbVal('nb-rec-pattern');
+    var sof = nbVal('nb-sof');
+    var edd = nbVal('nb-edd');
+    var hrfReason = nbVal('nb-hrf-reason');
+    var pwReason = nbVal('nb-pw-reason');
+    var extra = nbVal('nb-extra');
+
+    var signals = nbChecked('nb-signal');
+    var mitigations = nbChecked('nb-mitigation');
+
+    var paragraphs = [];
+
+    paragraphs.push('[Action] ' + action);
+
+    var p1 = '';
+
+    if (age || tenure || avg) {
+        p1 += 'Cx is ';
+        var parts = [];
+
+        if (age) parts.push(age + 'yo');
+        if (tenure) parts.push(tenure);
+        if (avg) parts.push('with ' + avg + ' 6M AVG');
+
+        p1 += parts.join(', ') + '. ';
+    } else {
+        p1 += 'Cx activity was reviewed. ';
+    }
+
+    if (latest) {
+        p1 += 'Latest activity shows ' + latest + '. ';
+    }
+
+    if (pattern === 'stable') {
+        p1 += 'Activity appears stable overall with no sustained spike. ';
+    } else if (pattern === 'one-time spike') {
+        p1 += 'Spike appears one-time only and was not sustained. ';
+    } else if (pattern === 'sustained spike') {
+        p1 += 'Activity shows sustained elevated volume. ';
+    } else if (pattern === 'high velocity') {
+        p1 += 'Recent activity shows high velocity. ';
+    } else if (pattern === 'small frequent txns') {
+        p1 += 'Pattern shows small frequent txns. ';
+    }
+
+    paragraphs.push(cleanSentence(p1));
+
+    var p2 = '';
+
+    if (risk === 'MM') {
+        p2 += 'MM concern was reviewed based on activity pattern, rec spread, and linked acct findings. ';
+    } else if (risk === 'OAA') {
+        p2 += 'OAA concern was reviewed based on rec profile, phone search results, and txn pattern. ';
+    } else if (risk === 'SOB / USOF') {
+        p2 += 'SOB/USOF concern was reviewed based on SOF, funding pattern, and possible third-party deposits. ';
+    } else if (risk === 'Elder Abuse') {
+        p2 += 'Elder abuse concern was reviewed based on cx profile, rec relationship, and scam indicators. ';
+    } else if (risk === 'Prepaid Card') {
+        p2 += 'Prepaid card risk was reviewed based on PI use and txn pattern. ';
+    } else {
+        p2 += 'No major risk signal was identified from the reviewed activity. ';
+    }
+
+    if (recPattern === 'family/personal') {
+        p2 += 'Sending appears more consistent with family/personal support. ';
+    } else if (recPattern === 'own acct') {
+        p2 += 'Sending includes own acct/self-transfer indicators. ';
+    } else if (recPattern === 'limited recs') {
+        p2 += 'Sending is limited to a small rec set with no wide/random dispersion noted. ';
+    } else if (recPattern === 'high rec count') {
+        p2 += 'High rec count noted. ';
+    } else if (recPattern === 'mixed recs') {
+        p2 += 'Mixed rec pattern noted. ';
+    } else if (recPattern === 'mostly female recs') {
+        p2 += 'Mostly female rec pattern noted. ';
+    } else if (recPattern === 'many unrelated recs') {
+        p2 += 'Many unrelated recs noted with no clear family ties. ';
+    } else if (recPattern === 'shared recs') {
+        p2 += 'Shared rec activity noted. ';
+    } else if (recPattern === 'commercial rec') {
+        p2 += 'Possible commercial rec activity noted. ';
+    } else if (recPattern === 'unclear') {
+        p2 += 'Rec relationship remains unclear. ';
+    }
+
+    if (signals.length) {
+        p2 += signals.join(' ');
+    }
+
+    paragraphs.push(cleanSentence(p2));
+
+    var p3 = '';
+
+    if (sof === 'supports activity') {
+        p3 += 'SOF/capacity appears to support the current activity. ';
+    } else if (sof === 'limited support') {
+        p3 += 'SOF has limited support and does not fully mitigate the activity. ';
+    } else if (sof === 'unsupported') {
+        p3 += 'SOF is not supported. ';
+    } else if (sof === 'third-party deposits') {
+        p3 += 'Third-party deposits create possible SOB/USOF concern. ';
+    } else {
+        p3 += 'No SOF docs on file. ';
+    }
+
+    if (edd === 'supports activity') {
+        p3 += 'EDD supports the stated activity. ';
+    } else if (edd === 'incomplete') {
+        p3 += 'EDD remains incomplete. ';
+    } else if (edd === 'inconsistent') {
+        p3 += 'EDD is inconsistent with the reviewed activity. ';
+    }
+
+    if (mitigations.length) {
+        p3 += mitigations.join(' ');
+    }
+
+    if (action === 'Pass with HRF') {
+        p3 += 'HRF added due to ' + (hrfReason || 'remaining monitoring concern') + '. ';
+    }
+
+    if (action === 'Pass with PW') {
+        p3 += 'PW added due to ' + (pwReason || 'policy education need') + '. ';
+    }
+
+    paragraphs.push(cleanSentence(p3));
+
+    if (extra) {
+        paragraphs.push(extra);
+    }
+
+    var conclusion = buildConclusion(action, risk);
+    if (conclusion) {
+        paragraphs.push(conclusion);
+    }
+
+    if (action === 'Pending') {
+        paragraphs.push(buildPendingRequest());
+    }
+
+    return paragraphs.filter(function (p) {
+        return p && p.trim();
+    }).join('\n\n');
+}
+
+function buildConclusion(action, risk) {
+    if (action === 'Pass') {
+        if (risk === 'MM') {
+            return 'Overall activity aligns more with normal personal/family support use, not MM.';
+        }
+
+        if (risk === 'OAA') {
+            return 'Overall OAA concern is not supported enough for action based on the reviewed info.';
+        }
+
+        return 'Overall activity appears reasonable based on reviewed info and available mitigation.';
+    }
+
+    if (action === 'Pass with HRF') {
+        return 'Acct can pass at this time, but HRF is added for monitoring due to remaining concern.';
+    }
+
+    if (action === 'Pass with PW') {
+        return 'Acct can pass at this time, but PW is added for policy education.';
+    }
+
+    if (action === 'Escalate to STAR') {
+        return 'Risk remains unresolved and outweighs current mitigation. Escalate to STAR for further review.';
+    }
+
+    if (action === 'Suspend for platform protection') {
+        if (risk === 'OAA') {
+            return 'Overall suspension is supported due to strong OAA indicators and platform protection risk.';
+        }
+
+        return 'Overall suspension is supported due to unresolved risk and platform protection concern.';
+    }
+
+    if (action === 'EKYC Failed / Escalate to STAR') {
+        return 'Move to EKYC Failed and escalate to STAR due to unresolved risk and incomplete mitigation.';
+    }
+
+    if (action === 'Pending') {
+        return 'Case remains pending because key info is still needed before final decision.';
+    }
+
+    return '';
+}
+
+function buildPendingRequest() {
+    return 'CSI request:\n\n' +
+        'CSI -\n' +
+        'THIS CUSTOMER IS UNDER STAR REVIEW. PLEASE DO NOT MOVE ACCOUNT TO KYC PASS\n\n' +
+        'What we need from the customer:\n\n' +
+        '1. EDD\n' +
+        'What is your current job or occupation?\n' +
+        'Who is your current employer?\n' +
+        'Please tell us where you get the money you use for your Remitly transfers.\n' +
+        'Aside from your salary or regular income, do you receive funds from friends, family, or other people and use those funds for Remitly transfers?\n\n' +
+        '2. Relationship to rec(s) and reason for sending\n' +
+        'Please clarify relationship to rec(s) and reason for sending.\n\n' +
+        '3. SOF - Request complete relevant BS related to PP used for the txns.\n\n' +
+        'Please clarify any large non-payroll deposits or minor recurring deposits from unknown sources on the BS. Please try to collect supporting docs for large relevant deposits when applicable.\n\n' +
+        'DO NOT APPROVE any pending txn or move the acct back to KYC Pass until the Compliance Team completes review.\n\n' +
+        'Both conditions must be met before approval:\n' +
+        '- Complete info from cx\n' +
+        '- No red flags remain\n\n' +
+        'Once completed, endorse case via CSP.';
+}
+
+function cleanSentence(text) {
+    return String(text || '')
+        .replace(/\s+/g, ' ')
+        .replace(/\s+\./g, '.')
+        .trim();
+}
+
+function insertNarrativeToNotepad(text) {
+    if (!text) return;
+
+    if (typeof appendPlainTextToNotepad === 'function') {
+        appendPlainTextToNotepad(text);
+        return;
+    }
+
+    if (notepad.innerText.trim()) {
+        notepad.appendChild(document.createElement('br'));
+        notepad.appendChild(document.createElement('br'));
+    }
+
+    text.split('\n').forEach(function (line, index) {
+        if (index > 0) notepad.appendChild(document.createElement('br'));
+        notepad.appendChild(document.createTextNode(line));
+    });
+
+    notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+    saveNotepadState(true);
+}
+
+function clearNarrativeBuilder() {
+    var idsToClear = [
+        'nb-age',
+        'nb-tenure',
+        'nb-avg',
+        'nb-latest',
+        'nb-hrf-reason',
+        'nb-pw-reason',
+        'nb-extra',
+        'nb-output'
     ];
 
-    const suggestionBox = document.getElementById('suggestion-box');
-    let currentMatches = [];
-    let selectedIndex = 0;
+    idsToClear.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
 
-    function getCaretCoordinates() {
-        let x = 0, y = 0;
-        const sel = window.getSelection();
-        if (sel.rangeCount) {
-            const range = sel.getRangeAt(0).cloneRange();
-            range.collapse(true);
-            const rect = range.getClientRects()[0];
-            if (rect) {
-                x = rect.left;
-                y = rect.top;
+    document.getElementById('nb-action').value = 'Pass';
+    document.getElementById('nb-risk').value = 'No major risk';
+    document.getElementById('nb-pattern').value = 'stable';
+    document.getElementById('nb-rec-pattern').value = 'family/personal';
+    document.getElementById('nb-sof').value = 'not reviewed';
+    document.getElementById('nb-edd').value = 'none';
+
+    document.querySelectorAll('.nb-signal:checked, .nb-mitigation:checked').forEach(function (box) {
+        box.checked = false;
+    });
+}
+
+if (submitAllTrackersBtn) {
+    submitAllTrackersBtn.addEventListener('click', function () {
+        var caseId = document.getElementById('tracker-case-id').value.trim();
+
+        if (!caseId) {
+            alert('Enter Case ID first.');
+            return;
+        }
+
+        var selectedRules = [];
+        var ruleBoxes = document.querySelectorAll('.tracker-rule:checked');
+
+        ruleBoxes.forEach(function (box) {
+            selectedRules.push(box.value);
+        });
+
+        if (selectedRules.length === 0) {
+            selectedRules.push('N/A');
+        }
+
+        var payload = {
+            caseId: caseId,
+            site: document.getElementById('tracker-site').value,
+            shift: document.getElementById('tracker-shift').value,
+            workType: document.getElementById('tracker-work-type').value,
+            mandatoryCategory: document.getElementById('tracker-mandatory-category').value,
+            personalCategory: document.getElementById('tracker-personal-category').value,
+            rulesTriggered: selectedRules,
+            actionTaken: document.getElementById('tracker-action-taken').value
+        };
+        
+        if (!trackerAllowed) {
+          alert('Tracker is disabled for this user.');
+          return;
+        }
+
+
+
+        trackerStatus.innerText = 'Submitting trackers...';
+
+        google.script.run
+            .withSuccessHandler(function (result) {
+                trackerStatus.innerText = result.message || 'Trackers submitted.';
+
+                if (result.prefillUrl && result.formSubmitted !== true) {
+                    window.open(result.prefillUrl, '_blank');
+                }
+
+                document.getElementById('tracker-case-id').value = '';
+
+                ruleBoxes.forEach(function (box) {
+                    box.checked = false;
+                });
+            })
+            .withFailureHandler(function (error) {
+                trackerStatus.innerText = 'Tracker error: ' + error.message;
+            })
+            .submitAllTrackers(payload);
+    });
+}
+
+function updatePhoneModeColor() {
+    if (!phoneFormatMode) return;
+
+    phoneFormatMode.classList.remove('phone-mode-with0', 'phone-mode-no0');
+
+    if (phoneFormatMode.value === 'with0') {
+        phoneFormatMode.classList.add('phone-mode-with0');
+    } else {
+        phoneFormatMode.classList.add('phone-mode-no0');
+    }
+}
+
+if (phoneFormatMode) {
+    updatePhoneModeColor();
+    phoneFormatMode.addEventListener('change', updatePhoneModeColor);
+}
+
+
+copyNotepadBtn.addEventListener('click', function () {
+    var text = getCleanNotepadText();
+
+    if (!text) {
+        alert('Notepad is empty.');
+        return;
+    }
+
+    copyTextFallback(text);
+});
+
+function copyTextFallback(text) {
+    var tempTextArea = document.createElement('textarea');
+    tempTextArea.value = text;
+    tempTextArea.style.position = 'fixed';
+    tempTextArea.style.left = '-9999px';
+    tempTextArea.style.top = '-9999px';
+
+    document.body.appendChild(tempTextArea);
+    tempTextArea.focus();
+    tempTextArea.select();
+
+    try {
+        document.execCommand('copy');
+        alert('Notepad copied.');
+    } catch (err) {
+        alert('Copy failed. Please copy manually.');
+    }
+
+    document.body.removeChild(tempTextArea);
+}
+
+
+formatNotesBtn.addEventListener('click', function () {
+    var rawText = getCleanNotepadText();
+
+    if (!rawText.trim()) {
+        alert('Notepad is empty.');
+        return;
+    }
+
+    if (notepad.classList.contains('notes-formatted')) {
+        notepad.innerText = rawText;
+        notepad.classList.remove('notes-formatted');
+        formatNotesBtn.textContent = 'Format Notes';
+        saveNotepadState(true);
+        return;
+    }
+
+    var lines = rawText.split('\n');
+    var formattedHtml = '';
+
+    lines.forEach(function (line) {
+        var cleanLine = line.trim();
+
+        if (/^\[Action\]/i.test(cleanLine)) {
+            formattedHtml += '<div class="note-section-title action-section">' + escapeHtml(cleanLine) + '</div>';
+        } else if (/^\[(All-time highlights|PP\/PI|IP|Linked Accounts|Recipients|Send Pattern)\]/i.test(cleanLine)) {
+            formattedHtml += '<div class="note-section-title risk-section">' + escapeHtml(cleanLine) + '</div>';
+        } else if (/^\[(SOF|EDDs)\]/i.test(cleanLine)) {
+            formattedHtml += '<div class="note-section-title sof-section">' + escapeHtml(cleanLine) + '</div>';
+        } else if (/^\[(Negative News|Other)\]/i.test(cleanLine)) {
+            formattedHtml += '<div class="note-section-title other-section">' + escapeHtml(cleanLine) + '</div>';
+        } else if (/^Alerts triggered:/i.test(cleanLine)) {
+            formattedHtml += '<div class="note-section-title action-section">' + escapeHtml(cleanLine) + '</div>';
+        } else if (cleanLine === '') {
+            formattedHtml += '<br>';
+        } else {
+            formattedHtml += escapeHtml(line) + '<br>';
+        }
+    });
+
+    var lastLine = lines.length > 0 ? lines[lines.length - 1].trim() : '';
+
+if (/^\[(Action|All-time highlights|PP\/PI|IP|Linked Accounts|Recipients|Send Pattern|SOF|EDDs|Negative News|Other)\]/i.test(lastLine) || /^Alerts triggered:/i.test(lastLine)) {
+    formattedHtml += '<br><br>';
+}
+
+notepad.innerHTML = formattedHtml;
+notepad.classList.add('notes-formatted');
+    formatNotesBtn.textContent = 'Raw Notes';
+    saveNotepadState(true);
+});
+
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function getCleanNotepadText() {
+    var text = notepad.innerText || '';
+
+    text = text.replace(/\u00a0/g, ' ');
+    text = text.replace(/[ \t]+\n/g, '\n');
+    text = text.replace(/\n[ \t]+/g, '\n');
+
+    text = text.replace(/\n{3,}/g, '\n\n');
+
+    var headers = [
+        'Alerts triggered:',
+        '[Action]',
+        '[All-time highlights]',
+        '[PP/PI]',
+        '[IP]',
+        '[Linked Accounts]',
+        '[Recipients]',
+        '[Send Pattern]',
+        '[SOF]',
+        '[EDDs]',
+        '[Negative News]',
+        '[Other]'
+    ];
+
+    headers.forEach(function (header) {
+        var safeHeader = header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var regex = new RegExp('\\n{2,}(' + safeHeader + ')', 'g');
+        text = text.replace(regex, '\n\n$1');
+    });
+
+    return text.trim();
+}
+
+clearNotepadBtn.addEventListener('click', function () {
+    if (!notepad.innerText.trim()) return;
+
+    if (!confirm('Clear the notepad?')) return;
+
+    notepad.innerHTML = '';
+    saveNotepadState(true);
+
+    window.resetTimer();
+});
+
+toggleStarAlertsBtn.addEventListener('click', function () {
+    starAlertBox.classList.toggle('collapsed');
+});
+
+insertStarAlertsBtn.addEventListener('click', function () {
+    var checkedAlerts = document.querySelectorAll('.star-alert:checked');
+
+    if (checkedAlerts.length === 0) {
+        alert('Select at least one STAR alert.');
+        return;
+    }
+
+    var alertText = 'Alerts triggered:\n';
+
+    checkedAlerts.forEach(function (box) {
+        alertText += '- ' + box.value + '\n';
+        box.checked = false;
+    });
+
+    insertAlertsAboveAction(alertText);
+
+notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+saveNotepadState(true);
+
+starAlertBox.classList.add('collapsed');
+});
+
+function insertAlertsAboveAction(alertText) {
+    notepad.classList.remove('notes-formatted');
+    formatNotesBtn.textContent = 'Format Notes';
+    
+    var text = getCleanNotepadText();
+    var actionIndex = text.indexOf('[Action]');
+
+    if (actionIndex === -1) {
+        notepad.innerText = alertText + '\n' + text;
+        return;
+    }
+
+    var beforeAction = text.substring(0, actionIndex).trim();
+    var fromAction = text.substring(actionIndex).trim();
+
+    var finalText = '';
+
+    if (beforeAction) {
+        finalText = beforeAction + '\n\n' + alertText + '\n' + fromAction;
+    } else {
+        finalText = alertText + '\n' + fromAction;
+    }
+
+    notepad.innerText = finalText;
+}
+    sideScratchpad.innerHTML = localStorage.getItem('csiHubSideNotesHtml') || '';
+
+sideScratchpad.addEventListener('input', function () {
+    localStorage.setItem('csiHubSideNotesHtml', sideScratchpad.innerHTML);
+});
+
+var scratchHighlightColor = document.getElementById('scratch-highlight-color');
+var applyScratchHighlightBtn = document.getElementById('apply-scratch-highlight-btn');
+var clearScratchHighlightBtn = document.getElementById('clear-scratch-highlight-btn');
+var savedScratchpadRange = null;
+
+function saveScratchpadSelection() {
+    var sel = window.getSelection();
+
+    if (sel.rangeCount > 0 && sideScratchpad.contains(sel.anchorNode)) {
+        savedScratchpadRange = sel.getRangeAt(0);
+    }
+}
+
+function restoreScratchpadSelection() {
+    sideScratchpad.focus();
+
+    if (savedScratchpadRange) {
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedScratchpadRange);
+    }
+}
+
+function saveScratchpadHtml() {
+    localStorage.setItem('csiHubSideNotesHtml', sideScratchpad.innerHTML);
+}
+
+sideScratchpad.addEventListener('keyup', saveScratchpadSelection);
+sideScratchpad.addEventListener('mouseup', saveScratchpadSelection);
+sideScratchpad.addEventListener('blur', saveScratchpadSelection);
+
+applyScratchHighlightBtn.addEventListener('click', function () {
+    restoreScratchpadSelection();
+
+    var color = scratchHighlightColor.value || '#f7b733';
+    document.execCommand('hiliteColor', false, color);
+
+    saveScratchpadHtml();
+});
+
+clearScratchHighlightBtn.addEventListener('click', function () {
+    restoreScratchpadSelection();
+
+    document.execCommand('hiliteColor', false, 'transparent');
+
+    saveScratchpadHtml();
+});
+
+    function loadNotepadState() {
+        notepadTabs = JSON.parse(localStorage.getItem('csiHubNotepadTabs'));
+        activeTabId = JSON.parse(localStorage.getItem('csiHubActiveTabId'));
+        var oldNotes = localStorage.getItem('csiHubNotepadContent');
+
+        if (!notepadTabs && oldNotes) {
+            notepadTabs = [{ id: Date.now(), name: 'Note 1', content: oldNotes }];
+            activeTabId = notepadTabs[0].id;
+            localStorage.removeItem('csiHubNotepadContent');
+            saveNotepadState(false);
+        } else if (!notepadTabs || notepadTabs.length === 0) {
+            notepadTabs = [{ id: Date.now(), name: 'Note 1', content: '' }];
+            activeTabId = notepadTabs[0].id;
+        }
+
+        if (!activeTabId || !notepadTabs.find(function (t) { return t.id === activeTabId; })) {
+            activeTabId = notepadTabs[0].id;
+        }
+
+        renderTabs();
+        loadTabContent(activeTabId);
+    }
+
+    function saveNotepadState(saveCurrentContent) {
+        if (saveCurrentContent !== false) {
+            var activeTab = notepadTabs.find(function (t) { return t.id === activeTabId; });
+            if (activeTab) activeTab.content = notepad.innerHTML;
+        }
+        localStorage.setItem('csiHubNotepadTabs', JSON.stringify(notepadTabs));
+        localStorage.setItem('csiHubActiveTabId', JSON.stringify(activeTabId));
+    }
+
+    function renderTabs() {
+        while (notepadTabBar.firstChild && notepadTabBar.firstChild !== addNotepadTabBtn) {
+            notepadTabBar.removeChild(notepadTabBar.firstChild);
+        }
+
+        notepadTabs.forEach(function (tab) {
+            var tabEl = document.createElement('div');
+            tabEl.className = 'notepad-tab';
+            tabEl.dataset.tabId = tab.id;
+            if (tab.id === activeTabId) tabEl.classList.add('active');
+
+            var tabName = document.createElement('span');
+            tabName.className = 'notepad-tab-name';
+            tabName.textContent = tab.name;
+            tabName.contentEditable = false;
+            tabName.spellcheck = false;
+
+            tabName.addEventListener('dblclick', function (e) {
+                e.stopPropagation();
+                tabName.contentEditable = true;
+                tabName.focus();
+                var range = document.createRange();
+                range.selectNodeContents(tabName);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+
+            tabName.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    tabName.blur();
+                }
+            });
+
+            tabName.addEventListener('blur', function () {
+                tabName.contentEditable = false;
+                var newName = tabName.textContent.trim();
+                if (newName) {
+                    tab.name = newName;
+                    saveNotepadState(false);
+                } else {
+                    tabName.textContent = tab.name;
+                }
+            });
+
+            var closeBtn = document.createElement('span');
+            closeBtn.className = 'notepad-tab-close';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.title = 'Close Tab';
+            closeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                closeTab(tab.id);
+            });
+
+            tabEl.appendChild(tabName);
+            tabEl.appendChild(closeBtn);
+            tabEl.addEventListener('click', function () {
+                if (tabName.contentEditable === true || tabName.contentEditable === 'true') return;
+                switchNoteTab(tab.id);
+            });
+
+            notepadTabBar.insertBefore(tabEl, addNotepadTabBtn);
+        });
+    }
+
+    function switchNoteTab(tabId) {
+        if (tabId === activeTabId) return;
+        saveNotepadState(true);
+        activeTabId = tabId;
+        localStorage.setItem('csiHubActiveTabId', JSON.stringify(activeTabId));
+        loadTabContent(tabId);
+        var tabs = document.querySelectorAll('.notepad-tab');
+        for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle('active', tabs[i].dataset.tabId == tabId);
+    }
+
+    function loadTabContent(tabId) {
+        var tab = notepadTabs.find(function (t) { return t.id === tabId; });
+        if (tab) notepad.innerHTML = tab.content;
+    }
+
+    function addNewTab() {
+        saveNotepadState(true);
+        var newTab = { id: Date.now(), name: 'Note ' + (notepadTabs.length + 1), content: '' };
+        notepadTabs.push(newTab);
+        activeTabId = newTab.id;
+        saveNotepadState(false);
+        renderTabs();
+        loadTabContent(activeTabId);
+        notepad.focus();
+    }
+
+    function closeTab(tabId) {
+        if (notepadTabs.length <= 1) {
+            alert('You cannot close the last note.');
+            return;
+        }
+        if (!confirm('Are you sure you want to close this tab?')) return;
+        notepadTabs = notepadTabs.filter(function (t) { return t.id !== tabId; });
+        if (activeTabId === tabId) activeTabId = notepadTabs[0].id;
+        saveNotepadState(false);
+        renderTabs();
+        loadTabContent(activeTabId);
+    }
+
+    addNotepadTabBtn.addEventListener('click', addNewTab);
+
+    function saveSelection() {
+        if (window.getSelection().rangeCount > 0) savedNotepadRange = window.getSelection().getRangeAt(0);
+    }
+
+    function restoreSelection() {
+        notepad.focus();
+        if (savedNotepadRange) {
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(savedNotepadRange);
+        }
+    }
+
+    notepad.addEventListener('blur', saveSelection);
+
+notepad.addEventListener('keyup', function () {
+    saveSelection();
+    autoStartTimerFromNotepad();
+});
+
+notepad.addEventListener('mouseup', function () {
+    saveSelection();
+    autoStartTimerFromNotepad();
+});
+
+notepad.addEventListener('input', function () {
+    saveNotepadState(true);
+    autoStartTimerFromNotepad();
+});
+
+
+    notepad.addEventListener('copy', function (event) {
+        event.preventDefault();
+        var plainText = window.getSelection().toString();
+        if (event.clipboardData && event.clipboardData.setData) event.clipboardData.setData('text/plain', plainText);
+    });
+    notepad.addEventListener('paste', function (event) {
+        event.preventDefault();
+        var text = (event.clipboardData || window.clipboardData).getData('text/plain');
+        restoreSelection();
+        document.execCommand('insertText', false, text);
+        notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+    });
+
+    sidebarToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        appContainer.classList.toggle('sidebar-open');
+    });
+
+    mobileRightSidebarToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        appContainer.classList.toggle('right-sidebar-open-mobile');
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!leftSidebar.contains(event.target) && appContainer.classList.contains('sidebar-open') && !sidebarToggle.contains(event.target)) {
+            appContainer.classList.remove('sidebar-open');
+        }
+        if (window.innerWidth <= 1200 && appContainer.classList.contains('right-sidebar-open-mobile') && !rightSidebar.contains(event.target) && !mobileRightSidebarToggle.contains(event.target)) {
+            appContainer.classList.remove('right-sidebar-open-mobile');
+        }
+    });
+
+    floatingWidget.addEventListener('click', function () { window.toggleModal(); });
+
+    var numberButtons = document.querySelectorAll('[data-number]');
+    var operationButtons = document.querySelectorAll('[data-operation]');
+    var equalsButton = document.querySelector('[data-equals]');
+    var deleteButton = document.querySelector('[data-delete]');
+    var clearButton = document.querySelector('[data-clear]');
+    var display = document.getElementById('calculator-display');
+    var currentOperand = '0';
+    var previousOperand = '';
+    var operation = undefined;
+
+    function updateDisplay() {
+        if (operation != null) display.innerText = previousOperand + ' ' + operation + ' ' + currentOperand;
+        else display.innerText = currentOperand;
+    }
+
+    display.addEventListener('paste', function (e) {
+        e.preventDefault();
+        var text = (e.clipboardData || window.clipboardData).getData('text');
+        var cleanNum = text.replace(/[^0-9.]/g, '');
+        if (cleanNum && !isNaN(parseFloat(cleanNum))) {
+            currentOperand = cleanNum;
+            updateDisplay();
+        }
+    });
+
+    function clearCalc() { currentOperand = '0'; previousOperand = ''; operation = undefined; updateDisplay(); }
+    function deleteDigit() { currentOperand = currentOperand.length <= 1 ? '0' : currentOperand.toString().slice(0, -1); updateDisplay(); }
+    function appendNumber(num) {
+        if (num === '.' && currentOperand.indexOf('.') !== -1) return;
+        if (currentOperand === '0' && num !== '.') currentOperand = num.toString();
+        else currentOperand = currentOperand.toString() + num.toString();
+        updateDisplay();
+    }
+    function chooseOperation(op) {
+        if (currentOperand === '' && previousOperand === '') return;
+        if (previousOperand !== '' && currentOperand !== '0') compute();
+        operation = op;
+        previousOperand = currentOperand;
+        currentOperand = '0';
+        display.innerText = previousOperand + ' ' + operation;
+    }
+    function compute() {
+        var comp;
+        var prev = parseFloat(previousOperand);
+        var curr = parseFloat(currentOperand);
+        if (isNaN(prev) || isNaN(curr)) return;
+        if (operation === '+') comp = prev + curr;
+        else if (operation === '-') comp = prev - curr;
+        else if (operation === '×') comp = prev * curr;
+        else if (operation === '÷') {
+            if (curr === 0) { alert('Cannot divide by zero'); clearCalc(); return; }
+            comp = prev / curr;
+        } else if (operation === '%') comp = prev % curr;
+        else return;
+        currentOperand = comp.toString();
+        operation = undefined;
+        previousOperand = '';
+        updateDisplay();
+    }
+
+    for (var nb = 0; nb < numberButtons.length; nb++) {
+        numberButtons[nb].addEventListener('click', function () { appendNumber(this.innerText); });
+    }
+    for (var ob = 0; ob < operationButtons.length; ob++) {
+        operationButtons[ob].addEventListener('click', function () { chooseOperation(this.innerText); });
+    }
+    equalsButton.addEventListener('click', compute);
+    clearButton.addEventListener('click', clearCalc);
+    deleteButton.addEventListener('click', deleteDigit);
+
+    document.addEventListener('keydown', function (e) {
+        var isTyping = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
+        if (isTyping) return;
+        var key = e.key;
+        if (key >= '0' && key <= '9') appendNumber(key);
+        if (key === '.') appendNumber('.');
+        if (key === '+' || key === '-' || key === '*' || key === '/') chooseOperation(key === '*' ? '×' : key === '/' ? '÷' : key);
+        if (key === '=' || key === 'Enter') { e.preventDefault(); compute(); }
+        if (key === 'Backspace') deleteDigit();
+        if (key === 'Escape') clearCalc();
+    });
+
+    var researchQueryInput = document.getElementById('research-query');
+    var researchSearchBtn = document.getElementById('research-search-btn');
+    researchSearchBtn.addEventListener('click', function () {
+        var q = researchQueryInput.value;
+        if (q) window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank');
+    });
+    researchQueryInput.addEventListener('keyup', function (e) { if (e.key === 'Enter') researchSearchBtn.click(); });
+
+    window.toggleModal = function () {
+        if (modal.style.display === 'flex') modal.style.display = 'none';
+        else { switchToListView(); modal.style.display = 'flex'; }
+    };
+
+    function switchToListView() { listView.style.display = 'block'; editView.style.display = 'none'; searchInput.value = ''; renderTemplateList(); }
+    function switchToEditView(idx) {
+        if (typeof idx === 'undefined') idx = null;
+        listView.style.display = 'none';
+        editView.style.display = 'block';
+        editingTemplateIndex = idx;
+        if (idx !== null) {
+            editModalTitle.textContent = 'Edit Template';
+            titleInput.value = templates[idx].title;
+            contentTextarea.value = templates[idx].content;
+        } else {
+            editModalTitle.textContent = 'Add New Template';
+            titleInput.value = '';
+            contentTextarea.value = '';
+        }
+    }
+
+    function renderTemplateList(term) {
+        term = term || '';
+        templateListContainer.innerHTML = '';
+        var filtered = templates.filter(function (t) { return t.title.toLowerCase().indexOf(term.toLowerCase()) !== -1; });
+        if (filtered.length === 0 && term === '') templateListContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No templates. Click "+ Add New".</p>';
+        filtered.forEach(function (t) {
+            var idx = templates.indexOf(t);
+            var item = document.createElement('div');
+            item.className = 'template-item';
+            var title = document.createElement('span');
+            title.className = 'template-item-title';
+            title.textContent = t.title;
+            title.addEventListener('click', function () {
+                restoreSelection();
+                document.execCommand('insertText', false, t.content);
+                saveSelection();
+                window.toggleModal();
+                notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            });
+            var btn = document.createElement('button');
+            btn.className = 'template-item-edit-btn';
+            btn.textContent = 'Edit';
+            btn.addEventListener('click', function (e) { e.stopPropagation(); switchToEditView(idx); });
+            item.appendChild(title);
+            item.appendChild(btn);
+            templateListContainer.appendChild(item);
+        });
+    }
+
+    searchInput.addEventListener('input', function () { renderTemplateList(searchInput.value); });
+    document.getElementById('modal-add-new-btn').addEventListener('click', function () { switchToEditView(); });
+    document.getElementById('cancel-edit-btn').addEventListener('click', switchToListView);
+    modal.addEventListener('click', function (e) { if (e.target === modal) window.toggleModal(); });
+    document.getElementById('modal-close-btn-1').addEventListener('click', window.toggleModal);
+    document.getElementById('modal-close-btn-2').addEventListener('click', window.toggleModal);
+    document.getElementById('save-template-btn').addEventListener('click', function () {
+        var title = titleInput.value.trim();
+        var content = contentTextarea.value.trim();
+        if (!title || !content) { alert('Title and content are required.'); return; }
+        if (editingTemplateIndex !== null) templates[editingTemplateIndex] = { title: title, content: content };
+        else templates.push({ title: title, content: content });
+        localStorage.setItem('csiHubTemplates', JSON.stringify(templates));
+        alert('Template saved!');
+        switchToListView();
+    });
+
+    function normalizePhoneForSearch(raw, mode) {
+        mode = mode || 'with0';
+        if (!raw) return '';
+        var s = String(raw).trim().replace(/[()\s-]/g, '');
+        if (s.indexOf('00') === 0) s = '+' + s.slice(2);
+        if (s.indexOf('+') === 0) {
+            var digits = s.slice(1).replace(/\D/g, '');
+            if (!digits) return '';
+            var cc = getCallingCode(digits);
+            if (!cc) return digits;
+            var national = digits.slice(cc.length);
+            if (!national) return '';
+            if (cc === '63') return national.indexOf('0') === 0 ? national : '0' + national;
+            if (mode === 'no0') return national.indexOf('0') === 0 ? national.slice(1) : national;
+            return national.indexOf('0') === 0 ? national : '0' + national;
+        }
+        return s.replace(/\D/g, '');
+    }
+
+    function getCallingCode(digits) {
+        var codes = ['1','7','20','27','30','31','32','33','34','36','39','40','41','43','44','45','46','47','48','49','51','52','53','54','55','56','57','58','60','61','62','63','64','65','66','81','82','84','86','90','91','92','93','94','95','98','212','213','216','218','220','221','222','223','224','225','226','227','228','229','230','231','232','233','234','235','236','237','238','239','240','241','242','243','244','245','246','248','249','250','251','252','253','254','255','256','257','258','260','261','262','263','264','265','266','267','268','269','290','291','297','298','299','350','351','352','353','354','355','356','357','358','359','370','371','372','373','374','375','376','377','378','380','381','382','383','385','386','387','389','420','421','423','500','501','502','503','504','505','506','507','508','509','590','591','592','593','594','595','596','597','598','599','670','672','673','674','675','676','677','678','679','680','681','682','683','685','686','687','688','689','690','691','692','850','852','853','855','856','880','886','960','961','962','963','964','965','966','967','968','970','971','972','973','974','975','976','977','978','979','992','993','994','995','996','998'];
+        var c3 = digits.slice(0, 3);
+        var c2 = digits.slice(0, 2);
+        var c1 = digits.slice(0, 1);
+        if (codes.indexOf(c3) !== -1) return c3;
+        if (codes.indexOf(c2) !== -1) return c2;
+        if (codes.indexOf(c1) !== -1) return c1;
+        return null;
+    }
+
+    window.performPhoneSearch = function (phone) {
+        var q = (phone || '').toString().trim();
+        if (!q) return;
+        window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank');
+    };
+
+    function parseCsvDate(dateStr) {
+        try {
+            var parts = dateStr.split(' ');
+            var dateParts = parts[0].split('/');
+            var month = parseInt(dateParts[0], 10) - 1;
+            var day = parseInt(dateParts[1], 10);
+            var year = parseInt('20' + dateParts[2], 10);
+            var timeMatch = parts[1].match(/(\d+):(\d+)(AM|PM)/i);
+            if (!timeMatch) return new Date('invalid');
+            var hour = parseInt(timeMatch[1], 10);
+            var minute = parseInt(timeMatch[2], 10);
+            var ampm = timeMatch[3].toUpperCase();
+            if (ampm === 'PM' && hour < 12) hour += 12;
+            else if (ampm === 'AM' && hour === 12) hour = 0;
+            return new Date(year, month, day, hour, minute);
+        } catch (e) {
+            console.error('Could not parse date:', dateStr, e);
+            return new Date('invalid');
+        }
+    }
+
+    function processCSV(content, fileName) {
+        if (content.charCodeAt(0) === 0xFEFF) content = content.substring(1);
+        var lines = content.replace(/\r/g, '').split('\n');
+        if (lines.length < 2) { alert('CSV is empty or has no data rows.'); return; }
+        var phoneColName = 'Receiver Phone';
+        var dateColName = 'Submitted On';
+        var delimiterRegex = /[;,](?=(?:(?:[^"]*"){2})*[^"]*$)/;
+        var headerLine = lines.shift();
+        var header = headerLine.split(delimiterRegex).map(function (h) { return h.trim().replace(/"/g, ''); });
+        var phoneColIndex = header.findIndex(function (h) { return h.toLowerCase() === phoneColName.toLowerCase(); });
+        var dateColIndex = header.findIndex(function (h) { return h.toLowerCase() === dateColName.toLowerCase(); });
+        if (phoneColIndex === -1 || dateColIndex === -1) { alert('Error: Could not find required headers.'); return; }
+        var dateMatch = fileName.match(/(\d{4}-\d{2}-\d{2})/);
+        var currentDateForFilter = dateMatch ? new Date(dateMatch[1] + 'T23:59:59') : new Date();
+        var sixMonthsAgo = new Date(currentDateForFilter);
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        var uniquePhones = {};
+        lines.forEach(function (line) {
+            if (!line.trim()) return;
+            var cells = line.split(delimiterRegex);
+            if (cells.length > Math.max(phoneColIndex, dateColIndex)) {
+                var dateStr = cells[dateColIndex] ? cells[dateColIndex].trim().replace(/"/g, '') : '';
+                var phone = cells[phoneColIndex] ? cells[phoneColIndex].trim().replace(/"/g, '') : '';
+                var entryDate = parseCsvDate(dateStr);
+                if (!isNaN(entryDate.getTime()) && entryDate >= sixMonthsAgo && entryDate <= currentDateForFilter) {
+                    var phoneFormatEl = document.getElementById('phone-format-mode');
+                    var mode = phoneFormatEl ? phoneFormatEl.value : 'with0';
+                    phone = normalizePhoneForSearch(phone, mode);
+                    if (phone) uniquePhones[phone] = true;
+                }
+            }
+        });
+        var phones = Object.keys(uniquePhones);
+        for (var p = 0; p < phones.length; p++) window.performPhoneSearch(phones[p]);
+        if (phones.length === 0) alert('No unique phones found within last 6 months.');
+    }
+    
+    window.openModePreNotes = function () {
+    window.open('https://app.mode.com/remitly/reports/4e340f7a0a7d', '_blank');
+};
+
+    window.performAllSearches = function () {
+        var n = personNameInput.value;
+        if (!n) { alert('Please enter a name or phone number first.'); return; }
+        window.performNegativeNewsSearch();
+        window.performOffenderSearch();
+        window.performSocialMediaSearch();
+        window.performBusinessSearch();
+    };
+
+    window.performNegativeNewsSearch = function () {
+        var n = personNameInput.value;
+        if (!n) return;
+        var query = '"' + n + '" AND (bribery OR fraud OR "money laundering" OR crime OR terrorism OR corruption OR "sex offender" OR "child exploitation")';
+        window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank');
+    };
+
+    window.performOffenderSearch = function () {
+        var n = personNameInput.value;
+        if (!n) return;
+        var p = n.split(' ');
+        var f = p[0];
+        var l = p.length > 1 ? p[p.length - 1] : '';
+        window.open('https://www.nsopw.gov/en/search/results?firstName=' + encodeURIComponent(f) + '&lastName=' + encodeURIComponent(l), '_blank');
+    };
+
+    window.performSocialMediaSearch = function () {
+        var n = personNameInput.value;
+        if (!n) return;
+        var en = encodeURIComponent(n);
+        var urls = [
+            'https://www.facebook.com/search/top/?q=' + en,
+            'https://www.linkedin.com/search/results/all/?keywords=' + en,
+            'https://twitter.com/search?q=' + en,
+            'https://www.instagram.com/explore/search/keyword/?q=' + en,
+            'https://www.youtube.com/results?search_query=' + en,
+            'https://www.tiktok.com/search?q=' + en
+        ];
+        for (var i = 0; i < urls.length; i++) window.open(urls[i], '_blank');
+    };
+
+    window.performBusinessSearch = function () {
+        var n = personNameInput.value;
+        if (!n) return;
+        var en = encodeURIComponent(n);
+        var businessRegionEl = document.getElementById('business-region');
+        var region = businessRegionEl ? businessRegionEl.value.toLowerCase() : 'all';
+        var urlsByRegion = {
+            us: ['https://opencorporates.com/officers?q=' + en],
+            can: [
+    'https://opencorporates.com/companies/ca?q=' + en,
+    'https://ised-isde.canada.ca/cbr-rec/en/search/results?search=' + en
+],
+            aus: ['https://abr.business.gov.au/Search/Results?SearchText=' + en, 'https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx?searchText=' + en + '&searchType=OrgAndBusNames', 'https://opencorporates.com/companies/au?q=' + en],
+            uk: [
+    'https://find-and-update.company-information.service.gov.uk/search?q=' + en,
+    'https://opencorporates.com/companies/gb?q=' + en
+],
+            eu: [
+    'https://opencorporates.com/search?q=' + en,
+    'https://e-justice.europa.eu/topics/registers-business-insolvency-land/business-registers-search-company-eu_en'
+],
+        };
+        var urls = [];
+        if (region === 'all') urls = urlsByRegion.us.concat(urlsByRegion.can, urlsByRegion.aus, urlsByRegion.uk, urlsByRegion.eu);
+        else urls = urlsByRegion[region] || [];
+        if (urls.length === 0) { alert('No URLs configured for that region.'); return; }
+        var seen = {};
+        for (var i = 0; i < urls.length; i++) {
+            if (!seen[urls[i]]) {
+                seen[urls[i]] = true;
+                window.open(urls[i], '_blank');
             }
         }
-        return { x, y };
+    };
+
+    window.calculateMonthlyIncome = function () {
+        var i = document.getElementById('annualIncome').value;
+        var r = document.getElementById('monthlyIncomeResult');
+        if (!i.trim()) { r.innerText = ''; return; }
+        var ci = i.toLowerCase().replace(/,/g, '').replace(/per annum|per year|\/yr|\/year/g, '');
+        var cm = ci.match(/(us\$|usd|\$|£|€)/);
+        var cs = cm ? cm[0].toUpperCase().replace('USD', '$') : '';
+        if (cs) ci = ci.replace(cs.toLowerCase(), '');
+        var nm = ci.match(/\d+(\.\d+)?(k|m)?/g) || [];
+        if (nm.length === 0) { r.innerText = 'Invalid format.'; return; }
+        var av = nm.map(function (n) { var v = parseFloat(n); if (n.endsWith('k')) v *= 1000; if (n.endsWith('m')) v *= 1000000; return v; });
+        function tm(v) { return (v / 12).toLocaleString('en-US', { style: 'decimal', maximumFractionDigits: 0 }); }
+        r.innerText = av.length === 1 ? '~ ' + cs + tm(av[0]) + '/month' : '~ ' + cs + tm(av[0]) + ' - ' + cs + tm(av[1]) + '/month';
+    };
+
+    function calculateFutureDate() {
+        var dateVal = startDateInput.value;
+        if (dateVal) {
+            var d = new Date(dateVal);
+            d.setDate(d.getDate() + 30);
+            document.getElementById('futureDateResult').innerText = 'End Date: ' + d.toLocaleDateString();
+        } else {
+            document.getElementById('futureDateResult').innerText = 'Result will show here...';
+        }
+    }
+    startDateInput.addEventListener('change', calculateFutureDate);
+
+    window.adjustFontSize = function (amount) {
+        currentFontSize += amount;
+        if (currentFontSize < 10) currentFontSize = 10;
+        if (currentFontSize > 32) currentFontSize = 32;
+        notepad.style.fontSize = currentFontSize + 'px';
+    };
+
+    window.applyHighlight = function (color) {
+        restoreSelection();
+        var colorToApply = color === 'clear' ? 'transparent' : color;
+        document.execCommand('hiliteColor', false, colorToApply);
+        notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+        saveSelection();
+    };
+
+    function autoStartTimerFromNotepad() {
+    if (!timerInterval) {
+        window.startTimer();
+    }
+}
+
+    window.startTimer = function () {
+        if (timerInterval) return;
+        var am = parseInt(alertTimeInput.value, 10);
+        alertTimeInSeconds = am > 0 ? am * 60 : 0;
+        alertTriggered = false;
+        timerInterval = setInterval(function () {
+            totalSeconds++;
+            var h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+            var m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+            var s = (totalSeconds % 60).toString().padStart(2, '0');
+            timerDisplay.innerHTML = h + ':' + m + ':' + s;
+            if (!alertTriggered && alertTimeInSeconds > 0 && totalSeconds >= alertTimeInSeconds) {
+                alert('Alert: ' + am + ' minutes have passed!');
+                alertTriggered = true;
+            }
+        }, 1000);
+    };
+    window.pauseTimer = function () { clearInterval(timerInterval); timerInterval = null; };
+    window.resetTimer = function () { clearInterval(timerInterval); timerInterval = null; totalSeconds = 0; timerDisplay.innerHTML = '00:00:00'; alertTimeInSeconds = 0; alertTriggered = false; };
+
+    var csvFileInput = document.getElementById('csvFileInput');
+var csvFileNameSpan = document.getElementById('csvFileName');
+var processCsvBtn = document.getElementById('processCsvBtn');
+
+var oaaPhoneRecentBtn = document.getElementById('oaaPhoneRecentBtn');
+var oaaPhoneTenuredBtn = document.getElementById('oaaPhoneTenuredBtn');
+var oaaEvidenceLevel = document.getElementById('oaa-evidence-level');
+var insertOaaEvidenceBtn = document.getElementById('insert-oaa-evidence-btn');
+
+if (oaaPhoneRecentBtn) {
+    oaaPhoneRecentBtn.addEventListener('click', function () {
+        runOaaPhoneCheck(6, 20, 'Recent');
+    });
+}
+
+if (oaaPhoneTenuredBtn) {
+    oaaPhoneTenuredBtn.addEventListener('click', function () {
+        runOaaPhoneCheck(12, 20, 'Tenured');
+    });
+}
+
+if (insertOaaEvidenceBtn) {
+    insertOaaEvidenceBtn.addEventListener('click', function () {
+        insertOaaEvidenceNote();
+    });
+}
+
+function runOaaPhoneCheck(monthsBack, maxPhones, modeLabel) {
+    if (!csvFileContent) {
+        alert('Please upload a CSV file first.');
+        return;
+    }
+
+    var result;
+
+    try {
+        result = collectOaaPhoneRecords(csvFileContent, currentCsvFileName, monthsBack, maxPhones);
+    } catch (error) {
+        alert('Error processing OAA phone check: ' + error.message);
+        console.error(error);
+        return;
+    }
+
+    if (!result.phones.length) {
+        alert('No unique rec phones found within last ' + monthsBack + ' months.');
+        return;
+    }
+
+    var message =
+        'Run OAA Phone Check - ' + modeLabel + ' for top ' + result.phones.length +
+        ' rec phone(s)? This may open up to ' + result.phones.length + ' Google tab(s).';
+
+    if (!confirm(message)) return;
+
+    result.phones.forEach(function (record) {
+        performOaaPhoneSearch(record.phone);
+    });
+
+    appendPlainTextToNotepad(
+    'OAA phone check completed for reviewed rec phones.\n' +
+    'Phone variants checked with/without 0 and last 9/10 digits.'
+);
+}
+
+function collectOaaPhoneRecords(content, fileName, monthsBack, maxPhones) {
+    if (content.charCodeAt(0) === 0xFEFF) content = content.substring(1);
+
+    var lines = content.replace(/\r/g, '').split('\n');
+
+    if (lines.length < 2) {
+        throw new Error('CSV is empty or has no data rows.');
+    }
+
+    var delimiterRegex = /[;,](?=(?:(?:[^"]*"){2})*[^"]*$)/;
+
+    var headerLine = lines.shift();
+    var header = headerLine.split(delimiterRegex).map(function (h) {
+        return h.trim().replace(/"/g, '');
+    });
+
+    var phoneColIndex = header.findIndex(function (h) {
+        return h.toLowerCase() === 'receiver phone';
+    });
+
+    var dateColIndex = header.findIndex(function (h) {
+        return h.toLowerCase() === 'submitted on';
+    });
+
+    var receiverColIndex = header.findIndex(function (h) {
+        return h.toLowerCase() === 'receiver';
+    });
+
+    if (phoneColIndex === -1 || dateColIndex === -1) {
+        throw new Error('Could not find Receiver Phone or Submitted On headers.');
+    }
+
+    var dateMatch = fileName ? fileName.match(/(\d{4}-\d{2}-\d{2})/) : null;
+    var currentDateForFilter = dateMatch ? new Date(dateMatch[1] + 'T23:59:59') : new Date();
+
+    var startDate = new Date(currentDateForFilter);
+    startDate.setMonth(startDate.getMonth() - monthsBack);
+
+    var phoneMap = {};
+
+    lines.forEach(function (line) {
+        if (!line.trim()) return;
+
+        var cells = line.split(delimiterRegex);
+
+        if (cells.length <= Math.max(phoneColIndex, dateColIndex)) return;
+
+        var dateStr = cells[dateColIndex] ? cells[dateColIndex].trim().replace(/"/g, '') : '';
+        var rawPhone = cells[phoneColIndex] ? cells[phoneColIndex].trim().replace(/"/g, '') : '';
+        var recName = receiverColIndex !== -1 && cells[receiverColIndex] ? cells[receiverColIndex].trim().replace(/"/g, '') : '';
+
+        var entryDate = parseCsvDate(dateStr);
+
+        if (isNaN(entryDate.getTime())) return;
+        if (entryDate < startDate || entryDate > currentDateForFilter) return;
+
+        var phone = normalizePhoneForSearch(rawPhone, 'with0');
+        var key = phone.replace(/\D/g, '');
+
+        if (!key) return;
+
+        if (!phoneMap[key]) {
+            phoneMap[key] = {
+                phone: phone,
+                recName: recName,
+                count: 0,
+                latestDate: entryDate
+            };
+        }
+
+        phoneMap[key].count++;
+
+        if (entryDate > phoneMap[key].latestDate) {
+            phoneMap[key].latestDate = entryDate;
+            phoneMap[key].recName = recName;
+            phoneMap[key].phone = phone;
+        }
+    });
+
+    var phones = Object.keys(phoneMap).map(function (key) {
+        return phoneMap[key];
+    });
+
+    phones.sort(function (a, b) {
+        if (b.count !== a.count) return b.count - a.count;
+        return b.latestDate - a.latestDate;
+    });
+
+    return {
+        phones: phones.slice(0, maxPhones),
+        totalUnique: phones.length
+    };
+}
+
+function performOaaPhoneSearch(phone) {
+    var raw = String(phone || '').trim();
+    var digits = raw.replace(/\D/g, '');
+
+    if (!digits) return;
+
+    var variants = {};
+
+    function addVariant(value) {
+        value = String(value || '').trim();
+        if (value) variants[value] = true;
+    }
+
+    var withZero = digits.indexOf('0') === 0 ? digits : '0' + digits;
+    var withoutZero = digits.indexOf('0') === 0 ? digits.slice(1) : digits;
+    var last10 = digits.length > 10 ? digits.slice(-10) : digits;
+    var last9 = digits.length > 9 ? digits.slice(-9) : digits;
+
+    addVariant(raw);
+    addVariant(digits);
+    addVariant(withZero);
+    addVariant(withoutZero);
+    addVariant(last10);
+    addVariant(last9);
+
+    if (last10.length === 10) {
+        addVariant(last10.slice(0, 3) + ' ' + last10.slice(3, 6) + ' ' + last10.slice(6));
+        addVariant(last10.slice(0, 3) + '-' + last10.slice(3, 6) + '-' + last10.slice(6));
+    }
+
+    var phoneQuery = Object.keys(variants).map(function (value) {
+        return '"' + value + '"';
+    }).join(' OR ');
+
+    var riskTerms = '(escort OR escorts OR "adult service" OR "adult services" OR massage OR spa OR "happy ending" OR "sex work" OR prostitution OR "sexual services" OR classifieds OR ads OR backpage OR skipthegames OR megapersonals OR locanto OR vivastreet OR bedpage)';
+
+    var query = '(' + phoneQuery + ') AND ' + riskTerms;
+
+    window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank');
+}
+
+function insertOaaEvidenceNote() {
+    var level = oaaEvidenceLevel ? oaaEvidenceLevel.value : 'None found';
+
+    var notes = {
+        'None found': 'No OAA-related search result found for reviewed rec phones.',
+        'Weak signal': 'Weak OAA signal found from public phone search, but no strong match to rec identity.',
+        'Possible match': 'Possible OAA signal found. Rec phone appeared in adult/escort-related search results.',
+        'Strong match': 'Strong OAA signal found. Phone number and rec details appear linked to adult/escort-related listing.'
+    };
+
+    appendPlainTextToNotepad(notes[level] || notes['None found']);
+}
+
+function appendPlainTextToNotepad(text) {
+    if (!text) return;
+
+    if (notepad.innerText.trim()) {
+        notepad.appendChild(document.createElement('br'));
+        notepad.appendChild(document.createElement('br'));
+    }
+
+    text.split('\n').forEach(function (line, index) {
+        if (index > 0) notepad.appendChild(document.createElement('br'));
+        notepad.appendChild(document.createTextNode(line));
+    });
+
+    notepad.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+    saveNotepadState(true);
+}
+
+csvFileInput.addEventListener('change', function (event) {
+    var file = event.target.files[0];
+
+    if (file) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            csvFileContent = e.target.result;
+            currentCsvFileName = file.name;
+            csvFileNameSpan.textContent = file.name;
+            csvFileNameSpan.style.color = 'var(--text-primary)';
+        };
+
+        reader.onerror = function () {
+            alert('Error reading file.');
+            csvFileContent = null;
+            currentCsvFileName = null;
+            csvFileNameSpan.textContent = 'Error reading file.';
+            csvFileNameSpan.style.color = '#e74c3c';
+        };
+
+        reader.readAsText(file);
+    } else {
+        csvFileContent = null;
+        currentCsvFileName = null;
+        csvFileNameSpan.textContent = 'No file selected.';
+        csvFileNameSpan.style.color = 'var(--text-secondary)';
+    }
+});
+
+processCsvBtn.addEventListener('click', function () {
+    if (!csvFileContent) {
+        alert('Please upload a CSV file.');
+        return;
+    }
+
+    try {
+        processCSV(csvFileContent, currentCsvFileName);
+    } catch (error) {
+        alert('Error processing CSV: ' + error.message);
+        console.error(error);
+    }
+});
+
+    var baseDictionary = ['suspension','txn','txns','rec','recs','customer','susp','suspended acct','linked accts','dup acct','OAA','MM','HRF','policy watch','platform misuse','not sustained','Facebook','LinkedIn','Instagram','social media','mismatch','PP name mismatch','top recipient','mixed male and female','Could not locate the customer or the recipient(s) on social media or a general internet search that could help mitigate or collaborate with the investigation.','Unlikely','familial sending','no links to any suspended acct','unlikely','Young cx','Young adult cx','Adult cx','Elderly cx','[Action]','[Action] Pass - ','[Action] Pending - ','[Action] Escalate to STAR - ','[Action] EKYC FAILED - ','spike','one-time spike','sustained activity','small frequent txns','save and send','sending pattern','time pattern','late-night txns','early-morning txns','high rec count','recipient spread','m/avg','6M avg','low avg sending','capacity','sustainable sending','one corridor','multi-corridor','OTT','high frequency','velocity','OAA signals','network risk','shared rec','heavily shared rec','historical OAA links','commercial rec','personal use','possible SOB','sending for others','elder abuse','romance scam','manipulation risk','PI','PP','consistent PP info','IP','sign-ins','sender country match','no rec country logins','hosting IP','cellular IP','SOF','EDD','CQ','BS','EKYC','KYB','HRF tag','escalate to STAR','final assessment','platform protection','policy decision','pass','suspend','escalate','no NN found','no risky links','mitigating factors','risk outweighs mitigation','educate cx','commercial disclaimer','remove recs','monitoring only','none on file','none found'];
+  
+  var dictionary = baseDictionary.slice();
+rebuildDictionary();
+
+    var currentMatches = [];
+    var selectedIndex = 0;
+
+    function getCaretCoordinates() {
+        var x = 0, y = 0;
+        var sel = window.getSelection();
+        if (sel.rangeCount) {
+            var range = sel.getRangeAt(0).cloneRange();
+            range.collapse(true);
+            var rect = range.getClientRects()[0];
+            if (rect) { x = rect.left; y = rect.top; }
+        }
+        return { x: x, y: y };
     }
 
     function getCurrentWord() {
-        const sel = window.getSelection();
-        if (sel.rangeCount === 0) return "";
-        const node = sel.anchorNode;
-        if (node.nodeType !== 3) return ""; 
-        const text = node.textContent;
-        const caretPos = sel.anchorOffset;
-        let start = caretPos;
-        while (start > 0 && /\S/.test(text[start - 1])) {
-            start--;
-        }
+        var sel = window.getSelection();
+        if (sel.rangeCount === 0) return '';
+        var node = sel.anchorNode;
+        if (!node || node.nodeType !== 3) return '';
+        var text = node.textContent;
+        var caretPos = sel.anchorOffset;
+        var start = caretPos;
+        while (start > 0 && /\S/.test(text[start - 1])) start--;
         return text.substring(start, caretPos);
     }
 
     function renderSuggestions() {
         suggestionBox.innerHTML = '';
-        currentMatches.forEach((match, index) => {
-            const div = document.createElement('div');
+        currentMatches.forEach(function (match, index) {
+            var div = document.createElement('div');
             div.className = 'suggestion-item';
             if (index === selectedIndex) div.classList.add('active');
             div.textContent = match;
-            
-            // Allow clicking with mouse too
-            div.addEventListener('mousedown', (e) => {
-                e.preventDefault(); // Prevent losing focus
-                insertSuggestion(index);
-            });
-            
+            div.addEventListener('mousedown', function (e) { e.preventDefault(); insertSuggestion(index); });
             suggestionBox.appendChild(div);
         });
-
-        // Position Box
-        const coords = getCaretCoordinates();
-        if (coords.x === 0 && coords.y === 0) return; // Hidden if no cursor
-        suggestionBox.style.left = `${coords.x}px`;
-        suggestionBox.style.top = `${coords.y + 20}px`;
+        var coords = getCaretCoordinates();
+        if (coords.x === 0 && coords.y === 0) return;
+        suggestionBox.style.left = coords.x + 'px';
+        suggestionBox.style.top = (coords.y + 20) + 'px';
         suggestionBox.style.display = 'block';
     }
 
     function insertSuggestion(index) {
-        const sel = window.getSelection();
-        const node = sel.anchorNode;
-        const caretPos = sel.anchorOffset;
-        const text = node.textContent;
-        const chosenWord = currentMatches[index];
-
-        let start = caretPos;
-        while (start > 0 && /\S/.test(text[start - 1])) {
-            start--;
-        }
-
-        const range = document.createRange();
+        var sel = window.getSelection();
+        var node = sel.anchorNode;
+        if (!node || node.nodeType !== 3) return;
+        var caretPos = sel.anchorOffset;
+        var text = node.textContent;
+        var chosenWord = currentMatches[index];
+        var start = caretPos;
+        while (start > 0 && /\S/.test(text[start - 1])) start--;
+        var range = document.createRange();
         range.setStart(node, start);
         range.setEnd(node, caretPos);
         range.deleteContents();
-
-        const textNode = document.createTextNode(chosenWord + " ");
+        var textNode = document.createTextNode(chosenWord + ' ');
         range.insertNode(textNode);
-        
         range.setStartAfter(textNode);
         range.setEndAfter(textNode);
         sel.removeAllRanges();
         sel.addRange(range);
-
         suggestionBox.style.display = 'none';
         currentMatches = [];
         notepad.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // 4. MAIN LISTENER: Typing & Navigation
-    notepad.addEventListener('keyup', (e) => {
-        // Ignore navigation keys here (handled in keydown)
-        if (['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape'].includes(e.key)) return;
-
-        const word = getCurrentWord();
-        
-        // Trigger if word is 2+ chars
-        if (word.length >= 1) { // Changed to 1 so 's' can suggest 'susp', 'spike', etc.
-            // Filter all matches
-            currentMatches = dictionary.filter(w => w.toLowerCase().startsWith(word.toLowerCase()) && w.toLowerCase() !== word.toLowerCase());
-            
-            if (currentMatches.length > 0) {
-                selectedIndex = 0; // Reset to top
-                renderSuggestions();
-            } else {
-                suggestionBox.style.display = 'none';
-            }
-        } else {
-            suggestionBox.style.display = 'none';
-        }
+    notepad.addEventListener('keyup', function (e) {
+        if (['ArrowUp','ArrowDown','Enter','Tab','Escape'].indexOf(e.key) !== -1) return;
+        var word = getCurrentWord();
+        if (word.length >= 1) {
+            currentMatches = dictionary.filter(function (w) { return w.toLowerCase().indexOf(word.toLowerCase()) === 0 && w.toLowerCase() !== word.toLowerCase(); });
+            if (currentMatches.length > 0) { selectedIndex = 0; renderSuggestions(); }
+            else suggestionBox.style.display = 'none';
+        } else suggestionBox.style.display = 'none';
     });
 
-    // 5. NAVIGATION LISTENER (Arrow Keys + Tab/Enter)
-    notepad.addEventListener('keydown', (e) => {
+    notepad.addEventListener('keydown', function (e) {
         if (suggestionBox.style.display === 'block') {
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                selectedIndex = (selectedIndex + 1) % currentMatches.length;
-                renderSuggestions();
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length;
-                renderSuggestions();
-            } else if (e.key === 'Tab' || e.key === 'Enter') {
-                e.preventDefault();
-                insertSuggestion(selectedIndex);
-            } else if (e.key === 'Escape') {
-                suggestionBox.style.display = 'none';
-            }
+            if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = (selectedIndex + 1) % currentMatches.length; renderSuggestions(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length; renderSuggestions(); }
+            else if (e.key === 'Tab' || e.key === 'Enter') { e.preventDefault(); insertSuggestion(selectedIndex); }
+            else if (e.key === 'Escape') suggestionBox.style.display = 'none';
         }
     });
 
-    // Ensure Spellcheck is ON
     notepad.setAttribute('spellcheck', 'true');
-    
-    // 6. CLICK OUTSIDE TO CLOSE
-    document.addEventListener('click', (e) => {
-        // If the suggestion box is visible AND the click target is NOT inside the box
-        if (suggestionBox.style.display === 'block' && !suggestionBox.contains(e.target)) {
-            suggestionBox.style.display = 'none';
-        }
+    document.addEventListener('click', function (e) {
+        if (suggestionBox.style.display === 'block' && !suggestionBox.contains(e.target)) suggestionBox.style.display = 'none';
     });
-    
-        loadNotepadState(); 
-    });
-    </script>
+
+    loadNotepadState();
+});
+</script>
+
 </body>
 </html>
